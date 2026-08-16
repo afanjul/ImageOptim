@@ -51,9 +51,33 @@ public final class JobQueue {
     @ObservationIgnored private var cachedSettings: Settings?
     @ObservationIgnored private var defaultsObserver: (any NSObjectProtocol)?
 
+    /// How many optimizer processes may run at once when the preference is unset.
+    ///
+    /// `activeProcessorCount` counts efficiency cores as well, and on Apple silicon those
+    /// are several times slower than the performance ones — starting one compressor per
+    /// logical core just oversubscribes the machine, and since the workers run at
+    /// `.userInitiated` they then compete with the app's own main thread for the very cores
+    /// the UI needs. The limit comes from the performance cluster instead, with one core
+    /// left free so the window keeps drawing while a big folder is being crunched.
+    public static var defaultConcurrency: Int {
+        let cores = performanceCoreCount ?? ProcessInfo.processInfo.activeProcessorCount
+        return max(1, cores - 1)
+    }
+
+    /// `hw.perflevel0` is the fastest core cluster. The key does not exist on Intel Macs,
+    /// where every core is the same speed and `activeProcessorCount` is the right answer.
+    private static var performanceCoreCount: Int? {
+        var value: Int32 = 0
+        var size = MemoryLayout<Int32>.size
+        guard sysctlbyname("hw.perflevel0.logicalcpu", &value, &size, nil, 0) == 0, value > 0 else {
+            return nil
+        }
+        return Int(value)
+    }
+
     public init(cpus: Int, dirs: Int, files: Int, defaults: UserDefaults) {
         self.defaults = defaults
-        let cpuCount = cpus > 0 ? cpus : ProcessInfo.processInfo.activeProcessorCount
+        let cpuCount = cpus > 0 ? cpus : Self.defaultConcurrency
         cpuLimiter = AsyncSemaphore(value: cpuCount)
         dirScanLimiter = AsyncSemaphore(value: dirs > 0 ? dirs : 1)
         fileIOLimiter = AsyncSemaphore(value: files > 0 ? files : 2)

@@ -14,7 +14,11 @@ private final class CancelFlag: Sendable {
 }
 
 public enum DirScanner {
-    private static let bufferCapacity = 256
+    /// Every flush is a hop onto the main actor, and the batch size used to top out at 256 —
+    /// a quarter of a million images meant a thousand of them. The buffer still starts small
+    /// (see `bufferSize` below) so that optimization begins almost immediately; this is only
+    /// the ceiling it grows to once the scan is clearly a large one.
+    private static let bufferCapacity = 4096
 
     /// Walks a directory tree and reports matching files in growing batches,
     /// so that optimization starts before the whole tree has been scanned.

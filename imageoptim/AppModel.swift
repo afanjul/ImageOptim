@@ -201,14 +201,74 @@ final class AppModel {
         return allOK
     }
 
+    /// Publishing a batch of rows costs `Table` a walk of *every* row it already has:
+    /// `AppKitOutlineTableCoordinator` re-diffs the whole outline and AttributeGraph
+    /// re-evaluates the `ForEach`. A directory scan delivers hundreds of batches, so doing
+    /// that per batch is quadratic in the number of files — on a folder of a quarter of a
+    /// million images it pinned the main thread at 100% and the window stopped drawing.
+    ///
+    /// Batches are therefore accumulated and published a few times a second. The jobs have
+    /// already been handed to the queue by `add(_:)`, so nothing waits on this: only the
+    /// moment the rows appear in the table is delayed.
     private func insert(_ newJobs: [Job]) {
         guard !newJobs.isEmpty else { return }
-        if nextInsertRow < 0 || nextInsertRow >= jobs.count {
+
+        // Drag&drop between rows: a batch aimed at a different row can't be merged with
+        // what is already waiting, so publish that first.
+        if !pendingRows.isEmpty, pendingInsertRow != nextInsertRow {
+            flushPendingRows()
+        }
+        if pendingRows.isEmpty {
+            pendingInsertRow = nextInsertRow
+        }
+        pendingRows.append(contentsOf: newJobs)
+
+        // A small list re-diffs in no time, and dropping a handful of files has to feel
+        // instant, so coalescing only kicks in once the table is big enough to be worth it.
+        if jobs.count + pendingRows.count <= Self.immediateInsertLimit {
+            flushPendingRows()
+        } else {
+            scheduleRowFlush()
+        }
+    }
+
+    /// Rows added but not yet published to `jobs`, and the row they go in front of.
+    @ObservationIgnored private var pendingRows: [Job] = []
+    @ObservationIgnored private var pendingInsertRow = -1
+    @ObservationIgnored private var rowFlushTask: Task<Void, Never>?
+
+    private static let immediateInsertLimit = 1000
+    private static let rowFlushInterval = Duration.milliseconds(250)
+
+    private func scheduleRowFlush() {
+        guard rowFlushTask == nil else { return }
+        rowFlushTask = Task { [weak self] in
+            try? await Task.sleep(for: Self.rowFlushInterval)
+            guard let self, !Task.isCancelled else { return }
+            rowFlushTask = nil
+            flushPendingRows()
+        }
+    }
+
+    /// Moves everything accumulated by `insert(_:)` into `jobs` in one go.
+    func flushPendingRows() {
+        rowFlushTask?.cancel()
+        rowFlushTask = nil
+        guard !pendingRows.isEmpty else { return }
+
+        let newJobs = pendingRows
+        pendingRows.removeAll(keepingCapacity: true)
+
+        if pendingInsertRow < 0 || pendingInsertRow >= jobs.count {
             jobs.append(contentsOf: newJobs)
         } else {
-            jobs.insert(contentsOf: newJobs, at: nextInsertRow)
-            nextInsertRow += newJobs.count
+            jobs.insert(contentsOf: newJobs, at: pendingInsertRow)
+            if nextInsertRow >= 0 {
+                nextInsertRow += newJobs.count
+            }
         }
+        pendingInsertRow = nextInsertRow
+
         if !hasJobs {
             hasJobs = true
         }
@@ -224,6 +284,7 @@ final class AppModel {
 
     func remove(ids: Set<Job.ID>) {
         guard !ids.isEmpty else { return }
+        flushPendingRows()
         let removed = jobs.filter { ids.contains($0.id) }
         jobs.removeAll { ids.contains($0.id) }
         for job in removed {
@@ -240,11 +301,15 @@ final class AppModel {
         setNeedsStatusUpdate()
     }
 
+    /// The commands below act on `jobs`, so anything still waiting to be published has to
+    /// land first — otherwise "Select All" or "Again" would quietly skip the newest rows.
     func selectAll() {
+        flushPendingRows()
         selection = Set(jobs.map(\.id))
     }
 
     func clearComplete() {
+        flushPendingRows()
         remove(ids: Set(jobs.filter(\.isDone).map(\.id)))
     }
 
@@ -270,6 +335,7 @@ final class AppModel {
     }
 
     func startAgain(onlyOptimized: Bool) {
+        flushPendingRows()
         let targets = actionTargets
 
         // The UI doesn't give a way to deselect all, so here's a substitute:
@@ -313,13 +379,22 @@ final class AppModel {
     func cleanup() {
         isEnabled = false
         statusTask?.cancel()
+        rowFlushTask?.cancel()
+        rowFlushTask = nil
         queue.cleanup()
+        for job in pendingRows {
+            job.cleanup()
+        }
+        pendingRows.removeAll()
         for job in jobs {
             job.cleanup()
         }
     }
 
     private func queueFinished() {
+        // Nothing is going to be added any more, so the last partial batch must not sit
+        // in the buffer waiting for a timer that has nothing left to coalesce.
+        flushPendingRows()
         setNeedsStatusUpdate()
         guard !queue.isBusy else { return }
         if Launch.quitWhenDone {

@@ -33,12 +33,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             defs = plist
         }
 
-        let maxTasks = ProcessInfo.processInfo.activeProcessorCount
+        // Performance cores minus one, not every logical core — see `JobQueue.defaultConcurrency`.
+        let maxTasks = JobQueue.defaultConcurrency
         defs[PrefKey.runConcurrentFiles] = maxTasks
         defs[PrefKey.runConcurrentDirscans] = Int((Double(maxTasks) / 3.9).rounded(.up))
 
         // Use lighter defaults on slower machines
-        if maxTasks <= 2 {
+        if ProcessInfo.processInfo.activeProcessorCount <= 2 {
             defs[PrefKey.pngCrushEnabled] = false
         }
         return defs
