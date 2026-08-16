@@ -58,3 +58,119 @@
 /* tooltip */
 "Waiting to be optimized" = "Odotetaan optimointia";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "Tietoja: ImageOptim";
+
+/* Menu Item */
+"Add Files…" = "Lisää tiedostoja…";
+
+/* Button Tooltip */
+"Add new files or directories" = "Lisää uusia tiedostoja tai hakemistoja";
+
+/* Button */
+"Again" = "Uudelleen";
+
+/* Menu Item */
+"Best tool" = "Paras työkalu";
+
+/* Menu Item */
+"Check for Updates…" = "Tarkista päivitykset…";
+
+/* Menu Item */
+"Copy" = "Kopioi";
+
+/* Menu Item */
+"Delete" = "Poista";
+
+/* Menu Item */
+"Donate" = "Lahjoita";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "Vedä ja pudota kuvatiedostot yllä olevalle alueelle";
+
+/* Drop zone */
+"Drop images here" = "Pudota kuvat tähän";
+
+/* Preferences slider label */
+"Extra" = "Erityinen";
+
+/* Preferences slider label */
+"Fast" = "Nopea";
+
+/* Table Column Title (MUST BE SHORT) */
+"File" = "Tiedosto";
+
+/* Menu Item */
+"ImageOptim Help" = "ImageOptim-ohje";
+
+/* Menu Item */
+"ImageOptim Website" = "ImageOptim-sivusto";
+
+/* Preferences slider label */
+"Insane" = "Järjetön";
+
+/* Preferences slider */
+"JPEG quality" = "JPEG:n laatu";
+
+/* Preferences group */
+"Metadata and color profiles" = "Metadata ja väriprofiilit";
+
+/* Preferences slider label */
+"Normal" = "Tavallinen";
+
+/* Preferences hint */
+"Not recommended if you rely on embedded copyright information" = "Ei suositella, jos luotat upotettuun tekijänoikeustietoon";
+
+/* Preferences group */
+"Optimization level" = "Optimoinnin taso";
+
+/* Menu Item */
+"Optimize Again" = "Optimoi uudelleen";
+
+/* Menu Item */
+"Optimized Size" = "Optimoidun koko";
+
+/* Menu Item */
+"Original Size" = "Koko alkujaan";
+
+/* Menu Item */
+"Paste" = "Sijoita";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "Säilytä tiedostojen oikeudet, määritteet ja kovat linkit";
+
+/* Menu Item */
+"Quick Look" = "Pikakatselu";
+
+/* Button tooltip */
+"Run optimizations again" = "Optimoi uudelleen";
+
+/* Preferences hint */
+"Saving to network drives is faster when permissions are not preserved" = "Verkkolevyille tallentaminen on nopeampaa, kun oikeuksia ei säilytetä";
+
+/* Menu Item */
+"Savings" = "Säästö";
+
+/* Menu Item */
+"Select All" = "Valitse kaikki";
+
+/* Menu Item */
+"Show Columns" = "Näytä sarakkeet";
+
+/* Table Column Title (MUST BE SHORT) */
+"Size" = "Koko";
+
+/* Top-level Main Menu */
+"Tools" = "Työkalut";
+
+/* Menu Item */
+"View Source" = "Näytä lähdekoodi";
+
+/* Preferences hint */
+"Web browsers require gamma chunks to be removed" = "Selaimet edellyttävät, että gammalohkot poistetaan";
+
+/* Preferences group */
+"Writing files to disk" = "Tiedostojen kirjoitus levylle";

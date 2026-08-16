@@ -19,3 +19,107 @@
 /* tooltip */
 "Waiting to be optimized" = "等候其他最佳化處理";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "關於 ImageOptim";
+
+/* Menu Item */
+"Add Files…" = "新增檔案…";
+
+/* Button */
+"Again" = "再處理";
+
+/* Menu Item */
+"Best tool" = "最佳工具";
+
+/* Menu Item */
+"Check for Updates…" = "檢查更新…";
+
+/* Menu Item */
+"Copy" = "複製";
+
+/* Menu Item */
+"Delete" = "刪除";
+
+/* Menu Item */
+"Delete Completed" = "刪除已完成";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "請拖放圖片檔案至上方區域";
+
+/* Preferences slider label */
+"Extra" = "超額";
+
+/* Preferences slider label */
+"Fast" = "快速";
+
+/* Table Column Title (MUST BE SHORT) */
+"File" = "檔案";
+
+/* Menu Item */
+"ImageOptim Help" = "ImageOptim 輔助說明";
+
+/* Menu Item */
+"ImageOptim Website" = "ImageOptim 網站";
+
+/* Preferences slider label */
+"Insane" = "瘋狂";
+
+/* Preferences slider */
+"JPEG quality" = "JPEG: 品質";
+
+/* Preferences slider label */
+"Normal" = "普通";
+
+/* Preferences group */
+"Optimization level" = "最佳化程度";
+
+/* Menu Item */
+"Optimize Again" = "再度最佳化處理";
+
+/* Menu Item */
+"Optimize Optimized" = "最佳化已完成";
+
+/* Menu Item */
+"Optimized Size" = "最佳化後容量";
+
+/* Menu Item */
+"Original Size" = "原始容量";
+
+/* Menu Item */
+"Paste" = "貼上";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "保留檔案權限、屬性及永久連結";
+
+/* Menu Item */
+"Quick Look" = "預覽";
+
+/* Button tooltip */
+"Run optimizations again" = "再度進行最佳化處理";
+
+/* Menu Item */
+"Savings" = "節約率";
+
+/* Menu Item */
+"Select All" = "全選";
+
+/* Menu Item */
+"Show Columns" = "顯示欄位";
+
+/* Table Column Title (MUST BE SHORT) */
+"Size" = "容量";
+
+/* Top-level Main Menu */
+"Tools" = "工具";
+
+/* Menu Item */
+"View Source" = "檢視原始碼";
+
+/* Preferences hint */
+"Web browsers require gamma chunks to be removed" = "多數瀏覽器無法處理Gamma校準訊息";
+
+/* Preferences group */
+"Writing files to disk" = "檔案寫入";

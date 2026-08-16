@@ -41,3 +41,104 @@
 /* tooltip */
 "Waiting to be optimized" = "Daha fazla optimizasyon için bekliyor";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "ImageOptim Hakkında";
+
+/* Menu Item */
+"Add Files…" = "Dosya Ekle…";
+
+/* Button Tooltip */
+"Add new files or directories" = "Yeni dosya veya klasör ekle";
+
+/* Button */
+"Again" = "Tekrar";
+
+/* Menu Item */
+"Check for Updates…" = "Güncelleme Sorgula…";
+
+/* Menu Item */
+"Copy" = "Kopyala";
+
+/* Menu Item */
+"Delete" = "Sil";
+
+/* Menu Item */
+"Delete Completed" = "Silme Tamamlandı";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "Resim dosyalarını üstteki alana sürükle ve bırak";
+
+/* Drop zone */
+"Drop images here" = "Resimleri buraya sürükle";
+
+/* Preferences slider label */
+"Extra" = "Ekstra";
+
+/* Preferences slider label */
+"Fast" = "Hızlı";
+
+/* Table Column Title (MUST BE SHORT) */
+"File" = "Dosya";
+
+/* Menu Item */
+"ImageOptim Help" = "ImageOptim Yardım";
+
+/* Menu Item */
+"ImageOptim Website" = "ImageOptim Web Sitesi";
+
+/* Preferences slider label */
+"Insane" = "Çılgın";
+
+/* Preferences slider */
+"JPEG quality" = "JPEG: kalite";
+
+/* Preferences group */
+"Optimization level" = "Optimizasyon seviyesi";
+
+/* Menu Item */
+"Optimize Again" = "Tekrar Optimize Et";
+
+/* Menu Item */
+"Optimize Optimized" = "Optimizasyon Optimize Edildi";
+
+/* Menu Item */
+"Optimized Size" = "Optimize Boyut";
+
+/* Menu Item */
+"Original Size" = "Orijinal Boyut";
+
+/* Menu Item */
+"Paste" = "Yapıştır";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "Dosya izinlerini, özelliklerini ve sabit bağlantıları koru";
+
+/* Button tooltip */
+"Run optimizations again" = "Optimizasyonları yinele";
+
+/* Menu Item */
+"Savings" = "Kazanılan";
+
+/* Menu Item */
+"Select All" = "Hepsini Seç";
+
+/* Menu Item */
+"Show Columns" = "Sütunları Göster";
+
+/* Table Column Title (MUST BE SHORT) */
+"Size" = "Boyut";
+
+/* Top-level Main Menu */
+"Tools" = "Araçlar";
+
+/* Menu Item */
+"View Source" = "Kaynağı Görüntüle";
+
+/* Preferences hint */
+"Web browsers require gamma chunks to be removed" = "Web tarayıcıları gamma fazlalıklarının kaldırılmasını gerektirir";
+
+/* Preferences group */
+"Writing files to disk" = "Dosya kayıt tercihi";

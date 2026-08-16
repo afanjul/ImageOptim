@@ -38,3 +38,89 @@
 /* tooltip */
 "Waiting to be optimized" = "Venter med å starte ytterligere optimalisering";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "Om ImageOptim";
+
+/* Menu Item */
+"Add Files…" = "Legg til…";
+
+/* Button Tooltip */
+"Add new files or directories" = "Legg til nye filer eller mapper";
+
+/* Button */
+"Again" = "Igjen";
+
+/* Menu Item */
+"Best tool" = "Verktøy";
+
+/* Menu Item */
+"Check for Updates…" = "Se etter oppdateringer…";
+
+/* Menu Item */
+"Copy" = "Kopier";
+
+/* Menu Item */
+"Delete" = "Slett";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "Dra og slipp filer i tabellen over";
+
+/* Preferences slider label */
+"Extra" = "Ekstra";
+
+/* Preferences slider label */
+"Fast" = "Rask";
+
+/* Table Column Title (MUST BE SHORT) */
+"File" = "Fil";
+
+/* Menu Item */
+"ImageOptim Help" = "Hjelp for ImageOptim";
+
+/* Preferences slider label */
+"Insane" = "Sinnsyk";
+
+/* Preferences slider */
+"JPEG quality" = "JPEG kvalitet";
+
+/* Preferences group */
+"Optimization level" = "Optimaliseringsgrad";
+
+/* Menu Item */
+"Optimize Again" = "Optimaliser igjen";
+
+/* Menu Item */
+"Optimized Size" = "Størrelse";
+
+/* Menu Item */
+"Original Size" = "Størrelse (original)";
+
+/* Menu Item */
+"Paste" = "Lim inn";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "Bevar rettigheter, attributter og harde lenker";
+
+/* Button tooltip */
+"Run optimizations again" = "Kjør optimalisering igjen";
+
+/* Menu Item */
+"Savings" = "Besparelser";
+
+/* Menu Item */
+"Select All" = "Velg alle";
+
+/* Table Column Title (MUST BE SHORT) */
+"Size" = "Størrelse";
+
+/* Top-level Main Menu */
+"Tools" = "Verktøy";
+
+/* Preferences hint */
+"Web browsers require gamma chunks to be removed" = "Nettlesere fungerer bedre uten gamma-del";
+
+/* Preferences group */
+"Writing files to disk" = "Alternativer for filhåndtering";

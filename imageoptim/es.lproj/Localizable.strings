@@ -55,3 +55,95 @@
 /* tooltip */
 "Waiting to be optimized" = "A la espera de iniciar más optimizaciones";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "Acerca de ImageOptim";
+
+/* Menu Item */
+"Add Files…" = "Añadir archivos…";
+
+/* Button Tooltip */
+"Add new files or directories" = "Añadir nuevos archivos o directorios";
+
+/* Button */
+"Again" = "Repetir";
+
+/* Menu Item */
+"Best tool" = "Herramientas";
+
+/* Menu Item */
+"Check for Updates…" = "Buscar actualizaciones…";
+
+/* Menu Item */
+"Copy" = "Copiar";
+
+/* Menu Item */
+"Delete" = "Eliminar";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "Arrastre y suelte archivos de imágenes aquí encima";
+
+/* Preferences slider label */
+"Fast" = "Rápido";
+
+/* Table Column Title (MUST BE SHORT) */
+"File" = "Archivo";
+
+/* Menu Item */
+"ImageOptim Help" = "Ayuda ImageOptim";
+
+/* Preferences slider label */
+"Insane" = "Demente";
+
+/* Preferences slider */
+"JPEG quality" = "JPEG: calidad";
+
+/* Preferences group */
+"Metadata and color profiles" = "Metadata";
+
+/* Preferences hint */
+"Not recommended if you rely on embedded copyright information" = "No recomendado si necesita mantener incrustrada información de copyright";
+
+/* Preferences group */
+"Optimization level" = "Nivel de optimización";
+
+/* Menu Item */
+"Optimize Again" = "Optimizar de nuevo";
+
+/* Menu Item */
+"Optimized Size" = "Tamaño";
+
+/* Menu Item */
+"Original Size" = "Tamaño (original)";
+
+/* Menu Item */
+"Paste" = "Pegar";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "Conservar permisos de archivos, atributos y hardlinks";
+
+/* Button tooltip */
+"Run optimizations again" = "Ejecutar optimizaciones de nuevo";
+
+/* Preferences hint */
+"Saving to network drives is faster when permissions are not preserved" = "Guardar en unidades de red es más rápido cuando los permisos no se conservan";
+
+/* Menu Item */
+"Savings" = "Reducción";
+
+/* Menu Item */
+"Select All" = "Seleccionar todo";
+
+/* Table Column Title (MUST BE SHORT) */
+"Size" = "Tamaño";
+
+/* Top-level Main Menu */
+"Tools" = "Herramientas";
+
+/* Preferences hint */
+"Web browsers require gamma chunks to be removed" = "Los navegadores web requieren la eliminación de fragmentos gamma";
+
+/* Preferences group */
+"Writing files to disk" = "Al guardar archivos al disco";

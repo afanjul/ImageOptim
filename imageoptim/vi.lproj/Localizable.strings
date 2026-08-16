@@ -44,3 +44,122 @@
 /* tooltip */
 "Waiting to be optimized" = "Đang đợi để bắt đầu các phần tùy chỉnh khác";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "Dịch bởi Phan An";
+
+/* Menu Item */
+"Add Files…" = "Thêm Tập tin...";
+
+/* Button Tooltip */
+"Add new files or directories" = "Thêm các tập tin hoặc thư mục mới";
+
+/* Button */
+"Again" = "Lần nữa";
+
+/* Menu Item */
+"Best tool" = "Công cụ tốt nhất";
+
+/* Menu Item */
+"Check for Updates…" = "Kiểm tra cập nhật...";
+
+/* Menu Item */
+"Copy" = "Sao chép";
+
+/* Menu Item */
+"Delete" = "Xóa";
+
+/* Menu Item */
+"Delete Completed" = "Thực hiện thao tác xóa hoàn tất";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "Kéo và thả các tập tin hình ảnh vào khu vực bên trên";
+
+/* Drop zone */
+"Drop images here" = "Bỏ hình ảnh vào đây";
+
+/* Preferences slider label */
+"Extra" = "Bổ sung";
+
+/* Preferences slider label */
+"Fast" = "Nhanh";
+
+/* Table Column Title (MUST BE SHORT) */
+"File" = "Tập tin";
+
+/* Menu Item */
+"ImageOptim Help" = "Trợ giúp chương trình";
+
+/* Menu Item */
+"ImageOptim Website" = "Trang web của chương trình";
+
+/* Preferences slider label */
+"Insane" = "Phồng tôm";
+
+/* Preferences slider */
+"JPEG quality" = "JPEG: Chất lượng";
+
+/* Preferences group */
+"Metadata and color profiles" = "Thông tin chi tiết và hồ sơ màu";
+
+/* Preferences slider label */
+"Normal" = "Bình thường";
+
+/* Preferences hint */
+"Not recommended if you rely on embedded copyright information" = "Không khuyên dùng nếu bạn cần thông tin bản quyền về phần nhúng";
+
+/* Preferences group */
+"Optimization level" = "Cấp độ Tùy Chỉnh";
+
+/* Menu Item */
+"Optimize Again" = "Tăng tùy chỉnh";
+
+/* Menu Item */
+"Optimize Optimized" = "Đã thực hiện xong thao tác tùy chỉnh";
+
+/* Menu Item */
+"Optimized Size" = "Kích thước sau khi tùy chỉnh";
+
+/* Menu Item */
+"Original Size" = "Kích thước ban đầu";
+
+/* Menu Item */
+"Paste" = "Dán";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "Bảo toàn các quyền hạn tác động, thuộc tính và các liên kết kèm theo";
+
+/* Menu Item */
+"Quick Look" = "Xem sơ lược nhanh";
+
+/* Button tooltip */
+"Run optimizations again" = "Lặp lại thao tác tùy chỉnh";
+
+/* Preferences hint */
+"Saving to network drives is faster when permissions are not preserved" = "Lưu vào các ổ đĩa mạng sẽ nhanh hơn khi các phần quyền hạn không được lưu giữ";
+
+/* Menu Item */
+"Savings" = "Đang lưu";
+
+/* Menu Item */
+"Select All" = "Chọn tất cả";
+
+/* Menu Item */
+"Show Columns" = "Hiển thị các cột thông tin";
+
+/* Table Column Title (MUST BE SHORT) */
+"Size" = "Kích thước";
+
+/* Top-level Main Menu */
+"Tools" = "Công cụ";
+
+/* Menu Item */
+"View Source" = "Xem mã nguồn";
+
+/* Preferences hint */
+"Web browsers require gamma chunks to be removed" = "Trình duyệt web cần loại bỏ các phần gamma chunk";
+
+/* Preferences group */
+"Writing files to disk" = "Viết dữ liệu tập tin lên đĩa";

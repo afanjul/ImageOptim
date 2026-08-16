@@ -38,3 +38,95 @@
 /* tooltip */
 "Waiting to be optimized" = "Wachten op verdere optimalisaties";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "Over ImageOptim";
+
+/* Menu Item */
+"Add Files…" = "Bestanden toevoegen…";
+
+/* Button Tooltip */
+"Add new files or directories" = "Voeg nieuwe bestanden of mappen toe";
+
+/* Button */
+"Again" = "Opnieuw";
+
+/* Menu Item */
+"Best tool" = "Gereedschappen";
+
+/* Menu Item */
+"Check for Updates…" = "Controleer op updates…";
+
+/* Menu Item */
+"Copy" = "Kopieer";
+
+/* Menu Item */
+"Delete" = "Verwijder";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "Sleep afbeeldingen op bovenstaande tabel";
+
+/* Preferences slider label */
+"Fast" = "Snel";
+
+/* Table Column Title (MUST BE SHORT) */
+"File" = "Bestand";
+
+/* Preferences slider label */
+"Insane" = "Hyper";
+
+/* Preferences slider */
+"JPEG quality" = "JPEG: kwaliteit";
+
+/* Preferences group */
+"Metadata and color profiles" = "Metadata en kleurenprofielen";
+
+/* Preferences slider label */
+"Normal" = "Normaal";
+
+/* Preferences hint */
+"Not recommended if you rely on embedded copyright information" = "Niet aan te raden indien je ingesloten copyright-informatie wil behouden";
+
+/* Preferences group */
+"Optimization level" = "Optimalisatie-niveau";
+
+/* Menu Item */
+"Optimize Again" = "Opnieuw optimaliseren";
+
+/* Menu Item */
+"Optimized Size" = "Grootte";
+
+/* Menu Item */
+"Original Size" = "Grootte (original)";
+
+/* Menu Item */
+"Paste" = "Plak";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "Behoud bestandspermissies, -attributen en hardlinks";
+
+/* Button tooltip */
+"Run optimizations again" = "Voer optimalisaties opnieuw uit";
+
+/* Preferences hint */
+"Saving to network drives is faster when permissions are not preserved" = "Bewaren naar netwerkschijven gaat sneller wanneer de permissies niet behouden worden";
+
+/* Menu Item */
+"Savings" = "Geoptimaliseerd";
+
+/* Menu Item */
+"Select All" = "Selecteer alles";
+
+/* Table Column Title (MUST BE SHORT) */
+"Size" = "Grootte";
+
+/* Top-level Main Menu */
+"Tools" = "Gereedschappen";
+
+/* Preferences hint */
+"Web browsers require gamma chunks to be removed" = "Webbrowsers vereisen dat gamma verwijderd wordt";
+
+/* Preferences group */
+"Writing files to disk" = "Bezig met het wegschrijven van de bestanden";

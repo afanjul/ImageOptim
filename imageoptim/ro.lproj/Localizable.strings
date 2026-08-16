@@ -53,3 +53,119 @@
 /* tooltip */
 "Waiting to be optimized" = "Aşteptare pentru începere mai multe optimizări";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "Despre ImageOptim";
+
+/* Menu Item */
+"Add Files…" = "Adaugă fişiere...";
+
+/* Button Tooltip */
+"Add new files or directories" = "Adaugă fişiere sau foldere noi";
+
+/* Button */
+"Again" = "DIn nou";
+
+/* Menu Item */
+"Best tool" = "Cea mai bună unealtă";
+
+/* Menu Item */
+"Check for Updates…" = "Verificare actualizări...";
+
+/* Menu Item */
+"Copy" = "Copiere";
+
+/* Menu Item */
+"Delete" = "Ştergere";
+
+/* Menu Item */
+"Delete Completed" = "Ştergere completată";
+
+/* Menu Item */
+"Donate" = "Donaţi";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "Glisaţi şi plasaţi imaginile în zona de sus";
+
+/* Drop zone */
+"Drop images here" = "Plasaţi fişierele aici";
+
+/* Preferences slider label */
+"Fast" = "Rapid";
+
+/* Table Column Title (MUST BE SHORT) */
+"File" = "Fişier";
+
+/* Menu Item */
+"ImageOptim Help" = "Ajutor ImageOptim";
+
+/* Menu Item */
+"ImageOptim Website" = "Site web ImageOptim";
+
+/* Preferences slider label */
+"Insane" = "Demenţial";
+
+/* Preferences slider */
+"JPEG quality" = "Calitate JPEG";
+
+/* Preferences group */
+"Metadata and color profiles" = "Metatdate şi profil de culoare";
+
+/* Preferences hint */
+"Not recommended if you rely on embedded copyright information" = "Nerecomandat dacă vă bazaţi pe informaţii de copyright încorporate";
+
+/* Preferences group */
+"Optimization level" = "Nivel optimizare";
+
+/* Menu Item */
+"Optimize Again" = "Optimizează din nou";
+
+/* Menu Item */
+"Optimize Optimized" = "Optimizare optimizate";
+
+/* Menu Item */
+"Optimized Size" = "Mărime optimizat";
+
+/* Menu Item */
+"Original Size" = "Mărime originală";
+
+/* Menu Item */
+"Paste" = "Lipire";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "Păstrează permisiunile fişierelor, atributele şi legăturile hard";
+
+/* Menu Item */
+"Quick Look" = "Privire rapidă";
+
+/* Button tooltip */
+"Run optimizations again" = "Rulează optimizările din nou";
+
+/* Preferences hint */
+"Saving to network drives is faster when permissions are not preserved" = "Salvarea către unităţile de reţea este mai rapidă atunci cînd permisiunile nu sînt păstrate";
+
+/* Menu Item */
+"Savings" = "Salvat";
+
+/* Menu Item */
+"Select All" = "Selectează tot";
+
+/* Menu Item */
+"Show Columns" = "Arată coloane";
+
+/* Table Column Title (MUST BE SHORT) */
+"Size" = "Mărime";
+
+/* Top-level Main Menu */
+"Tools" = "Unelte";
+
+/* Menu Item */
+"View Source" = "Vizualizare sursă";
+
+/* Preferences hint */
+"Web browsers require gamma chunks to be removed" = "Navigatoarele web necesită îndepărtarea bucăţilor gamma";
+
+/* Preferences group */
+"Writing files to disk" = "Scriere fişiere pe disc";

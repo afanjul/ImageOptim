@@ -41,3 +41,104 @@
 /* tooltip */
 "Waiting to be optimized" = "더 최적화시키기 위해 기다리는 중";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "ImageOptim에 대한 정보";
+
+/* Menu Item */
+"Add Files…" = "파일 추가(O)...";
+
+/* Button */
+"Again" = "다시";
+
+/* Menu Item */
+"Best tool" = "최고의 도구";
+
+/* Menu Item */
+"Check for Updates…" = "업데이트 확인";
+
+/* Menu Item */
+"Copy" = "복사(C)";
+
+/* Menu Item */
+"Delete" = "삭제";
+
+/* Menu Item */
+"Delete Completed" = "삭제 완료";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "위 영역 위에 이미지 파일들을 끌어다 놓으세요";
+
+/* Preferences slider label */
+"Extra" = "필요 이상";
+
+/* Preferences slider label */
+"Fast" = "빠르게";
+
+/* Table Column Title (MUST BE SHORT) */
+"File" = "파일";
+
+/* Menu Item */
+"ImageOptim Help" = "ImageOptim 도움말";
+
+/* Menu Item */
+"ImageOptim Website" = "ImageOptim 웹사이트";
+
+/* Preferences slider label */
+"Insane" = "엄청나게";
+
+/* Preferences slider */
+"JPEG quality" = "JPEG: 품질";
+
+/* Preferences group */
+"Metadata and color profiles" = "Metadata";
+
+/* Preferences slider label */
+"Normal" = "보통";
+
+/* Preferences group */
+"Optimization level" = "최적화 레벨";
+
+/* Menu Item */
+"Optimize Again" = "다시 최적화하기";
+
+/* Menu Item */
+"Optimize Optimized" = "최적화 완료";
+
+/* Menu Item */
+"Optimized Size" = "최적화된 크기";
+
+/* Menu Item */
+"Original Size" = "원본 크기";
+
+/* Menu Item */
+"Paste" = "붙여넣기(V)";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "파일 권한, 속성, 폴더 위치 유지하기";
+
+/* Menu Item */
+"Quick Look" = "훑어보기";
+
+/* Menu Item */
+"Savings" = "압축률";
+
+/* Menu Item */
+"Select All" = "모두 선택하기(A)...";
+
+/* Menu Item */
+"Show Columns" = "컬럼 보기";
+
+/* Table Column Title (MUST BE SHORT) */
+"Size" = "크기";
+
+/* Top-level Main Menu */
+"Tools" = "도구";
+
+/* Preferences hint */
+"Web browsers require gamma chunks to be removed" = "많은 웹 브라우저에서는 감마 정보를 포함하지 않습니다.";
+
+/* Preferences group */
+"Writing files to disk" = "디스크에 파일 쓰기";

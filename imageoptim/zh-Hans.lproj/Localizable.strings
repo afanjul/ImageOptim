@@ -52,3 +52,125 @@
 /* tooltip */
 "Waiting to be optimized" = "等待被优化";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "关于 ImageOptim";
+
+/* Menu Item */
+"Add Files…" = "添加文件...";
+
+/* Button Tooltip */
+"Add new files or directories" = "添加新文件或目录";
+
+/* Button */
+"Again" = "再优化";
+
+/* Menu Item */
+"Best tool" = "最好的工具";
+
+/* Menu Item */
+"Check for Updates…" = "检查更新…";
+
+/* Menu Item */
+"Copy" = "复制";
+
+/* Menu Item */
+"Delete" = "删除";
+
+/* Menu Item */
+"Delete Completed" = "删除已完成";
+
+/* Menu Item */
+"Donate" = "捐赠";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "拖放图像文件到上方区域";
+
+/* Drop zone */
+"Drop images here" = "将图片拖至此处";
+
+/* Preferences slider label */
+"Extra" = "额外";
+
+/* Preferences slider label */
+"Fast" = "快速";
+
+/* Table Column Title (MUST BE SHORT) */
+"File" = "文件";
+
+/* Menu Item */
+"ImageOptim Help" = "ImageOptim 帮助";
+
+/* Menu Item */
+"ImageOptim Website" = "ImageOptim 网站";
+
+/* Preferences slider label */
+"Insane" = "疯狂";
+
+/* Preferences slider */
+"JPEG quality" = "JPEG 质量";
+
+/* Preferences group */
+"Metadata and color profiles" = "元数据和颜色配置文件";
+
+/* Preferences slider label */
+"Normal" = "普通";
+
+/* Preferences hint */
+"Not recommended if you rely on embedded copyright information" = "不推荐，如果你依赖嵌入式的版权信息";
+
+/* Preferences group */
+"Optimization level" = "优化级别";
+
+/* Menu Item */
+"Optimize Again" = "再次优化";
+
+/* Menu Item */
+"Optimize Optimized" = "优化已优化的";
+
+/* Menu Item */
+"Optimized Size" = "优化的大小";
+
+/* Menu Item */
+"Original Size" = "原始大小";
+
+/* Menu Item */
+"Paste" = "粘贴";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "保留文件的权限、属性和硬链接";
+
+/* Menu Item */
+"Quick Look" = "预览";
+
+/* Button tooltip */
+"Run optimizations again" = "再次进行优化处理";
+
+/* Preferences hint */
+"Saving to network drives is faster when permissions are not preserved" = "不保留权限时保存到网络驱动器会更快";
+
+/* Menu Item */
+"Savings" = "已节省";
+
+/* Menu Item */
+"Select All" = "全选";
+
+/* Menu Item */
+"Show Columns" = "显示的列";
+
+/* Table Column Title (MUST BE SHORT) */
+"Size" = "大小";
+
+/* Top-level Main Menu */
+"Tools" = "工具";
+
+/* Menu Item */
+"View Source" = "查看源码";
+
+/* Preferences hint */
+"Web browsers require gamma chunks to be removed" = "Web 浏览器需要的伽马值区块将被去除";
+
+/* Preferences group */
+"Writing files to disk" = "将文件写入磁盘";

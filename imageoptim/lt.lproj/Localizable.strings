@@ -44,3 +44,113 @@
 /* tooltip */
 "Waiting to be optimized" = "Laukiama optimizacijų pradžios";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "Apie ImageOptim";
+
+/* Menu Item */
+"Add Files…" = "Pridėti failus...";
+
+/* Button Tooltip */
+"Add new files or directories" = "Pridėti naujus failus ar aplankus";
+
+/* Button */
+"Again" = "Vėl";
+
+/* Menu Item */
+"Best tool" = "Geriausias įrankis";
+
+/* Menu Item */
+"Check for Updates…" = "Patikrinti atnaujinimus...";
+
+/* Menu Item */
+"Copy" = "Kopijuoti";
+
+/* Menu Item */
+"Delete" = "Ištrinti";
+
+/* Menu Item */
+"Delete Completed" = "Ištrinti pabaigtus";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "Tempkite ir meskite paveikslėlius į viršutinį lauką";
+
+/* Drop zone */
+"Drop images here" = "Paveikslėlius mesti čia";
+
+/* Preferences slider label */
+"Extra" = "Papildomai";
+
+/* Preferences slider label */
+"Fast" = "Greitai";
+
+/* Table Column Title (MUST BE SHORT) */
+"File" = "Failas";
+
+/* Menu Item */
+"ImageOptim Help" = "ImageOptim Pagalba";
+
+/* Menu Item */
+"ImageOptim Website" = "ImageOptim puslapis";
+
+/* Preferences slider label */
+"Insane" = "Beprotiškai";
+
+/* Preferences slider */
+"JPEG quality" = "JPEG: Aukščiausia kokybė";
+
+/* Preferences slider label */
+"Normal" = "Normaliai ";
+
+/* Preferences group */
+"Optimization level" = "Optimizavimo lygis";
+
+/* Menu Item */
+"Optimize Again" = "Optimizuoti vėl";
+
+/* Menu Item */
+"Optimize Optimized" = "Optimizuoti optimizuotus";
+
+/* Menu Item */
+"Optimized Size" = "Optimizuotas dydis";
+
+/* Menu Item */
+"Original Size" = "Originalo dydis";
+
+/* Menu Item */
+"Paste" = "Įterpti";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "Išsaugoti failų teisęs, parametrus ir nuorodas";
+
+/* Menu Item */
+"Quick Look" = "Greita peržiūra";
+
+/* Button tooltip */
+"Run optimizations again" = "Paleisti optimizaciją vėl";
+
+/* Menu Item */
+"Savings" = "Sąntaupos";
+
+/* Menu Item */
+"Select All" = "Pasirinkti visus";
+
+/* Menu Item */
+"Show Columns" = "Rodyti stulpelius";
+
+/* Table Column Title (MUST BE SHORT) */
+"Size" = "Dydis";
+
+/* Top-level Main Menu */
+"Tools" = "Įrankiai";
+
+/* Menu Item */
+"View Source" = "Peržiurėti išeities kodą";
+
+/* Preferences hint */
+"Web browsers require gamma chunks to be removed" = "Naršyklės reikalauja gamma santrumpų pašalinimo.";
+
+/* Preferences group */
+"Writing files to disk" = "Rašyti failus į diską";

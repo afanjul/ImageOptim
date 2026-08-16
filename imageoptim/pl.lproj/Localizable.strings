@@ -44,3 +44,122 @@
 /* tooltip */
 "Waiting to be optimized" = "Oczekuje na kolejną rundę optymalizacji";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "O ImageOptim";
+
+/* Menu Item */
+"Add Files…" = "Dodaj pliki…";
+
+/* Button Tooltip */
+"Add new files or directories" = "Dodaj pliki lub katalogi";
+
+/* Button */
+"Again" = "Od nowa";
+
+/* Menu Item */
+"Best tool" = "Najlepsze narzędzie";
+
+/* Menu Item */
+"Check for Updates…" = "Sprawdź aktualizacje…";
+
+/* Menu Item */
+"Copy" = "Kopiuj";
+
+/* Menu Item */
+"Delete" = "Usuń";
+
+/* Menu Item */
+"Delete Completed" = "Usuń ukończone";
+
+/* Menu Item */
+"Donate" = "Wesprzyj darowizną";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "Przeciągnij pliki obrazków do obszaru powyżej";
+
+/* Drop zone */
+"Drop images here" = "Przeciągnij obrazki tutaj";
+
+/* Preferences slider label */
+"Extra" = "Ekstra";
+
+/* Preferences slider label */
+"Fast" = "Szybki";
+
+/* Table Column Title (MUST BE SHORT) */
+"File" = "Nazwa";
+
+/* Menu Item */
+"ImageOptim Help" = "Pomoc programu ImageOptim";
+
+/* Menu Item */
+"ImageOptim Website" = "Strona ImageOptim";
+
+/* Preferences slider label */
+"Insane" = "Szalony";
+
+/* Preferences slider */
+"JPEG quality" = "Jakość JPEG";
+
+/* Preferences group */
+"Metadata and color profiles" = "Metadata";
+
+/* Preferences slider label */
+"Normal" = "Normalny";
+
+/* Preferences hint */
+"Not recommended if you rely on embedded copyright information" = "Wyłącz, żeby nie usuwać osadzonych informacji o autorze";
+
+/* Preferences group */
+"Optimization level" = "Typ optymalizacji";
+
+/* Menu Item */
+"Optimize Again" = "Rozpocznij od nowa";
+
+/* Menu Item */
+"Optimize Optimized" = "Optymalizuj zoptymalizowane";
+
+/* Menu Item */
+"Optimized Size" = "Wielkość Zoptymalizowana";
+
+/* Menu Item */
+"Original Size" = "Oryginalna Wielkość";
+
+/* Menu Item */
+"Paste" = "Wklej";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "Zachowaj uprawnienia plików, atrybuty i linki";
+
+/* Button tooltip */
+"Run optimizations again" = "Rozpocznij optymalizacje od nowa";
+
+/* Preferences hint */
+"Saving to network drives is faster when permissions are not preserved" = "Spowalnia zapis na dyskach sieciowych";
+
+/* Menu Item */
+"Savings" = "Zysk";
+
+/* Menu Item */
+"Select All" = "Zaznacz wszystko";
+
+/* Menu Item */
+"Show Columns" = "Pokaż kolumny";
+
+/* Table Column Title (MUST BE SHORT) */
+"Size" = "Wielkość";
+
+/* Top-level Main Menu */
+"Tools" = "Narzędzia";
+
+/* Menu Item */
+"View Source" = "Pokaż źródło";
+
+/* Preferences hint */
+"Web browsers require gamma chunks to be removed" = "Przeglądarki wymagają usunięcia gammy";
+
+/* Preferences group */
+"Writing files to disk" = "Zapisywanie na dysk";

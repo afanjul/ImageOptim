@@ -53,3 +53,125 @@
 /* tooltip */
 "Waiting to be optimized" = "追加の最適化の開始を待っています";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "イメージオプティムについて";
+
+/* Menu Item */
+"Add Files…" = "ファイルを追加…";
+
+/* Button Tooltip */
+"Add new files or directories" = "新しいファイルまたはフォルダを追加";
+
+/* Button */
+"Again" = "再実行";
+
+/* Menu Item */
+"Best tool" = "ベストツール";
+
+/* Menu Item */
+"Check for Updates…" = "アップデートを確認…";
+
+/* Menu Item */
+"Copy" = "コピー";
+
+/* Menu Item */
+"Delete" = "削除";
+
+/* Menu Item */
+"Delete Completed" = "削除完了";
+
+/* Menu Item */
+"Donate" = "寄付";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "上の領域に画像ファイルをドラッグ＆ドロップしてください";
+
+/* Drop zone */
+"Drop images here" = "ここに画像をドロップしてください";
+
+/* Preferences slider label */
+"Extra" = "高い";
+
+/* Preferences slider label */
+"Fast" = "低いが高速";
+
+/* Table Column Title (MUST BE SHORT) */
+"File" = "ファイル";
+
+/* Menu Item */
+"ImageOptim Help" = "イメージオプティム ヘルプ";
+
+/* Menu Item */
+"ImageOptim Website" = "イメージオプティム ウェブサイト";
+
+/* Preferences slider label */
+"Insane" = "非常に高い";
+
+/* Preferences slider */
+"JPEG quality" = "JPEG の品質";
+
+/* Preferences group */
+"Metadata and color profiles" = "メタデータとカラープロファイル";
+
+/* Preferences slider label */
+"Normal" = "普通";
+
+/* Preferences hint */
+"Not recommended if you rely on embedded copyright information" = "埋め込まれた著作権情報を必要とする場合はおすすめしません";
+
+/* Preferences group */
+"Optimization level" = "最適化レベル";
+
+/* Menu Item */
+"Optimize Again" = "再度最適化する";
+
+/* Menu Item */
+"Optimize Optimized" = "最適化完了";
+
+/* Menu Item */
+"Optimized Size" = "最適化後のサイズ";
+
+/* Menu Item */
+"Original Size" = "元のサイズ";
+
+/* Menu Item */
+"Paste" = "ペースト";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "ファイルのパーミッション、属性、ハードリンクを維持する";
+
+/* Menu Item */
+"Quick Look" = "クイックルック";
+
+/* Button tooltip */
+"Run optimizations again" = "再度最適化を実行する";
+
+/* Preferences hint */
+"Saving to network drives is faster when permissions are not preserved" = "維持しない場合、ネットワークドライブへの保存が早くなります";
+
+/* Menu Item */
+"Savings" = "節約率";
+
+/* Menu Item */
+"Select All" = "すべてを選択";
+
+/* Menu Item */
+"Show Columns" = "カラムを表示";
+
+/* Table Column Title (MUST BE SHORT) */
+"Size" = "サイズ";
+
+/* Top-level Main Menu */
+"Tools" = "ツール";
+
+/* Menu Item */
+"View Source" = "ソースを表示";
+
+/* Preferences hint */
+"Web browsers require gamma chunks to be removed" = "一部のウェブブラウザはガンマ値に対応していません";
+
+/* Preferences group */
+"Writing files to disk" = "ファイルのディスク書き込み";

@@ -58,3 +58,125 @@
 /* tooltip */
 "Waiting to be optimized" = "بالإنتظار لكي يتم تحسينها";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "حول ImageOptim";
+
+/* Menu Item */
+"Add Files…" = "إضافة ملفات...";
+
+/* Button Tooltip */
+"Add new files or directories" = "إضافة ملفات جديدة أو مجلدات";
+
+/* Button */
+"Again" = "مرة أخرى";
+
+/* Menu Item */
+"Best tool" = "أحسن أداة";
+
+/* Menu Item */
+"Check for Updates…" = "بحث عن تحديثات...";
+
+/* Menu Item */
+"Copy" = "نسخ";
+
+/* Menu Item */
+"Delete" = "حذف";
+
+/* Menu Item */
+"Delete Completed" = "حذف المكتمل";
+
+/* Menu Item */
+"Donate" = "تبرع";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "جر وأسقط ملفات الصور في المنطقة العلوية";
+
+/* Drop zone */
+"Drop images here" = "أسقط الصور هنا";
+
+/* Preferences slider label */
+"Extra" = "إضافي";
+
+/* Preferences slider label */
+"Fast" = "سريع";
+
+/* Table Column Title (MUST BE SHORT) */
+"File" = "الملف";
+
+/* Menu Item */
+"ImageOptim Help" = "مساعدة ImageOptim";
+
+/* Menu Item */
+"ImageOptim Website" = "موقع ImageOptim";
+
+/* Preferences slider label */
+"Insane" = "مجنون";
+
+/* Preferences slider */
+"JPEG quality" = "جودة JPEG";
+
+/* Preferences group */
+"Metadata and color profiles" = "البيانات الوصفية و ملفات الألوان";
+
+/* Preferences slider label */
+"Normal" = "عام";
+
+/* Preferences hint */
+"Not recommended if you rely on embedded copyright information" = "لاينصح به إن كنت تعتمد على معلومات حقوق النسخ المدمجة.";
+
+/* Preferences group */
+"Optimization level" = "مستوى التحسين";
+
+/* Menu Item */
+"Optimize Again" = "تحسين مرة أخرى";
+
+/* Menu Item */
+"Optimize Optimized" = "حسن المٌحسن";
+
+/* Menu Item */
+"Optimized Size" = "حجم المُحسن";
+
+/* Menu Item */
+"Original Size" = "الحجم الأصلي";
+
+/* Menu Item */
+"Paste" = "لصق";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "إحتفظ بالصلاحيات و الخواص و الإختصارات";
+
+/* Menu Item */
+"Quick Look" = "عرض سريع";
+
+/* Button tooltip */
+"Run optimizations again" = "تشغيل التحسين مرة أخرى";
+
+/* Preferences hint */
+"Saving to network drives is faster when permissions are not preserved" = "الحفظ على الشبكة أسرع عندما تكون الصلاحيات غير محتفظ بها.";
+
+/* Menu Item */
+"Savings" = "المحفوظ";
+
+/* Menu Item */
+"Select All" = "تحديد الكل";
+
+/* Menu Item */
+"Show Columns" = "عرض الأعمدة";
+
+/* Table Column Title (MUST BE SHORT) */
+"Size" = "الحجم";
+
+/* Top-level Main Menu */
+"Tools" = "أدوات";
+
+/* Menu Item */
+"View Source" = "عرض المصدر";
+
+/* Preferences hint */
+"Web browsers require gamma chunks to be removed" = "متصفحات الأنترنت تتطلب أن تكون معلومات جاما gamma chunks محذوفة.";
+
+/* Preferences group */
+"Writing files to disk" = "كتابة الملفات للقرص";

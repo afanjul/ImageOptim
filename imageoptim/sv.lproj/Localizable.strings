@@ -57,3 +57,107 @@
 
 /* tooltip */
 "Waiting to be optimized" = "Väntar på optimering";
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "Om ImageOptim";
+
+/* Menu Item */
+"Add Files…" = "Lägg till filer…";
+
+/* Button Tooltip */
+"Add new files or directories" = "Lägg till nya filer eller mappar";
+
+/* Button */
+"Again" = "Igen";
+
+/* Menu Item */
+"Best tool" = "Bästa verktyg";
+
+/* Menu Item */
+"Check for Updates…" = "Sök efter uppdateringar…";
+
+/* Menu Item */
+"Copy" = "Kopiera";
+
+/* Menu Item */
+"Delete" = "Radera";
+
+/* Menu Item */
+"Delete Completed" = "Raderad";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "Dra bildfiler till området ovan";
+
+/* Drop zone */
+"Drop images here" = "Dra bilder hit";
+
+/* Preferences slider label */
+"Fast" = "Snabb";
+
+/* Table Column Title (MUST BE SHORT) */
+"File" = "Fil";
+
+/* Menu Item */
+"ImageOptim Help" = "ImageOptim Hjälp";
+
+/* Menu Item */
+"ImageOptim Website" = "ImageOptims webbsida";
+
+/* Preferences slider label */
+"Insane" = "Vansinnig";
+
+/* Preferences slider */
+"JPEG quality" = "JPEG: Maxkvalitet";
+
+/* Preferences group */
+"Metadata and color profiles" = "Metadata";
+
+/* Preferences group */
+"Optimization level" = "Optimeringsnivå";
+
+/* Menu Item */
+"Optimize Again" = "Optimera igen";
+
+/* Menu Item */
+"Optimize Optimized" = "Optimerad";
+
+/* Menu Item */
+"Optimized Size" = "Optimerad storlek";
+
+/* Menu Item */
+"Original Size" = "Originalstorlek";
+
+/* Menu Item */
+"Paste" = "Klistra in";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "Behåll filbehörigheter, attribut och hårda länkar";
+
+/* Button tooltip */
+"Run optimizations again" = "Optimera igen";
+
+/* Menu Item */
+"Savings" = "Du har sparat";
+
+/* Menu Item */
+"Select All" = "Markera allt";
+
+/* Menu Item */
+"Show Columns" = "Visa kolumner";
+
+/* Table Column Title (MUST BE SHORT) */
+"Size" = "Storlek";
+
+/* Top-level Main Menu */
+"Tools" = "Verktyg";
+
+/* Menu Item */
+"View Source" = "Visa källkod";
+
+/* Preferences hint */
+"Web browsers require gamma chunks to be removed" = "Webbläsare kräver att gammastycken tas bort";
+
+/* Preferences group */
+"Writing files to disk" = "Vid sparande";

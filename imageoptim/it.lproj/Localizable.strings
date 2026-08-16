@@ -44,3 +44,107 @@
 /* tooltip */
 "Waiting to be optimized" = "Attendi prima di effettuare ulteriori ottimizzazioni";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "Informazioni su ImageOptim";
+
+/* Menu Item */
+"Add Files…" = "Aggiungi Files…";
+
+/* Button Tooltip */
+"Add new files or directories" = "Aggiungi nuovi file o cartelle";
+
+/* Button */
+"Again" = "Ancora";
+
+/* Menu Item */
+"Best tool" = "Utilità";
+
+/* Menu Item */
+"Check for Updates…" = "Controlla gli aggiornamenti…";
+
+/* Menu Item */
+"Copy" = "Copia";
+
+/* Menu Item */
+"Delete" = "Cancella";
+
+/* Menu Item */
+"Delete Completed" = "Cancellazione Completata";
+
+/* Menu Item */
+"Donate" = "Donare";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "Clicca e trascina le immagini nella casella superiore";
+
+/* Drop zone */
+"Drop images here" = "Rilascia le immagini qui";
+
+/* Preferences slider label */
+"Fast" = "Veloce";
+
+/* Menu Item */
+"ImageOptim Help" = "Aiuto di ImageOptim";
+
+/* Menu Item */
+"ImageOptim Website" = "Sito di ImageOptim ";
+
+/* Preferences slider label */
+"Insane" = "Insano";
+
+/* Preferences slider */
+"JPEG quality" = "JPEG qualità";
+
+/* Preferences group */
+"Metadata and color profiles" = "Metadata e profili Colore";
+
+/* Preferences slider label */
+"Normal" = "Normale";
+
+/* Preferences hint */
+"Not recommended if you rely on embedded copyright information" = "Non consigliato se ti basi su informazioni incorporate sul copyright";
+
+/* Preferences group */
+"Optimization level" = "Livello di ottimizzazione";
+
+/* Menu Item */
+"Optimize Again" = "Ottimizza ancora";
+
+/* Menu Item */
+"Optimize Optimized" = "Calibra Ottimizzazione";
+
+/* Menu Item */
+"Optimized Size" = "Ottimizza dimensione";
+
+/* Menu Item */
+"Original Size" = "Dimensione Originale";
+
+/* Menu Item */
+"Paste" = "Incolla";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "Conserva i permessi, gli attributi e gli hardlink nei file";
+
+/* Menu Item */
+"Quick Look" = "Vista veloce";
+
+/* Button tooltip */
+"Run optimizations again" = "Ottimizza nuovamente";
+
+/* Menu Item */
+"Select All" = "Seleziona tutto";
+
+/* Menu Item */
+"Show Columns" = "Mostra Colonne";
+
+/* Top-level Main Menu */
+"Tools" = "Utilità";
+
+/* Menu Item */
+"View Source" = "Mostra sorgente";
+
+/* Preferences group */
+"Writing files to disk" = "Sto salvando i file sul disco";

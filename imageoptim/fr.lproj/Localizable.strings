@@ -59,3 +59,92 @@
 /* tooltip */
 "Waiting to be optimized" = "En attente d'autres optimisations";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "À propos d'ImageOptim";
+
+/* Menu Item */
+"Add Files…" = "Ajouter des fichiers…";
+
+/* Button Tooltip */
+"Add new files or directories" = "Ajouter des fichiers…";
+
+/* Button */
+"Again" = "Relancer";
+
+/* Menu Item */
+"Best tool" = "Outils";
+
+/* Menu Item */
+"Check for Updates…" = "Recherche de mise à jours…";
+
+/* Menu Item */
+"Copy" = "Copier";
+
+/* Menu Item */
+"Delete" = "Supprimer";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "Déposez les fichiers à optimiser ci-dessus.";
+
+/* Preferences slider label */
+"Extra" = "extra";
+
+/* Preferences slider label */
+"Fast" = "rapide";
+
+/* Table Column Title (MUST BE SHORT) */
+"File" = "Fichier";
+
+/* Menu Item */
+"ImageOptim Help" = "Aide ImageOptim";
+
+/* Preferences slider label */
+"Insane" = "à donf";
+
+/* Preferences slider */
+"JPEG quality" = "JPEG: qualité";
+
+/* Preferences slider label */
+"Normal" = "normal";
+
+/* Preferences group */
+"Optimization level" = "Niveau d'optimisation ";
+
+/* Menu Item */
+"Optimize Again" = "Optimiser à nouveau";
+
+/* Menu Item */
+"Optimized Size" = "Taille";
+
+/* Menu Item */
+"Original Size" = "Taille (original)";
+
+/* Menu Item */
+"Paste" = "Coller";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "Conserver les permissions, attributs et liens";
+
+/* Button tooltip */
+"Run optimizations again" = "Optimiser à nouveau";
+
+/* Menu Item */
+"Savings" = "Gain";
+
+/* Menu Item */
+"Select All" = "Tout sélectionner";
+
+/* Table Column Title (MUST BE SHORT) */
+"Size" = "Taille";
+
+/* Top-level Main Menu */
+"Tools" = "Outils";
+
+/* Preferences hint */
+"Web browsers require gamma chunks to be removed" = "La correction gamma est incompatible avec certains navigateurs Web ";
+
+/* Preferences group */
+"Writing files to disk" = "Sauvegarde des fichiers";

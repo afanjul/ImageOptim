@@ -13,3 +13,20 @@
 /* tooltip */
 "Waiting to start more optimizations" = "Waiting to start more optimisations";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Preferences group */
+"Optimization level" = "Optimisation level";
+
+/* Menu Item */
+"Optimize Again" = "Optimise Again";
+
+/* Menu Item */
+"Optimize Optimized" = "Optimise Optimised";
+
+/* Menu Item */
+"Optimized Size" = "Optimised Size";
+
+/* Button tooltip */
+"Run optimizations again" = "Run optimisations again";

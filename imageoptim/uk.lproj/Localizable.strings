@@ -52,3 +52,125 @@
 /* tooltip */
 "Waiting to be optimized" = "Чекає на оптимізацію";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "Про ImageOptim";
+
+/* Menu Item */
+"Add Files…" = "Додати Файли...";
+
+/* Button Tooltip */
+"Add new files or directories" = "Додати нові файли чи директорії";
+
+/* Button */
+"Again" = "Знову";
+
+/* Menu Item */
+"Best tool" = "Найкращий інструмент";
+
+/* Menu Item */
+"Check for Updates…" = "Перевірити оновлення...";
+
+/* Menu Item */
+"Copy" = "Скопіювати";
+
+/* Menu Item */
+"Delete" = "Видалити";
+
+/* Menu Item */
+"Delete Completed" = "Видалити Завершене";
+
+/* Menu Item */
+"Donate" = "Допомога проекту";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "Перетягніть графічні файли на зазначену вище області";
+
+/* Drop zone */
+"Drop images here" = "Перетягнить файли сюди";
+
+/* Preferences slider label */
+"Extra" = "Екстра";
+
+/* Preferences slider label */
+"Fast" = "Швидко";
+
+/* Table Column Title (MUST BE SHORT) */
+"File" = "Файл";
+
+/* Menu Item */
+"ImageOptim Help" = "ImageOptim допомога";
+
+/* Menu Item */
+"ImageOptim Website" = "Сайт ImageOptim";
+
+/* Preferences slider label */
+"Insane" = "Екстримальний";
+
+/* Preferences slider */
+"JPEG quality" = "JPEG якість";
+
+/* Preferences group */
+"Metadata and color profiles" = "Метаданні та колірні профілі";
+
+/* Preferences slider label */
+"Normal" = "Звичайний";
+
+/* Preferences hint */
+"Not recommended if you rely on embedded copyright information" = "Не рекомендується, якщо ви хочете зберегти вбудовану інформацію про авторські права";
+
+/* Preferences group */
+"Optimization level" = "Рівень Оптимізації";
+
+/* Menu Item */
+"Optimize Again" = "Оптимізувати Знову";
+
+/* Menu Item */
+"Optimize Optimized" = "Оптимізувати вже оптимізоване";
+
+/* Menu Item */
+"Optimized Size" = "Оптимізованний розмір";
+
+/* Menu Item */
+"Original Size" = "Оригінальний Розмір";
+
+/* Menu Item */
+"Paste" = "Вставити";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "Зберегти права доступу до файлів, атрибути та жорсткі посилання";
+
+/* Menu Item */
+"Quick Look" = "Швидкий Перегляд";
+
+/* Button tooltip */
+"Run optimizations again" = "Перезапуск оптимізації";
+
+/* Preferences hint */
+"Saving to network drives is faster when permissions are not preserved" = "Збереження до мережевих дисків відбувається швидше, якщо права дозволу не зберігаються";
+
+/* Menu Item */
+"Savings" = "Економія";
+
+/* Menu Item */
+"Select All" = "Обрати Все";
+
+/* Menu Item */
+"Show Columns" = "Показати Колонки";
+
+/* Table Column Title (MUST BE SHORT) */
+"Size" = "Розмір";
+
+/* Top-level Main Menu */
+"Tools" = "Інструменти";
+
+/* Menu Item */
+"View Source" = "Показати Джерело";
+
+/* Preferences hint */
+"Web browsers require gamma chunks to be removed" = "Веб-браузери вимагають ґамма-данні, які будуть видалені";
+
+/* Preferences group */
+"Writing files to disk" = "Записати файли на носій";

@@ -53,3 +53,116 @@
 /* tooltip */
 "Waiting to be optimized" = "Venter på at starte flere optimeringer";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "Om ImageOptim";
+
+/* Menu Item */
+"Add Files…" = "Tilføj filer…";
+
+/* Button Tooltip */
+"Add new files or directories" = "Tilføj nye filer eller foldere";
+
+/* Button */
+"Again" = "Igen";
+
+/* Menu Item */
+"Best tool" = "Bedste værktøj";
+
+/* Menu Item */
+"Check for Updates…" = "Tjek for opdateringer…";
+
+/* Menu Item */
+"Copy" = "Kopier";
+
+/* Menu Item */
+"Delete" = "Slet";
+
+/* Menu Item */
+"Delete Completed" = "Slet færdigtbehandlede";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "Træk-og-slip billedfiler til tabellen ovenfor";
+
+/* Drop zone */
+"Drop images here" = "Slip billeder her";
+
+/* Preferences slider label */
+"Extra" = "Ekstra";
+
+/* Preferences slider label */
+"Fast" = "Hurtig";
+
+/* Table Column Title (MUST BE SHORT) */
+"File" = "Fil";
+
+/* Menu Item */
+"ImageOptim Help" = "ImageOptim hjælp";
+
+/* Menu Item */
+"ImageOptim Website" = "ImageOptim hjemmeside";
+
+/* Preferences slider label */
+"Insane" = "Sindssyg";
+
+/* Preferences slider */
+"JPEG quality" = "JPEG kvalitet";
+
+/* Preferences group */
+"Metadata and color profiles" = "Metadata og farveprofiler";
+
+/* Preferences hint */
+"Not recommended if you rely on embedded copyright information" = "Ikke anbefalet hvis du afhænger af integreret copyright information";
+
+/* Preferences group */
+"Optimization level" = "Optimeringsniveau";
+
+/* Menu Item */
+"Optimize Again" = "Optimer igen";
+
+/* Menu Item */
+"Optimize Optimized" = "Optimer optimerede";
+
+/* Menu Item */
+"Optimized Size" = "Optimeret størrelse";
+
+/* Menu Item */
+"Original Size" = "Original størrelse";
+
+/* Menu Item */
+"Paste" = "Sæt ind";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "Bevar filrettigheder, egenskaber og hardlinks";
+
+/* Button tooltip */
+"Run optimizations again" = "Kør optimeringer igen";
+
+/* Preferences hint */
+"Saving to network drives is faster when permissions are not preserved" = "At gemme til netværksdrev er hurtigere når tilladelser ikke bevares";
+
+/* Menu Item */
+"Savings" = "Reducering";
+
+/* Menu Item */
+"Select All" = "Vælg alle";
+
+/* Menu Item */
+"Show Columns" = "Vis kolonner";
+
+/* Table Column Title (MUST BE SHORT) */
+"Size" = "Størrelse";
+
+/* Top-level Main Menu */
+"Tools" = "Værktøjer";
+
+/* Menu Item */
+"View Source" = "Vis kildekode";
+
+/* Preferences hint */
+"Web browsers require gamma chunks to be removed" = "Internet browsere kræver fjernelse af gamma";
+
+/* Preferences group */
+"Writing files to disk" = "Skriver filer til disken";

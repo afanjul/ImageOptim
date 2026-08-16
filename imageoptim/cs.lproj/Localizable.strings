@@ -52,3 +52,119 @@
 /* tooltip */
 "Waiting to be optimized" = "Čeká na vylepšení";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "O programu ImageOptim";
+
+/* Menu Item */
+"Add Files…" = "Přidat soubory...";
+
+/* Button Tooltip */
+"Add new files or directories" = "Přidat nové soubory nebo adresáře";
+
+/* Button */
+"Again" = "Znovu";
+
+/* Menu Item */
+"Best tool" = "Nejlepší nástroj";
+
+/* Menu Item */
+"Check for Updates…" = "Ověřit aktualizace...";
+
+/* Menu Item */
+"Copy" = "Kopírovat";
+
+/* Menu Item */
+"Delete" = "Smazat";
+
+/* Menu Item */
+"Delete Completed" = "Smazání dokončeno";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "Táhnout a upustit obrázkové soubory na oblast výše";
+
+/* Drop zone */
+"Drop images here" = "Upustit obrázky zde";
+
+/* Preferences slider label */
+"Fast" = "Rychlé";
+
+/* Table Column Title (MUST BE SHORT) */
+"File" = "Soubor";
+
+/* Menu Item */
+"ImageOptim Help" = "Nápověda k ImageOptim";
+
+/* Menu Item */
+"ImageOptim Website" = "Stránky ImageOptim";
+
+/* Preferences slider label */
+"Insane" = "Šílené";
+
+/* Preferences slider */
+"JPEG quality" = "Jakost JPEG";
+
+/* Preferences group */
+"Metadata and color profiles" = "Popisná data a barevné profily";
+
+/* Preferences slider label */
+"Normal" = "Normální";
+
+/* Preferences hint */
+"Not recommended if you rely on embedded copyright information" = "Nedoporučuje se, pokud spoléháte na vložené informace o auorském právu";
+
+/* Preferences group */
+"Optimization level" = "Úroveň vylepšování";
+
+/* Menu Item */
+"Optimize Again" = "Vylepšit znovu";
+
+/* Menu Item */
+"Optimize Optimized" = "Vylepšit vylepšené";
+
+/* Menu Item */
+"Optimized Size" = "Vylepšená velikost";
+
+/* Menu Item */
+"Original Size" = "Původní velikost";
+
+/* Menu Item */
+"Paste" = "Vložit";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "Zachovat práva k souborům, vlastnosti a tvrdé odkazy";
+
+/* Menu Item */
+"Quick Look" = "Rychlý pohled";
+
+/* Button tooltip */
+"Run optimizations again" = "Spustit vylepšování znovu";
+
+/* Preferences hint */
+"Saving to network drives is faster when permissions are not preserved" = "Ukládání na síťových discích je rychlejší, když nejsou zachována práva";
+
+/* Menu Item */
+"Savings" = "Úspora";
+
+/* Menu Item */
+"Select All" = "Vybrat vše";
+
+/* Menu Item */
+"Show Columns" = "Ukázat sloupce";
+
+/* Table Column Title (MUST BE SHORT) */
+"Size" = "Velikost";
+
+/* Top-level Main Menu */
+"Tools" = "Nástroje";
+
+/* Menu Item */
+"View Source" = "Zobrazit zdroj";
+
+/* Preferences hint */
+"Web browsers require gamma chunks to be removed" = "Prohlížeče stránek požadují, aby byly kousky gama odstraněny";
+
+/* Preferences group */
+"Writing files to disk" = "Zápis souborů na disk";

@@ -53,3 +53,125 @@
 /* tooltip */
 "Waiting to be optimized" = "Ожидание начала дальнейших оптимизаций";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "О программе ImageOptim";
+
+/* Menu Item */
+"Add Files…" = "Добавить файлы…";
+
+/* Button Tooltip */
+"Add new files or directories" = "Добавить новые файлы или папки";
+
+/* Button */
+"Again" = "Повторить";
+
+/* Menu Item */
+"Best tool" = "Лучший инструмент";
+
+/* Menu Item */
+"Check for Updates…" = "Проверить на наличие обновлений…";
+
+/* Menu Item */
+"Copy" = "Копировать";
+
+/* Menu Item */
+"Delete" = "Удалить";
+
+/* Menu Item */
+"Delete Completed" = "Удаление завершено";
+
+/* Menu Item */
+"Donate" = "Пожертвовать";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "Перетяните файлы изображений в область выше";
+
+/* Drop zone */
+"Drop images here" = "Перетяните картинки сюда";
+
+/* Preferences slider label */
+"Extra" = "Экстра";
+
+/* Preferences slider label */
+"Fast" = "Быстро";
+
+/* Table Column Title (MUST BE SHORT) */
+"File" = "Файл";
+
+/* Menu Item */
+"ImageOptim Help" = "Справка ImageOptim";
+
+/* Menu Item */
+"ImageOptim Website" = "Веб-страница ImageOptim";
+
+/* Preferences slider label */
+"Insane" = "Безумно";
+
+/* Preferences slider */
+"JPEG quality" = "Качество JPEG";
+
+/* Preferences group */
+"Metadata and color profiles" = "Метаданные и цветовые профили";
+
+/* Preferences slider label */
+"Normal" = "Нормально";
+
+/* Preferences hint */
+"Not recommended if you rely on embedded copyright information" = "Не рекомендуется, если вы полагаетесь на встроенную информацию о правообладателе";
+
+/* Preferences group */
+"Optimization level" = "Уровень оптимизации";
+
+/* Menu Item */
+"Optimize Again" = "Оптимизировать еще раз";
+
+/* Menu Item */
+"Optimize Optimized" = "Оптимизировать оптимизированные";
+
+/* Menu Item */
+"Optimized Size" = "Оптимизированный размер";
+
+/* Menu Item */
+"Original Size" = "Размер оригинала";
+
+/* Menu Item */
+"Paste" = "Вставить";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "Сохранять ссылки, разрешения и атрибуты файла";
+
+/* Menu Item */
+"Quick Look" = "Быстрый просмотр";
+
+/* Button tooltip */
+"Run optimizations again" = "Запустить оптимизации еще раз";
+
+/* Preferences hint */
+"Saving to network drives is faster when permissions are not preserved" = "Сохранение на сетевые диски будет быстрее, если не сохранять разрешения файлов";
+
+/* Menu Item */
+"Savings" = "Экономия";
+
+/* Menu Item */
+"Select All" = "Выбрать все";
+
+/* Menu Item */
+"Show Columns" = "Показать столбцы";
+
+/* Table Column Title (MUST BE SHORT) */
+"Size" = "Размер";
+
+/* Top-level Main Menu */
+"Tools" = "Инструменты";
+
+/* Menu Item */
+"View Source" = "Показать исходный код";
+
+/* Preferences hint */
+"Web browsers require gamma chunks to be removed" = "Веб-браузеры требуют удаление чанков гаммы";
+
+/* Preferences group */
+"Writing files to disk" = "Запись файлов на диск";

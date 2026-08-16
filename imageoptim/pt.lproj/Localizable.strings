@@ -50,3 +50,89 @@
 /* tooltip */
 "Waiting to be optimized" = "A aguardar para iniciar mais optimizações";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "Acerca do ImageOptim";
+
+/* Menu Item */
+"Add Files…" = "Adicionar ficheiros…";
+
+/* Button Tooltip */
+"Add new files or directories" = "Adicionar novos ficheiros ou directórios";
+
+/* Button */
+"Again" = "Repetir";
+
+/* Menu Item */
+"Best tool" = "Ferramentas";
+
+/* Menu Item */
+"Check for Updates…" = "Procurar actualizações…";
+
+/* Menu Item */
+"Copy" = "Copiar";
+
+/* Menu Item */
+"Delete" = "Apagar";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "Arraste ficheiros de imagem para a tabela acima";
+
+/* Preferences slider label */
+"Fast" = "Rápida";
+
+/* Table Column Title (MUST BE SHORT) */
+"File" = "Ficheiro";
+
+/* Menu Item */
+"ImageOptim Help" = "Ajuda do ImageOptim";
+
+/* Preferences slider label */
+"Insane" = "Insano";
+
+/* Preferences slider */
+"JPEG quality" = "JPEG: qualidade";
+
+/* Preferences group */
+"Metadata and color profiles" = "Metadata";
+
+/* Preferences group */
+"Optimization level" = "Nível de optimização";
+
+/* Menu Item */
+"Optimize Again" = "Optimizar novamente";
+
+/* Menu Item */
+"Optimized Size" = "Tamanho";
+
+/* Menu Item */
+"Original Size" = "Tamanho (original)";
+
+/* Menu Item */
+"Paste" = "Colar";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "Preservar permissões, atributos e hardlinks para ficheiros";
+
+/* Button tooltip */
+"Run optimizations again" = "Executar optimizações novamente";
+
+/* Menu Item */
+"Savings" = "Redução";
+
+/* Menu Item */
+"Select All" = "Seleccionar tudo";
+
+/* Table Column Title (MUST BE SHORT) */
+"Size" = "Tamanho";
+
+/* Top-level Main Menu */
+"Tools" = "Ferramentas";
+
+/* Preferences hint */
+"Web browsers require gamma chunks to be removed" = "Os browsers Web necessitam que os pedaços gama sejam removidos";
+
+/* Preferences group */
+"Writing files to disk" = "Ao escrever ficheiros no disco";

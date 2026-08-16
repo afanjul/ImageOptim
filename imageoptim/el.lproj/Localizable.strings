@@ -53,3 +53,119 @@
 /* tooltip */
 "Waiting to be optimized" = "Αναμονή για να ξεκινήσουν οι βελτιωσεις";
 
+
+/* recovered from the pre-SwiftUI nib translations */
+
+/* Window Title */
+"About ImageOptim" = "Περί ImageOptim";
+
+/* Menu Item */
+"Add Files…" = "Προσθήκη αρχείων...";
+
+/* Button Tooltip */
+"Add new files or directories" = "Προσθήκη νέων αρχείων ή φακέλων";
+
+/* Button */
+"Again" = "Ξανά";
+
+/* Menu Item */
+"Best tool" = "Βέλτιστο εργαλείο";
+
+/* Menu Item */
+"Check for Updates…" = "Έλεγχος για ενημερώσεις...";
+
+/* Menu Item */
+"Copy" = "Αντιγραφή";
+
+/* Menu Item */
+"Delete" = "Διαγραφή";
+
+/* Menu Item */
+"Delete Completed" = "Ολοκλήρωση διαγραφής";
+
+/* status bar */
+"Drag and drop image files onto the area above" = "Σύρετε και αφήστε εικόνες στην περιοχή επάνω";
+
+/* Drop zone */
+"Drop images here" = "Σύρετε και αφήστε εικόνες εδώ";
+
+/* Preferences slider label */
+"Extra" = "Έξτρα";
+
+/* Preferences slider label */
+"Fast" = "Γρήγορη";
+
+/* Table Column Title (MUST BE SHORT) */
+"File" = "Αρχείο";
+
+/* Menu Item */
+"ImageOptim Help" = "Βοήθεια ImageOptim";
+
+/* Menu Item */
+"ImageOptim Website" = "Ιστοτόπος ";
+
+/* Preferences slider label */
+"Insane" = "Τρελά";
+
+/* Preferences slider */
+"JPEG quality" = "JPEG ποιότητα";
+
+/* Preferences group */
+"Metadata and color profiles" = "Μεταδεδομένα και χρωματικά προφίλ";
+
+/* Preferences slider label */
+"Normal" = "Κανονική";
+
+/* Preferences hint */
+"Not recommended if you rely on embedded copyright information" = "Δεν συνιστάται εάν χρειάζεστε τις ενσωματωμένες πληροφορίες πνευματικών δικαιωμάτων";
+
+/* Preferences group */
+"Optimization level" = "Επίπεδο βελτιστοποίησης";
+
+/* Menu Item */
+"Optimize Again" = "Βελτιστοποίηση ξανά";
+
+/* Menu Item */
+"Optimize Optimized" = "Βελτιστοποιήθηκε";
+
+/* Menu Item */
+"Optimized Size" = "Βελτιστοποιημένο μέγεθος";
+
+/* Menu Item */
+"Original Size" = "Αρχικό μέγεθος";
+
+/* Menu Item */
+"Paste" = "Επικόλληση";
+
+/* Preferences checkbox */
+"Preserve file permissions, attributes and hardlinks" = "Διατήρηση δικαιωμάτων αρχείων, ιδιοτήτων και hard συνδέσμων.";
+
+/* Button tooltip */
+"Run optimizations again" = "Εκτέλεση βελτιστοποίησης ξανά";
+
+/* Preferences hint */
+"Saving to network drives is faster when permissions are not preserved" = "Η αποθήκευση σε δικτυακούς δίσκους είναι γρηγορότερη όταν δεν διατηρούνται τα δικαιώματα";
+
+/* Menu Item */
+"Savings" = "Κέρδη";
+
+/* Menu Item */
+"Select All" = "Επιλογή όλων";
+
+/* Menu Item */
+"Show Columns" = "Εμφάνιση στηλών";
+
+/* Table Column Title (MUST BE SHORT) */
+"Size" = "Μέγεθος";
+
+/* Top-level Main Menu */
+"Tools" = "Εργαλεία";
+
+/* Menu Item */
+"View Source" = "Εμφάνιση προέλευσης";
+
+/* Preferences hint */
+"Web browsers require gamma chunks to be removed" = "Οι φυλλομετρητές στο Web απαιτούν αφαίρεση στα κομμάτια γάμμα";
+
+/* Preferences group */
+"Writing files to disk" = "Εγγραφή αρχείων στο δίσκο";
