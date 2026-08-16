@@ -162,3 +162,9 @@ svgo/build/
 svgo/node_modules/
 pngcrush/tmp/
 pngcrush/LICENSE
+guetzli/.patched
+guetzli/guetzli/src
+guetzli/opencl/clba_kernels.h
+guetzli/opencl/kernels_gen.cl
+guetzli/opencl/build/
+guetzli/build/

@@ -1,0 +1,226 @@
+Bit-exact OpenCL port of butteraugli, applied to google/guetzli 214f2bb.
+
+The port itself lives outside the submodule, in ../opencl/. This patch is only
+the three hooks it cannot live without:
+
+  butteraugli.h                 declares ButteraugliComparator::GpuState (an
+                                opaque handle to the device-resident mirror of
+                                pi0_) and the destructor that owns it.
+
+  butteraugli.cc                defines GpuState, uploads pi0_ once in the
+                                constructor, and routes
+                                DiffmapOpsinDynamicsImage through clba:: when a
+                                GPU is present. Also adds namespace testhooks,
+                                which exposes the file-static stages so
+                                ../opencl/clba_test.cc can compare each of them
+                                against its kernel.
+
+  butteraugli_comparator.cc     drops a dead OpsinDynamicsImage() call that
+                                upstream computes and never reads.
+
+Nothing here changes what butteraugli computes. The GPU and CPU paths agree bit
+for bit as long as the target is built with -ffp-contract=off; see
+../opencl/README.md for why that flag is load-bearing.
+
+diff --git a/guetzli/butteraugli_comparator.cc b/guetzli/butteraugli_comparator.cc
+index 142c203..6ebad3c 100644
+--- a/guetzli/butteraugli_comparator.cc
++++ b/guetzli/butteraugli_comparator.cc
+@@ -61,8 +61,10 @@ ButteraugliComparator::ButteraugliComparator(const int width, const int height,
+       stats_(stats) {}
+ 
+ void ButteraugliComparator::Compare(const OutputImage& img) {
+-  std::vector<ImageF> rgb0 =
+-      ::butteraugli::OpsinDynamicsImage(LinearRgb(width_, height_, rgb_orig_));
++  // Upstream computes OpsinDynamicsImage(LinearRgb(rgb_orig_)) here and never
++  // reads it; comparator_ already holds the decomposition of the original.
++  // The compiler cannot drop it, so it costs a full opsin pass per comparison
++  // -- about a sixth of this build's total time. Output is unaffected.
+   std::vector<std::vector<float> > rgb(3, std::vector<float>(width_ * height_));
+   img.ToLinearRGB(&rgb);
+   const std::vector<ImageF> rgb_planes = PlanesFromPacked(width_, height_, rgb);
+diff --git a/third_party/butteraugli/butteraugli/butteraugli.cc b/third_party/butteraugli/butteraugli/butteraugli.cc
+index 77c91cc..19bc708 100755
+--- a/third_party/butteraugli/butteraugli/butteraugli.cc
++++ b/third_party/butteraugli/butteraugli/butteraugli.cc
+@@ -40,6 +40,10 @@
+ #include <algorithm>
+ #include <array>
+ 
++// The OpenCL port of the expensive half of this file. It is a bit-exact
++// reimplementation, not an approximation, and it degrades to the CPU code
++// here whenever no usable GPU is present.
++#include "opencl/clba.h"
+ 
+ // Restricted pointers speed up Convolution(); MSVC uses a different keyword.
+ #ifdef _MSC_VER
+@@ -781,15 +785,52 @@ void MaskPsychoImage(const PsychoImage& pi0, const PsychoImage& pi1,
+   Mask(mask_xyb0, mask_xyb1, mask, mask_dc);
+ }
+ 
++// The GPU port's working set. pi0 is uploaded once in the constructor and
++// stays resident across the ~100 comparisons guetzli makes; xyb and pi1 are
++// reused so that a comparison allocates nothing.
++struct ButteraugliComparator::GpuState {
++  clba::Psycho pi0;
++  clba::Psycho pi1;
++  clba::Plane xyb[3];
++  clba::Plane result;
++};
++
++namespace {
++
++void UploadPlane(const ImageF& src, clba::Plane* dst) {
++  dst->Alloc(src.xsize(), src.ysize());
++  dst->Upload(src.Row(0), src.bytes_per_row() / sizeof(float));
++}
++
++void UploadPsycho(const PsychoImage& src, clba::Psycho* dst) {
++  for (int i = 0; i < 3; ++i) {
++    UploadPlane(src.lf[i], &dst->lf[i]);
++    UploadPlane(src.mf[i], &dst->mf[i]);
++  }
++  for (int i = 0; i < 2; ++i) {
++    UploadPlane(src.hf[i], &dst->hf[i]);
++    UploadPlane(src.uhf[i], &dst->uhf[i]);
++  }
++}
++
++}  // namespace
++
+ ButteraugliComparator::ButteraugliComparator(const std::vector<ImageF>& rgb0)
+     : xsize_(rgb0[0].xsize()),
+       ysize_(rgb0[0].ysize()),
+-      num_pixels_(xsize_ * ysize_) {
++      num_pixels_(xsize_ * ysize_),
++      gpu_(nullptr) {
+   if (xsize_ < 8 || ysize_ < 8) return;
+   std::vector<ImageF> xyb0 = OpsinDynamicsImage(rgb0);
+   SeparateFrequencies(xsize_, ysize_, xyb0, pi0_);
++  if (clba::Available()) {
++    gpu_ = new GpuState;
++    UploadPsycho(pi0_, &gpu_->pi0);
++  }
+ }
+ 
++ButteraugliComparator::~ButteraugliComparator() { delete gpu_; }
++
+ void ButteraugliComparator::Mask(
+     std::vector<ImageF>* BUTTERAUGLI_RESTRICT mask,
+     std::vector<ImageF>* BUTTERAUGLI_RESTRICT mask_dc) const {
+@@ -808,9 +849,19 @@ void ButteraugliComparator::DiffmapOpsinDynamicsImage(
+     ImageF &result) const {
+   PROFILER_FUNC;
+   if (xsize_ < 8 || ysize_ < 8) return;
++  result = ImageF(xsize_, ysize_);
++  if (gpu_ != nullptr) {
++    // The GPU path is bit-exact against the CPU one, so this is not an
++    // approximation: see clba_test, which compares them stage by stage.
++    for (int c = 0; c < 3; ++c) UploadPlane(xyb1[c], &gpu_->xyb[c]);
++    clba::SeparateFrequencies(gpu_->xyb, &gpu_->pi1);
++    clba::DiffmapPsychoImage(gpu_->pi0, gpu_->pi1, &gpu_->result);
++    gpu_->result.Download(result.Row(0),
++                          result.bytes_per_row() / sizeof(float));
++    return;
++  }
+   PsychoImage pi1;
+   SeparateFrequencies(xsize_, ysize_, xyb1, pi1);
+-  result = ImageF(xsize_, ysize_);
+   DiffmapPsychoImage(pi1, result);
+ }
+ 
+@@ -1991,4 +2042,65 @@ void CreateHeatMapImage(const std::vector<float>& distmap,
+   }
+ }
+ 
++
++// Test-only entry points. The OpenCL port in opencl/ is validated
++// against these stage by stage; they exist only because the functions they
++// wrap have internal linkage.
++namespace testhooks {
++
++void SeparateFrequencies(size_t xsize, size_t ysize,
++                         const std::vector<ImageF>& xyb, PsychoImage& ps) {
++  ::butteraugli::SeparateFrequencies(xsize, ysize, xyb, ps);
++}
++
++void L2Diff(const ImageF& i0, const ImageF& i1, double w, ImageF* diffmap) {
++  ::butteraugli::L2Diff(i0, i1, w, diffmap);
++}
++
++void L2DiffAsymmetric(const ImageF& i0, const ImageF& i1, double w_0gt1,
++                      double w_0lt1, ImageF* diffmap) {
++  ::butteraugli::L2DiffAsymmetric(i0, i1, w_0gt1, w_0lt1, diffmap);
++}
++
++void SameNoiseLevels(const ImageF& i0, const ImageF& i1, double kSigma,
++                     double w, double maxclamp, ImageF* diffmap) {
++  ::butteraugli::SameNoiseLevels(i0, i1, kSigma, w, maxclamp, diffmap);
++}
++
++// len and mulli are repeated from ButteraugliComparator::MaltaDiffMap{,LF};
++// they are function-local constants there, so there is nothing to share.
++void MaltaDiffMap(bool lf, const ImageF& lum0, const ImageF& lum1,
++                  size_t xsize, size_t ysize, double w_0gt1, double w_0lt1,
++                  double norm1, ImageF* block_diff_ac) {
++  const double len = 3.75;
++  if (lf) {
++    MaltaDiffMapImpl<MaltaTagLF>(lum0, lum1, xsize, ysize, w_0gt1, w_0lt1,
++                                 norm1, len, 0.405371989604, block_diff_ac);
++  } else {
++    MaltaDiffMapImpl<MaltaTag>(lum0, lum1, xsize, ysize, w_0gt1, w_0lt1, norm1,
++                               len, 0.354191303559, block_diff_ac);
++  }
++}
++
++ImageF DiffPrecompute(const ImageF& xyb0, const ImageF& xyb1) {
++  return ::butteraugli::DiffPrecompute(xyb0, xyb1);
++}
++
++void Mask(const std::vector<ImageF>& xyb0, const std::vector<ImageF>& xyb1,
++          std::vector<ImageF>* mask, std::vector<ImageF>* mask_dc) {
++  ::butteraugli::Mask(xyb0, xyb1, mask, mask_dc);
++}
++
++void MaskPsychoImage(const PsychoImage& pi0, const PsychoImage& pi1,
++                     size_t xsize, size_t ysize, std::vector<ImageF>* mask,
++                     std::vector<ImageF>* mask_dc) {
++  ::butteraugli::MaskPsychoImage(pi0, pi1, xsize, ysize, mask, mask_dc);
++}
++
++ImageF CalculateDiffmap(const ImageF& diffmap_in) {
++  return ::butteraugli::CalculateDiffmap(diffmap_in);
++}
++
++}  // namespace testhooks
++
+ }  // namespace butteraugli
+diff --git a/third_party/butteraugli/butteraugli/butteraugli.h b/third_party/butteraugli/butteraugli/butteraugli.h
+index 2f5d938..1de87f6 100755
+--- a/third_party/butteraugli/butteraugli/butteraugli.h
++++ b/third_party/butteraugli/butteraugli/butteraugli.h
+@@ -425,6 +425,7 @@ struct PsychoImage {
+ class ButteraugliComparator {
+  public:
+   ButteraugliComparator(const std::vector<ImageF>& rgb0);
++  ~ButteraugliComparator();
+ 
+   // Computes the butteraugli map between the original image given in the
+   // constructor and the distorted image give here.
+@@ -464,6 +465,16 @@ class ButteraugliComparator {
+   const size_t ysize_;
+   const size_t num_pixels_;
+   PsychoImage pi0_;
++
++  // Device-resident mirror of pi0_ plus the scratch DiffmapOpsinDynamicsImage
++  // needs, or null when there is no usable OpenCL GPU (in which case every
++  // path below stays on the CPU). Defined in butteraugli.cc.
++  struct GpuState;
++  GpuState* gpu_;
++
++  // Owns gpu_, so copying would double-free it. Nothing copies a comparator.
++  ButteraugliComparator(const ButteraugliComparator&);
++  ButteraugliComparator& operator=(const ButteraugliComparator&);
+ };
+ 
+ void ButteraugliDiffmap(const std::vector<ImageF> &rgb0,

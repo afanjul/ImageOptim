@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C1BA0000000000000000A002 /* clba.cc in Sources */ = {isa = PBXBuildFile; fileRef = C1BA0000000000000000A001 /* clba.cc */; settings = {COMPILER_FLAGS = "-ffp-contract=off -fno-fast-math"; }; };
+		C1BA0000000000000000A008 /* OpenCL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1BA0000000000000000A007 /* OpenCL.framework */; };
 		D047E4F31E7D86AD0036F96B /* butteraugli_comparator.cc in Sources */ = {isa = PBXBuildFile; fileRef = D047E4871E7D7F070036F96B /* butteraugli_comparator.cc */; };
 		D047E4F71E7D86AD0036F96B /* dct_double.cc in Sources */ = {isa = PBXBuildFile; fileRef = D047E48B1E7D7F070036F96B /* dct_double.cc */; };
 		D047E4F91E7D86AD0036F96B /* debug_print.cc in Sources */ = {isa = PBXBuildFile; fileRef = D047E48D1E7D7F070036F96B /* debug_print.cc */; };
@@ -28,7 +30,7 @@
 		D047E51C1E7D86AD0036F96B /* quantize.cc in Sources */ = {isa = PBXBuildFile; fileRef = D047E4B11E7D7F070036F96B /* quantize.cc */; };
 		D047E51E1E7D86AD0036F96B /* score.cc in Sources */ = {isa = PBXBuildFile; fileRef = D047E4B31E7D7F070036F96B /* score.cc */; };
 		D047E5231E7D87670036F96B /* liblibpng.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D047E5221E7D87670036F96B /* liblibpng.dylib */; };
-		D047E5291E7D8A050036F96B /* butteraugli.cc in Sources */ = {isa = PBXBuildFile; fileRef = D047E5251E7D89D50036F96B /* butteraugli.cc */; };
+		D047E5291E7D8A050036F96B /* butteraugli.cc in Sources */ = {isa = PBXBuildFile; fileRef = D047E5251E7D89D50036F96B /* butteraugli.cc */; settings = {COMPILER_FLAGS = "-ffp-contract=off -fno-fast-math"; }; };
 		D047E52B1E7D8BFD0036F96B /* libimageoptimjpeg.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D047E52A1E7D8BFD0036F96B /* libimageoptimjpeg.dylib */; };
 /* End PBXBuildFile section */
 
@@ -76,6 +78,15 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		C1BA0000000000000000A001 /* clba.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clba.cc; sourceTree = "<group>"; };
+		C1BA0000000000000000A003 /* clba.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = clba.h; sourceTree = "<group>"; };
+		C1BA0000000000000000A004 /* kernels.cl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.opencl; path = kernels.cl; sourceTree = "<group>"; };
+		C1BA0000000000000000A005 /* clba_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clba_test.cc; sourceTree = "<group>"; };
+		C1BA0000000000000000A009 /* gen_kernels.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = gen_kernels.py; sourceTree = "<group>"; };
+		C1BA0000000000000000A00A /* butteraugli-opencl.patch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = butteraugli-opencl.patch; sourceTree = "<group>"; };
+		C1BA0000000000000000A00B /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		C1BA0000000000000000A00C /* run-tests.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = run-tests.sh; sourceTree = "<group>"; };
+		C1BA0000000000000000A007 /* OpenCL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenCL.framework; path = System/Library/Frameworks/OpenCL.framework; sourceTree = SDKROOT; };
 		5A86E6131E8133B900C54C09 /* debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = debug.xcconfig; path = ../imageoptim/debug.xcconfig; sourceTree = "<group>"; };
 		5A86E6141E8133B900C54C09 /* release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = release.xcconfig; path = ../imageoptim/release.xcconfig; sourceTree = "<group>"; };
 		5AB6A8FE1E966617009BDBC3 /* libpng.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libpng.xcodeproj; path = ../libpng/libpng.xcodeproj; sourceTree = "<group>"; };
@@ -139,6 +150,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D047E52B1E7D8BFD0036F96B /* libimageoptimjpeg.dylib in Frameworks */,
+				C1BA0000000000000000A008 /* OpenCL.framework in Frameworks */,
 				D047E5231E7D87670036F96B /* liblibpng.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -146,6 +158,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C1BA0000000000000000A006 /* opencl */ = {
+			isa = PBXGroup;
+			children = (
+				C1BA0000000000000000A00B /* README.md */,
+				C1BA0000000000000000A001 /* clba.cc */,
+				C1BA0000000000000000A003 /* clba.h */,
+				C1BA0000000000000000A005 /* clba_test.cc */,
+				C1BA0000000000000000A004 /* kernels.cl */,
+				C1BA0000000000000000A009 /* gen_kernels.py */,
+				C1BA0000000000000000A00A /* butteraugli-opencl.patch */,
+				C1BA0000000000000000A00C /* run-tests.sh */,
+			);
+			path = opencl;
+			sourceTree = "<group>";
+		};
 		5AB6A8FF1E966617009BDBC3 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -162,6 +189,7 @@
 				D047E4741E7D7DF00036F96B /* guetzli */,
 				D047E4731E7D7DF00036F96B /* Products */,
 				D047E5271E7D89F10036F96B /* third_party */,
+				C1BA0000000000000000A006 /* opencl */,
 				5A86E6131E8133B900C54C09 /* debug.xcconfig */,
 				5AB6A8FE1E966617009BDBC3 /* libpng.xcodeproj */,
 				5A86E6141E8133B900C54C09 /* release.xcconfig */,
@@ -234,6 +262,7 @@
 			children = (
 				D047E52A1E7D8BFD0036F96B /* libimageoptimjpeg.dylib */,
 				D047E5221E7D87670036F96B /* liblibpng.dylib */,
+				C1BA0000000000000000A007 /* OpenCL.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -343,6 +372,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D047E5291E7D8A050036F96B /* butteraugli.cc in Sources */,
+				C1BA0000000000000000A002 /* clba.cc in Sources */,
 				D047E4F31E7D86AD0036F96B /* butteraugli_comparator.cc in Sources */,
 				D047E4F71E7D86AD0036F96B /* dct_double.cc in Sources */,
 				D047E4F91E7D86AD0036F96B /* debug_print.cc in Sources */,
@@ -395,6 +425,7 @@
 					PNG_CONFIGURE_LIBPNG,
 				);
 				USER_HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)",
 					"$(SRCROOT)/guetzli",
 					"$(SRCROOT)/guetzli/third_party/butteraugli",
 					"$(SRCROOT)/../libpng",
@@ -415,6 +446,7 @@
 					PNG_CONFIGURE_LIBPNG,
 				);
 				USER_HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)",
 					"$(SRCROOT)/guetzli",
 					"$(SRCROOT)/guetzli/third_party/butteraugli",
 					"$(SRCROOT)/../libpng",
