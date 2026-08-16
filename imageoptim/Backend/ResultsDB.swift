@@ -69,7 +69,7 @@ public actor ResultsDB {
         guard let cachesPath = try? FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else {
             return nil
         }
-        let bundleID = Bundle.main.bundleIdentifier ?? "net.pornel.ImageOptim"
+        let bundleID = Bundle.main.bundleIdentifier ?? "O2MS.ImageOptim"
         let cachesWithBundlePath = cachesPath.appendingPathComponent(bundleID, isDirectory: true)
         try? FileManager.default.createDirectory(at: cachesWithBundlePath, withIntermediateDirectories: true)
 

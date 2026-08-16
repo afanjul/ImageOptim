@@ -7,7 +7,7 @@ import Foundation
 
 /// Preferences shared between the app and the ImageOptimize share extension.
 public enum SharedPrefs {
-    public static let suiteName = "59KZTZA4XR.net.pornel.ImageOptim"
+    public static let suiteName = "56Q6SR3DF7.O2MS.ImageOptim"
 
     public static func defaults() -> UserDefaults? {
         UserDefaults(suiteName: suiteName)

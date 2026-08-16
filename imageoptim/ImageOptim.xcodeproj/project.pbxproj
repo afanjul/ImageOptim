@@ -1837,7 +1837,7 @@
 					"@loader_path/Frameworks",
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = net.pornel.ImageOptim.Backend;
+				PRODUCT_BUNDLE_IDENTIFIER = O2MS.ImageOptim.Backend;
 				PRODUCT_NAME = ImageOptimGPL;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 6.0;
@@ -1880,7 +1880,7 @@
 					"@loader_path/Frameworks",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = net.pornel.ImageOptim.Backend;
+				PRODUCT_BUNDLE_IDENTIFIER = O2MS.ImageOptim.Backend;
 				PRODUCT_NAME = ImageOptimGPL;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 6.0;
@@ -1932,7 +1932,7 @@
 					"@loader_path/../Frameworks",
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = net.pornel.ImageOptimizeExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = O2MS.ImageOptim.BackendTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;
@@ -1980,7 +1980,7 @@
 					"@loader_path/../Frameworks",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = net.pornel.ImageOptimizeExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = O2MS.ImageOptim.BackendTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;
@@ -2028,7 +2028,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = net.pornel.ImageOptimizeExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = O2MS.ImageOptimizeExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
@@ -2072,7 +2072,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = net.pornel.ImageOptimizeExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = O2MS.ImageOptimizeExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
@@ -2085,7 +2085,6 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ImageOptim.entitlements;
-				DEVELOPMENT_TEAM = 59KZTZA4XR;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2099,7 +2098,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = net.pornel.ImageOptim;
+				PRODUCT_BUNDLE_IDENTIFIER = O2MS.ImageOptim;
 				PRODUCT_NAME = ImageOptim;
 				SWIFT_VERSION = 6.0;
 			};
@@ -2110,7 +2109,6 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ImageOptim.entitlements;
-				DEVELOPMENT_TEAM = 59KZTZA4XR;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2124,7 +2122,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = net.pornel.ImageOptim;
+				PRODUCT_BUNDLE_IDENTIFIER = O2MS.ImageOptim;
 				PRODUCT_NAME = ImageOptim;
 				SWIFT_VERSION = 6.0;
 			};
