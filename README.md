@@ -6,8 +6,9 @@
 
 Requires:
 
-* Xcode
+* Xcode 26 or later, and an Apple silicon Mac (the app is Swift 6 / SwiftUI and targets macOS 26).
 * [Rust](https://rust-lang.org/) installed via [rustup](https://www.rustup.rs/) (not Homebrew).
+* [Node.js](https://nodejs.org/) 16 or later, used to bundle SVGO.
 
 ```sh
 git clone --recursive https://imageoptim.com ImageOptim
@@ -15,6 +16,13 @@ cd ImageOptim
 ```
 
 To get started, open `imageoptim/ImageOptim.xcodeproj`. It will automatically download and build all subprojects when run in Xcode.
+
+The project is set up for the signing identity used for the official releases. Pick your own team in Signing & Capabilities, or build unsigned from the command line:
+
+```sh
+cd imageoptim
+xcodebuild -target ImageOptim -configuration Release CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=""
+```
 
 In case of build errors, these sometimes help:
 
