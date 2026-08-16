@@ -1,3 +1,8 @@
+# `build` and `install` are the goals Xcode's legacy target passes as $(ACTION).
+build: all
+
+install:
+
 all: ./build/svgo.js
 
 ./build/svgo.js: ./node_modules/.bin/webpack index.js webpack.config.js
@@ -9,4 +14,4 @@ all: ./build/svgo.js
 clean:
 	-rm -rf build node_modules
 
-.PHONY: clean
+.PHONY: build install all clean

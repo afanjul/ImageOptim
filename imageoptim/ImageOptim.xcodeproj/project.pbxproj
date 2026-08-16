@@ -1030,6 +1030,7 @@
 			buildPhases = (
 			);
 			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = ../svgo;
 			dependencies = (
 			);
 			name = SVGO;
