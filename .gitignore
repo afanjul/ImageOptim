@@ -150,3 +150,7 @@ guetzli/opencl/clba_kernels.h
 guetzli/opencl/kernels_gen.cl
 guetzli/opencl/build/
 guetzli/build/
+libjpeg/build/
+oxipng/build/
+svgcleaner/build/
+zopfli-png/build/

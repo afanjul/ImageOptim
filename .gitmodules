@@ -10,6 +10,7 @@
 [submodule "pngquant/src"]
 	path = pngquant/src
 	url = https://github.com/pornel/pngquant.git
+	ignore = untracked
 [submodule "libjpeg/src"]
 	path = libjpeg/src
 	url = https://github.com/ImageOptim/mozjpeg-cocoa.git
