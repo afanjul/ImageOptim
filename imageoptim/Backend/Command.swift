@@ -95,7 +95,7 @@ public enum Command {
     /// Launches a command-line tool and waits for it, without blocking a thread.
     ///
     /// - Parameters:
-    ///   - timeLimit: sends SIGINT after this many seconds (PNGOUT prints its best result and exits).
+    ///   - timeLimit: sends SIGINT after this many seconds (the tool prints its best result and exits).
     ///   - onLine: called for every line of the `.capture` streams; return `.stop` to stop parsing.
     /// - Returns: the termination status.
     @discardableResult

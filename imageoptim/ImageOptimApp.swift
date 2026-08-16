@@ -5,7 +5,6 @@
 
 import ImageOptimGPL
 import QuickLookUI
-import Sparkle
 import SwiftUI
 
 @main
@@ -17,8 +16,7 @@ struct ImageOptimApp: App {
 
     var body: some Scene {
         Window("ImageOptim", id: WindowID.main) {
-            ContentView()
-                .environment(model)
+            ContentView(model: model)
                 .frame(minWidth: 480, minHeight: 260)
         }
         .defaultSize(width: 640, height: 420)
@@ -29,18 +27,22 @@ struct ImageOptimApp: App {
         Window(String(localized: "About ImageOptim", comment: "Window Title"), id: WindowID.about) {
             AboutView()
         }
-        .defaultSize(width: 420, height: 400)
-        .windowResizability(.contentMinSize)
+        .windowResizability(.contentSize)
 
-        Settings {
+        // A plain window rather than the `Settings` scene, so the prefs keep the
+        // title and the tabbed layout of the old PrefsController.xib
+        Window(String(localized: "ImageOptim Preferences", comment: "Window Title"), id: WindowID.prefs) {
             SettingsView()
         }
+        .windowResizability(.contentSize)
+        .defaultPosition(.center)
     }
 }
 
 enum WindowID {
     static let main = "main"
     static let about = "about"
+    static let prefs = "prefs"
 }
 
 /// Everything that used to live in the ImageOptim.xib main menu.
@@ -55,13 +57,17 @@ struct AppCommands: Commands {
             Button(String(localized: "About ImageOptim", comment: "Menu Item")) {
                 openWindow(id: WindowID.about)
             }
-            Button(String(localized: "Check for Updates…", comment: "Menu Item")) {
-                SUUpdater.shared()?.checkForUpdates(nil)
-            }
             Divider()
             Button(String(localized: "Web API…", comment: "Menu Item")) {
                 openURL(URL(string: "https://imageoptim.com/app-api")!)
             }
+        }
+
+        CommandGroup(replacing: .appSettings) {
+            Button(String(localized: "Preferences…", comment: "Menu Item")) {
+                openWindow(id: WindowID.prefs)
+            }
+            .keyboardShortcut(",")
         }
 
         CommandGroup(replacing: .newItem) {
@@ -76,13 +82,13 @@ struct AppCommands: Commands {
                 model.startAgain(onlyOptimized: NSApp.currentEvent?.modifierFlags.contains(.option) == true)
             }
             .keyboardShortcut("r")
-            .disabled(!model.canStartAgain(onlyOptimized: false))
+            .disabled(!model.canStartAgainAny)
 
             Button(String(localized: "Optimize Optimized", comment: "Menu Item")) {
                 model.startAgain(onlyOptimized: true)
             }
             .keyboardShortcut("r", modifiers: [.command, .option])
-            .disabled(!model.canStartAgain(onlyOptimized: true))
+            .disabled(!model.canStartAgainOptimized)
 
             Divider()
 
@@ -103,12 +109,12 @@ struct AppCommands: Commands {
                 QuickLook.toggle()
             }
             .keyboardShortcut("y")
-            .disabled(model.selection.isEmpty)
+            .disabled(!model.hasSelection)
 
             Button(String(localized: "Show in Finder", comment: "Menu Item")) {
                 model.revealSelectedInFinder()
             }
-            .disabled(model.selection.isEmpty)
+            .disabled(!model.hasSelection)
         }
 
         CommandGroup(replacing: .pasteboard) {
@@ -116,13 +122,13 @@ struct AppCommands: Commands {
                 model.cutSelection()
             }
             .keyboardShortcut("x")
-            .disabled(model.selection.isEmpty)
+            .disabled(!model.hasSelection)
 
             Button(String(localized: "Copy", comment: "Menu Item")) {
                 model.copySelection()
             }
             .keyboardShortcut("c")
-            .disabled(model.selection.isEmpty)
+            .disabled(!model.hasSelection)
 
             Button(String(localized: "Paste", comment: "Menu Item")) {
                 Task { await model.paste() }
@@ -142,7 +148,7 @@ struct AppCommands: Commands {
                 model.deleteSelected()
             }
             .keyboardShortcut(.delete, modifiers: [])
-            .disabled(model.selection.isEmpty)
+            .disabled(!model.hasSelection)
 
             Button(String(localized: "Delete Completed", comment: "Menu Item")) {
                 model.clearComplete()
@@ -170,7 +176,6 @@ struct AppCommands: Commands {
             LossyQualityMenuItems()
             Divider()
             DefaultsToggle("Zopfli", key: PrefKey.zopfliEnabled)
-            DefaultsToggle("PNGOUT", key: PrefKey.pngOutEnabled)
             DefaultsToggle("OxiPNG", key: PrefKey.oxiPngEnabled)
             DefaultsToggle("AdvPNG", key: PrefKey.advPngEnabled)
             DefaultsToggle("PNGCrush", key: PrefKey.pngCrushEnabled)

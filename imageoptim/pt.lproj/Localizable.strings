@@ -69,9 +69,6 @@
 "Best tool" = "Ferramentas";
 
 /* Menu Item */
-"Check for Updates…" = "Procurar actualizações…";
-
-/* Menu Item */
 "Copy" = "Copiar";
 
 /* Menu Item */
@@ -136,3 +133,15 @@
 
 /* Preferences group */
 "Writing files to disk" = "Ao escrever ficheiros no disco";
+
+/* Preferences tab */
+"General" = "Geral";
+
+/* Preferences tab */
+"Quality" = "Qualidade";
+
+/* Preferences tab */
+"Optimization speed" = "Velicidade da otimização";
+
+/* Menu Item */
+"Preferences…" = "Preferências…";

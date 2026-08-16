@@ -63,9 +63,6 @@
 "Best tool" = "Geriausias įrankis";
 
 /* Menu Item */
-"Check for Updates…" = "Patikrinti atnaujinimus...";
-
-/* Menu Item */
 "Copy" = "Kopijuoti";
 
 /* Menu Item */
@@ -154,3 +151,15 @@
 
 /* Preferences group */
 "Writing files to disk" = "Rašyti failus į diską";
+
+/* Window Title */
+"ImageOptim Preferences" = "ImageOptim nustatymai";
+
+/* Preferences tab */
+"General" = "Bendri";
+
+/* Preferences tab */
+"Optimization speed" = "Optimizavimo lygis";
+
+/* Menu Item */
+"Preferences…" = "Nustatymai...";

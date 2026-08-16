@@ -11,7 +11,6 @@ public struct PngCrushWorker: Worker {
     let brute: Bool
 
     public init(level: Int, settings: Settings) {
-        // Reusing PngOut config here
         strip = settings.removePngChunks
         brute = level >= 6
     }

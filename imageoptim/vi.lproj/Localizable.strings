@@ -63,9 +63,6 @@
 "Best tool" = "Công cụ tốt nhất";
 
 /* Menu Item */
-"Check for Updates…" = "Kiểm tra cập nhật...";
-
-/* Menu Item */
 "Copy" = "Sao chép";
 
 /* Menu Item */
@@ -163,3 +160,15 @@
 
 /* Preferences group */
 "Writing files to disk" = "Viết dữ liệu tập tin lên đĩa";
+
+/* Window Title */
+"ImageOptim Preferences" = "Tùy Biến";
+
+/* Preferences tab */
+"General" = "Tổng quan";
+
+/* Preferences tab */
+"Optimization speed" = "Cấp độ Tùy Chỉnh";
+
+/* Menu Item */
+"Preferences…" = "Tùy biến...";

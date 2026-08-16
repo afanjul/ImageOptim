@@ -6,26 +6,30 @@
 import ImageOptimGPL
 import SwiftUI
 
+/// The model is passed down explicitly rather than through the environment: `@Environment(AppModel.self)`
+/// traps with "No Observable object of type AppModel found" whenever SwiftUI evaluates a subview
+/// (a table cell, a context menu) in a graph the app's `.environment(_:)` hasn't reached.
 struct ContentView: View {
-    @Environment(AppModel.self) private var model
-    @Environment(\.openSettings) private var openSettings
+    let model: AppModel
     @State private var isDropTarget = false
 
-    var body: some View {
-        @Bindable var model = model
+    init(model: AppModel) {
+        self.model = model
+    }
 
+    var body: some View {
         VStack(spacing: 0) {
             ZStack {
-                if model.jobs.isEmpty {
-                    DropZone(isTargeted: isDropTarget)
+                if model.hasJobs {
+                    JobsTable(model: model)
                 } else {
-                    jobsTable
+                    DropZone(isTargeted: isDropTarget)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             Divider()
-            bottomBar
+            BottomBar(model: model)
         }
         .dropDestination(for: URL.self) { urls, _ in
             model.setInsertRow(-1)
@@ -33,13 +37,20 @@ struct ContentView: View {
             return true
         } isTargeted: { isDropTarget = $0 }
         .onAppear {
-            model.updateStoppableState()
+            model.updateSelectionState()
         }
     }
+}
 
-    // MARK: - Table
+// MARK: - Table
 
-    private var jobsTable: some View {
+/// A view of its own, so that the status bar ticking away below it does not invalidate
+/// (and re-diff every row of) the table. Its body reads the row array and the table's own
+/// bindings — nothing that changes several times a second.
+private struct JobsTable: View {
+    let model: AppModel
+
+    var body: some View {
         @Bindable var model = model
 
         return Table(model.sortedJobs,
@@ -47,8 +58,8 @@ struct ContentView: View {
                      sortOrder: $model.sortOrder,
                      columnCustomization: $model.columnCustomization) {
             TableColumn(Text(verbatim: ""), sortUsing: JobComparator(field: .status)) { job in
-                StatusIcon(name: job.statusImageName)
-                    .help(job.statusText)
+                StatusIcon(name: job.display.statusImageName)
+                    .help(job.display.statusText)
             }
             .width(22)
             .customizationID("status")
@@ -56,14 +67,14 @@ struct ContentView: View {
 
             TableColumn(Text(String(localized: "File", comment: "Table Column Title (MUST BE SHORT)")),
                         sortUsing: JobComparator(field: .fileName)) { job in
-                FileNameCell(job: job)
+                FileNameCell(model: model, job: job)
             }
             .width(min: 100, ideal: 316, max: 1000)
             .customizationID("filename")
             .disabledCustomizationBehavior(.visibility)
 
             TableColumn(Text(String(localized: "Original Size", comment: "Table Column Title (MUST BE SHORT)"))) { job in
-                Text(Formatters.size(job.byteSizeOriginal))
+                Text(Formatters.size(job.display.byteSizeOriginal))
                     .monospacedDigit()
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
@@ -72,7 +83,7 @@ struct ContentView: View {
             .defaultVisibility(.hidden)
 
             TableColumn(Text(String(localized: "Size", comment: "Table Column Title (MUST BE SHORT)"))) { job in
-                Text(Formatters.size(job.byteSizeOptimized))
+                Text(Formatters.size(job.display.byteSizeOptimized))
                     .monospacedDigit()
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
@@ -80,7 +91,7 @@ struct ContentView: View {
             .customizationID("size")
 
             TableColumn(Text(String(localized: "Savings", comment: "Table Column Title (MUST BE SHORT)"))) { job in
-                Text(Formatters.savings(job.percentOptimized))
+                Text(Formatters.savings(job.display.percentOptimized))
                     .monospacedDigit()
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
@@ -88,7 +99,7 @@ struct ContentView: View {
             .customizationID("savings")
 
             TableColumn(Text(String(localized: "Best tool", comment: "Table Column Title (MUST BE SHORT)"))) { job in
-                Text(job.bestToolName ?? "")
+                Text(job.display.bestToolName ?? "")
                     .monospacedDigit()
             }
             .width(min: 40, ideal: 85, max: 250)
@@ -97,20 +108,74 @@ struct ContentView: View {
         }
         .tableStyle(.inset)
         .contextMenu(forSelectionType: Job.ID.self) { ids in
-            rowMenu(for: ids)
+            RowMenu(model: model, ids: ids)
         } primaryAction: { _ in
             model.revealSelectedInFinder()
         }
         .onDeleteCommand {
             model.deleteSelected()
         }
-        .onChange(of: model.selection) {
-            model.updateStoppableState()
+        .background(FixedRowHeight())
+    }
+}
+
+/// Takes the table off automatic row heights.
+///
+/// `Table` leaves the `NSOutlineView` underneath it on `usesAutomaticRowHeights`, so every row
+/// that scrolls into view is measured: `_uncachedAutomaticRowHeight` runs an Auto Layout pass and
+/// a SwiftUI `sizeThatFits` over the row's hosting views. Sampling a scroll through a few thousand
+/// rows put ~25% of the main thread in that measurement alone. Every row here is a single line of
+/// text of the same size, so the height is a constant and measuring it per row buys nothing.
+///
+/// The height is read back from the table rather than hard-coded, so the rows keep exactly the
+/// size AppKit had already decided on and the list looks unchanged.
+private struct FixedRowHeight: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSView {
+        NSView(frame: .zero)
+    }
+
+    func updateNSView(_ view: NSView, context: Context) {
+        // The table has usually not laid out its rows yet at this point in the update, and it may
+        // have none at all, so this runs after the current pass and gives up until the next one.
+        Task { @MainActor in
+            apply(near: view)
         }
     }
 
-    @ViewBuilder
-    private func rowMenu(for ids: Set<Job.ID>) -> some View {
+    private func apply(near view: NSView) {
+        guard let root = view.window?.contentView,
+              let table = Self.firstTableView(in: root),
+              table.usesAutomaticRowHeights,
+              table.numberOfRows > 0
+        else { return }
+
+        let measured = table.rect(ofRow: 0).height
+        guard measured > 4, measured < 200 else { return } // not laid out yet; try again next update
+
+        table.usesAutomaticRowHeights = false
+        table.rowHeight = measured
+        table.noteHeightOfRows(withIndexesChanged: IndexSet(integersIn: 0 ..< table.numberOfRows))
+    }
+
+    private static func firstTableView(in view: NSView) -> NSTableView? {
+        if let table = view as? NSTableView {
+            return table
+        }
+        for subview in view.subviews {
+            if let table = firstTableView(in: subview) {
+                return table
+            }
+        }
+        return nil
+    }
+}
+
+/// Its own view so the enablement flags it reads stay out of the table's dependencies.
+private struct RowMenu: View {
+    let model: AppModel
+    let ids: Set<Job.ID>
+
+    var body: some View {
         Button(String(localized: "Show in Finder", comment: "Menu Item")) {
             model.revealSelectedInFinder()
         }
@@ -135,25 +200,29 @@ struct ContentView: View {
             model.remove(ids: ids)
         }
     }
+}
 
-    // MARK: - Bottom bar
+// MARK: - Bottom bar
 
-    private var bottomBar: some View {
-        HStack(spacing: 8) {
+/// Add button, status text, then the settings button (swapped for the progress spinner
+/// while busy) and "Again" on the trailing edge — the order the xib laid out.
+///
+/// Separate from `ContentView` because the status text is rewritten several times a second:
+/// in one body with the table, every one of those ticks rebuilt the table too.
+private struct BottomBar: View {
+    let model: AppModel
+    @Environment(\.openWindow) private var openWindow
+
+    var body: some View {
+        HStack(spacing: 7) {
             Button {
                 Task { await model.browseForFiles() }
             } label: {
                 Image(systemName: "plus")
             }
+            .frame(width: 30)
             .help(String(localized: "Add new files or directories", comment: "Button Tooltip"))
-
-            Button {
-                model.startAgain(onlyOptimized: NSApp.currentEvent?.modifierFlags.contains(.option) == true)
-            } label: {
-                Label(String(localized: "Again", comment: "Button"), systemImage: "arrow.clockwise")
-            }
-            .help(String(localized: "Run optimizations again", comment: "Button tooltip"))
-            .disabled(model.jobs.isEmpty)
+            .accessibilityLabel(Text(String(localized: "Add new files or directories", comment: "Button Tooltip")))
 
             // `.enabled` and `.disabled` are different types, so the branch is on the view
             Group {
@@ -163,19 +232,41 @@ struct ContentView: View {
                     Text(model.statusText).textSelection(.disabled)
                 }
             }
-            .font(.subheadline)
+            .font(.system(size: NSFont.smallSystemFontSize))
             .lineLimit(1)
             .truncationMode(.tail)
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            Button {
-                openSettings()
-            } label: {
-                Image(systemName: "gearshape")
+            // Both are 16×16 and share the same slot, so the bar doesn't shift when a run starts
+            ZStack {
+                if model.isBusy {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .controlSize(.small)
+                } else {
+                    Button {
+                        openWindow(id: WindowID.prefs)
+                    } label: {
+                        ActionIcon()
+                    }
+                    .buttonStyle(.borderless)
+                    .help(String(localized: "Settings", comment: "Button Tooltip"))
+                }
             }
-            .help(String(localized: "Settings", comment: "Button Tooltip"))
+            .frame(width: 16, height: 16)
+            .padding(.trailing, 1)
+
+            Button {
+                model.startAgain(onlyOptimized: NSApp.currentEvent?.modifierFlags.contains(.option) == true)
+            } label: {
+                Label(String(localized: "Again", comment: "Button"), systemImage: "arrow.clockwise")
+            }
+            .frame(minWidth: 90)
+            .help(String(localized: "Run optimizations again", comment: "Button tooltip"))
+            .disabled(!model.hasJobs)
         }
-        .padding(.horizontal, 12)
+        .controlSize(.regular)
+        .padding(.horizontal, 8)
         .padding(.vertical, 8)
     }
 }
@@ -185,9 +276,22 @@ struct ContentView: View {
 private struct StatusIcon: View {
     let name: String
 
+    /// There are only a handful of status images, but `NSImage(named:)` is an AppKit round trip
+    /// that the status column would otherwise make for every visible row on every redraw.
+    @MainActor private static var cache: [String: Image?] = [:]
+
+    private static func image(named name: String) -> Image? {
+        if let cached = cache[name] {
+            return cached
+        }
+        let image = NSImage(named: name).map { Image(nsImage: $0) }
+        cache[name] = image
+        return image
+    }
+
     var body: some View {
-        if let image = NSImage(named: name) {
-            Image(nsImage: image)
+        if let image = Self.image(named: name) {
+            image
         } else {
             Color.clear.frame(width: 16, height: 16)
         }
@@ -196,7 +300,7 @@ private struct StatusIcon: View {
 
 /// The filename column, with the "reveal in Finder" button that used to be RevealButtonCell.
 private struct FileNameCell: View {
-    @Environment(AppModel.self) private var model
+    let model: AppModel
     let job: Job
     @State private var isHovering = false
 
@@ -206,41 +310,73 @@ private struct FileNameCell: View {
                 .lineLimit(1)
                 .truncationMode(.middle)
             Spacer(minLength: 0)
-            if isHovering {
-                Button {
-                    model.reveal(job)
-                } label: {
-                    Image(systemName: "arrow.right.circle.fill")
-                }
-                .buttonStyle(.plain)
-                .help(job.filePath.path)
+            // Hidden rather than absent: scrolling drags rows under a stationary pointer, so this
+            // toggles constantly, and changing opacity is much cheaper for SwiftUI than inserting
+            // and removing the button from the view hierarchy each time.
+            Button {
+                model.reveal(job)
+            } label: {
+                Image(systemName: "arrow.right.circle.fill")
             }
+            .buttonStyle(.plain)
+            .help(job.filePathString)
+            .opacity(isHovering ? 1 : 0)
+            .allowsHitTesting(isHovering)
         }
         .onHover { isHovering = $0 }
-        .help(job.statusText)
+        .help(job.display.statusText)
     }
 }
 
-/// The empty state — what DragDropImageView used to draw.
+/// The trailing settings button's icon: the same `NSActionTemplate` the xib used.
+private struct ActionIcon: View {
+    var body: some View {
+        if let image = NSImage(named: NSImage.actionTemplateName) {
+            Image(nsImage: image)
+                .renderingMode(.template)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+        } else {
+            Image(systemName: "gearshape")
+        }
+    }
+}
+
+/// The empty state — a port of what DragDropImageView's `drawRect:` used to draw:
+/// a dashed rounded square a quarter of the window wide, with a solid arrow pointing into it.
 private struct DropZone: View {
     let isTargeted: Bool
 
     var body: some View {
-        VStack(spacing: 12) {
-            Image(nsImage: NSApp.applicationIconImage)
-                .resizable()
-                .frame(width: 96, height: 96)
-                .opacity(isTargeted ? 1 : 0.6)
-            Text(String(localized: "Drop images here", comment: "Drop zone"))
-                .foregroundStyle(.secondary)
+        Canvas { context, canvas in
+            let side = min(canvas.width / 4, canvas.height / 1.5)
+            let lineWidth = max(2, side / 32)
+            let color = Color(nsColor: .secondaryLabelColor).opacity(isTargeted ? 1.0 / 4.0 : 1.0 / 8.0)
+            let mid = CGPoint(x: canvas.width / 2, y: canvas.height / 2)
+
+            let box = CGRect(x: mid.x - side / 2, y: mid.y - side / 2, width: side, height: side)
+            context.stroke(Path(roundedRect: box, cornerRadius: side / 14),
+                           with: .color(color),
+                           style: StrokeStyle(lineWidth: lineWidth,
+                                              dash: [side / 10, side / 16],
+                                              dashPhase: 2))
+
+            // Stem half-width and shoulder half-width; the arrow spans side/2 vertically,
+            // sitting a touch above centre exactly like the old offset of -size/8 did.
+            let stem = side / 8
+            let shoulder = stem * 2
+            var arrow = Path()
+            arrow.move(to: CGPoint(x: mid.x - stem, y: mid.y - side / 4))
+            arrow.addLine(to: CGPoint(x: mid.x + stem, y: mid.y - side / 4))
+            arrow.addLine(to: CGPoint(x: mid.x + stem, y: mid.y))
+            arrow.addLine(to: CGPoint(x: mid.x + shoulder, y: mid.y))
+            arrow.addLine(to: CGPoint(x: mid.x, y: mid.y + side / 4))
+            arrow.addLine(to: CGPoint(x: mid.x - shoulder, y: mid.y))
+            arrow.addLine(to: CGPoint(x: mid.x - stem, y: mid.y))
+            arrow.closeSubpath()
+            context.fill(arrow, with: .color(color))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(isTargeted ? Color.accentColor.opacity(0.12) : Color.clear)
-        .overlay {
-            RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(style: StrokeStyle(lineWidth: 2, dash: [8, 6]))
-                .foregroundStyle(isTargeted ? Color.accentColor : Color.secondary.opacity(0.4))
-                .padding(16)
-        }
+        .accessibilityLabel(Text(String(localized: "Drop images here", comment: "Drop zone")))
     }
 }

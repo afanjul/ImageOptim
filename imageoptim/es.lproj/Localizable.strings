@@ -74,9 +74,6 @@
 "Best tool" = "Herramientas";
 
 /* Menu Item */
-"Check for Updates…" = "Buscar actualizaciones…";
-
-/* Menu Item */
 "Copy" = "Copiar";
 
 /* Menu Item */
@@ -147,3 +144,15 @@
 
 /* Preferences group */
 "Writing files to disk" = "Al guardar archivos al disco";
+
+/* Window Title */
+"ImageOptim Preferences" = "Preferencias de ImageOptim";
+
+/* Preferences tab */
+"Quality" = "Calidad";
+
+/* Preferences tab */
+"Optimization speed" = "Velocidad optimización";
+
+/* Menu Item */
+"Preferences…" = "Preferencias…";

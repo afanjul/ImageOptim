@@ -57,9 +57,6 @@
 "Again" = "Tekrar";
 
 /* Menu Item */
-"Check for Updates…" = "Güncelleme Sorgula…";
-
-/* Menu Item */
 "Copy" = "Kopyala";
 
 /* Menu Item */
@@ -142,3 +139,18 @@
 
 /* Preferences group */
 "Writing files to disk" = "Dosya kayıt tercihi";
+
+/* Window Title */
+"ImageOptim Preferences" = "ImageOptim Tercihleri";
+
+/* Preferences tab */
+"General" = "Genel";
+
+/* Preferences tab */
+"Quality" = "Kalite";
+
+/* Preferences tab */
+"Optimization speed" = "Optimizasyon seviyesi";
+
+/* Menu Item */
+"Preferences…" = "Ayarlar…";

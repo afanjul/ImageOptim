@@ -2,7 +2,8 @@
 //  SettingsView.swift
 //  ImageOptim
 //
-//  The SwiftUI replacement for PrefsController.xib.
+//  The SwiftUI replacement for PrefsController.xib. It keeps the layout of the
+//  old nib: a plain tab view, boxed groups, and NSSliders with tick marks.
 //
 
 import ImageOptimGPL
@@ -10,19 +11,38 @@ import SwiftUI
 
 struct SettingsView: View {
     var body: some View {
-        TabView {
-            Tab(String(localized: "General", comment: "Preferences tab"), systemImage: "gearshape") {
-                GeneralSettings()
-            }
-            Tab(String(localized: "Quality", comment: "Preferences tab"), systemImage: "dial.medium") {
-                QualitySettings()
-            }
-            Tab(String(localized: "Optimization speed", comment: "Preferences tab"), systemImage: "speedometer") {
-                SpeedSettings()
-            }
-        }
-        .frame(width: 620)
-        .scenePadding()
+        // SwiftUI's own TabView moves its tabs into the title bar on macOS 26,
+        // so the tabs are an NSTabView, like the nib's
+        ClassicTabView(tabs: [
+            (String(localized: "General", comment: "Preferences tab"), AnyView(GeneralSettings())),
+            (String(localized: "Quality", comment: "Preferences tab"), AnyView(QualitySettings())),
+            (String(localized: "Optimization speed", comment: "Preferences tab"), AnyView(SpeedSettings())),
+        ])
+        .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
+        .frame(width: 663, height: 376)
+    }
+}
+
+/// The nib's `smallSystem`/`miniSystem` label fonts.
+private extension Font {
+    static let smallLabel = Font.system(size: NSFont.smallSystemFontSize)
+    static let miniLabel = Font.system(size: NSFont.systemFontSize(for: .mini))
+}
+
+/// The hint lines under the checkboxes, indented to line up with the checkbox title.
+private struct Hint: View {
+    let text: String
+
+    init(_ text: String) {
+        self.text = text
+    }
+
+    var body: some View {
+        Text(text)
+            .font(.smallLabel)
+            .foregroundStyle(.secondary)
+            .padding(.leading, 18)
+            .fixedSize(horizontal: false, vertical: true)
     }
 }
 
@@ -31,11 +51,10 @@ struct SettingsView: View {
 private struct GeneralSettings: View {
     @AppStorage(PrefKey.preservePermissions) private var preservePermissions = false
     @AppStorage(PrefKey.preserveDates) private var preserveDates = false
-    @AppStorage(PrefKey.pngOutRemoveChunks) private var pngOutRemoveChunks = true
+    @AppStorage(PrefKey.removePngChunks) private var removePngChunks = true
     @AppStorage(PrefKey.jpegTranStripAll) private var jpegTranStripAll = true
 
     @AppStorage(PrefKey.gifsicleEnabled) private var gifsicle = true
-    @AppStorage(PrefKey.pngOutEnabled) private var pngOut = true
     @AppStorage(PrefKey.pngCrushEnabled) private var pngCrush = true
     @AppStorage(PrefKey.oxiPngEnabled) private var oxiPng = true
     @AppStorage(PrefKey.advPngEnabled) private var advPng = true
@@ -52,66 +71,24 @@ private struct GeneralSettings: View {
     @State private var showsGuetzliWarning = false
 
     var body: some View {
-        Form {
-            Section(String(localized: "Writing files to disk", comment: "Preferences group")) {
-                Toggle(String(localized: "Preserve file permissions, attributes and hardlinks",
-                              comment: "Preferences checkbox"), isOn: $preservePermissions)
-                Text(String(localized: "Saving to network drives is faster when permissions are not preserved",
-                            comment: "Preferences hint"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Toggle(String(localized: "Preserve file creation and modification dates",
-                              comment: "Preferences checkbox"), isOn: $preserveDates)
-            }
+        VStack(spacing: 0) {
+            HStack(alignment: .top, spacing: 12) {
+                enableBox
+                    .frame(width: 131)
+                    .frame(maxHeight: .infinity, alignment: .top)
 
-            Section(String(localized: "Metadata and color profiles", comment: "Preferences group")) {
-                Toggle(String(localized: "Strip PNG metadata (gamma, color profiles, optional chunks)",
-                              comment: "Preferences checkbox"), isOn: $pngOutRemoveChunks)
-                Text(String(localized: "Web browsers require gamma chunks to be removed", comment: "Preferences hint"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Toggle(String(localized: "Strip JPEG metadata (EXIF, color profiles, GPS, rotation, etc.)",
-                              comment: "Preferences checkbox"), isOn: $jpegTranStripAll)
-                Text(String(localized: "Not recommended if you rely on embedded copyright information",
-                            comment: "Preferences hint"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Section(String(localized: "Enable", comment: "Preferences group")) {
-                Grid(alignment: .leading, horizontalSpacing: 24, verticalSpacing: 6) {
-                    GridRow {
-                        Toggle("Gifsicle", isOn: $gifsicle)
-                        Toggle("JPEGOptim", isOn: $jpegOptim)
-                    }
-                    GridRow {
-                        Toggle("PNGOUT", isOn: $pngOut)
-                        Toggle("Jpegtran", isOn: $jpegTran)
-                    }
-                    GridRow {
-                        Toggle("PNGCrush", isOn: $pngCrush)
-                        Toggle("SVGO", isOn: $svgo)
-                            .disabled(!NodeTools.svgSupported)
-                            .help(String(localized: "Requires Node.js installed system-wide", comment: "tooltip"))
-                    }
-                    GridRow {
-                        Toggle("OxiPNG", isOn: $oxiPng)
-                        Toggle("Guetzli", isOn: $guetzli)
-                            .help(String(localized: "Guetzli always strips JPEG metadata", comment: "tooltip"))
-                    }
-                    GridRow {
-                        Toggle("AdvPNG", isOn: $advPng)
-                        Toggle("svgcleaner", isOn: $svgCleaner)
-                    }
-                    GridRow {
-                        Toggle("Zopfli", isOn: $zopfli)
-                    }
+                VStack(alignment: .leading, spacing: 8) {
+                    metadataBox
+                    writingBox
                 }
             }
-        }
-        .formStyle(.grouped)
-        .safeAreaInset(edge: .bottom) {
-            HelpButton(anchor: "general")
+
+            Spacer(minLength: 12)
+
+            HStack {
+                Spacer()
+                HelpButton(anchor: "general")
+            }
         }
         .onChange(of: guetzli) { _, isEnabled in
             guetzliChanged(isEnabled)
@@ -128,6 +105,62 @@ private struct GeneralSettings: View {
         } message: {
             Text(String(localized: "It can take up to 30 minutes per image. Your system may be unresponsive while Guetzli is running.",
                         comment: "alert box"))
+        }
+    }
+
+    private var enableBox: some View {
+        GroupBox(String(localized: "Enable", comment: "Preferences group")) {
+            VStack(alignment: .leading, spacing: 6) {
+                Toggle("Zopfli", isOn: $zopfli)
+                Toggle("OxiPNG", isOn: $oxiPng)
+                Toggle("AdvPNG", isOn: $advPng)
+                Toggle("PNGCrush", isOn: $pngCrush)
+                Toggle("JPEGOptim", isOn: $jpegOptim)
+                Toggle("Jpegtran", isOn: $jpegTran)
+                Toggle("Guetzli", isOn: $guetzli)
+                    .help(String(localized: "Guetzli always strips JPEG metadata", comment: "tooltip"))
+                Toggle("Gifsicle", isOn: $gifsicle)
+                Toggle("SVGO", isOn: $svgo)
+                    .disabled(!NodeTools.svgSupported)
+                    .help(String(localized: "Requires Node.js installed system-wide", comment: "tooltip"))
+                Toggle("svgcleaner", isOn: $svgCleaner)
+            }
+            .padding(.leading, 6)
+            .padding(.vertical, 4)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private var metadataBox: some View {
+        GroupBox(String(localized: "Metadata and color profiles", comment: "Preferences group")) {
+            VStack(alignment: .leading, spacing: 8) {
+                Toggle(String(localized: "Strip PNG metadata (gamma, color profiles, optional chunks)",
+                              comment: "Preferences checkbox"), isOn: $removePngChunks)
+                Hint(String(localized: "Web browsers require gamma chunks to be removed", comment: "Preferences hint"))
+                Toggle(String(localized: "Strip JPEG metadata (EXIF, color profiles, GPS, rotation, etc.)",
+                              comment: "Preferences checkbox"), isOn: $jpegTranStripAll)
+                Hint(String(localized: "Not recommended if you rely on embedded copyright information",
+                            comment: "Preferences hint"))
+            }
+            .padding(.leading, 6)
+            .padding(.vertical, 6)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private var writingBox: some View {
+        GroupBox(String(localized: "Writing files to disk", comment: "Preferences group")) {
+            VStack(alignment: .leading, spacing: 8) {
+                Toggle(String(localized: "Preserve file permissions, attributes and hardlinks",
+                              comment: "Preferences checkbox"), isOn: $preservePermissions)
+                Hint(String(localized: "Saving to network drives is faster when permissions are not preserved",
+                            comment: "Preferences hint"))
+                Toggle(String(localized: "Preserve file creation and modification dates",
+                              comment: "Preferences checkbox"), isOn: $preserveDates)
+            }
+            .padding(.leading, 6)
+            .padding(.vertical, 6)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
@@ -160,59 +193,97 @@ private struct QualitySettings: View {
     @AppStorage(PrefKey.gifQuality) private var gifQuality = 80
     @AppStorage(PrefKey.jpegOptimEnabled) private var jpegOptim = true
 
-    var body: some View {
-        Form {
-            Section {
-                Toggle(String(localized: "Enable lossy minification", comment: "Preferences checkbox"), isOn: $lossyEnabled)
-                Text(String(localized: "Makes files much smaller, but may change how images look", comment: "Preferences hint"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+    private static let labelWidth: CGFloat = 82
 
-            Section {
-                QualitySlider(title: String(localized: "JPEG quality", comment: "Preferences slider"),
-                              value: $jpegQuality, range: 50...99, ticks: 25)
-                    .disabled(!lossyEnabled || !jpegOptim)
-                QualitySlider(title: String(localized: "PNG quality", comment: "Preferences slider"),
-                              value: $pngQuality, range: 40...100, ticks: 7)
-                    .disabled(!lossyEnabled)
-                QualitySlider(title: String(localized: "GIF quality", comment: "Preferences slider"),
-                              value: $gifQuality, range: 40...100, ticks: 7)
-                    .disabled(!lossyEnabled)
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .top, spacing: 8) {
+                Spacer()
+                    .frame(width: Self.labelWidth)
+                VStack(alignment: .leading, spacing: 6) {
+                    Toggle(String(localized: "Enable lossy minification", comment: "Preferences checkbox"),
+                           isOn: $lossyEnabled)
+                    Hint(String(localized: "Makes files much smaller, but may change how images look",
+                                comment: "Preferences hint"))
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(.top, 14)
+
+            HStack(alignment: .top, spacing: 8) {
+                sliderLabel(String(localized: "JPEG quality", comment: "Preferences slider"))
+                QualitySlider(value: $jpegQuality, range: 50...99, ticks: 25,
+                              scale: ["50%", "75%", "99%"], isEnabled: lossyEnabled)
+                valueLabel(jpegQuality)
+            }
+            .disabled(!lossyEnabled || !jpegOptim)
+            .padding(.top, 27)
+
+            HStack(alignment: .top, spacing: 12) {
+                HStack(alignment: .top, spacing: 8) {
+                    sliderLabel(String(localized: "PNG quality", comment: "Preferences slider"))
+                    QualitySlider(value: $pngQuality, range: 40...100, ticks: 7,
+                                  scale: ["40%", "70%", "100%"], isEnabled: lossyEnabled)
+                    valueLabel(pngQuality)
+                }
+                HStack(alignment: .top, spacing: 8) {
+                    sliderLabel(String(localized: "GIF quality", comment: "Preferences slider"))
+                    QualitySlider(value: $gifQuality, range: 40...100, ticks: 7,
+                                  scale: ["40%", "70%", "100%"], isEnabled: lossyEnabled)
+                    valueLabel(gifQuality)
+                }
+            }
+            .disabled(!lossyEnabled)
+            .padding(.top, 16)
+
+            Spacer(minLength: 12)
+
+            HStack {
+                Spacer()
+                HelpButton(anchor: "jpegoptim")
             }
         }
-        .formStyle(.grouped)
-        .safeAreaInset(edge: .bottom) {
-            HelpButton(anchor: "jpegoptim")
-        }
+    }
+
+    private func sliderLabel(_ title: String) -> some View {
+        Text(title)
+            .foregroundStyle(lossyEnabled ? Color(nsColor: .controlTextColor) : Color(nsColor: .disabledControlTextColor))
+            .frame(width: Self.labelWidth, alignment: .trailing)
+            .padding(.top, 3)
+    }
+
+    private func valueLabel(_ value: Int) -> some View {
+        Text(verbatim: "\(value)%")
+            .font(.miniLabel)
+            .monospacedDigit()
+            .foregroundStyle(lossyEnabled ? Color(nsColor: .controlTextColor) : Color(nsColor: .disabledControlTextColor))
+            .frame(width: 30, alignment: .leading)
+            .padding(.top, 6)
     }
 }
 
+/// A tick-marked slider with the mini min/middle/max scale printed underneath, as in the nib.
 private struct QualitySlider: View {
-    let title: String
     @Binding var value: Int
     let range: ClosedRange<Int>
     let ticks: Int
+    let scale: [String]
+    let isEnabled: Bool
 
     var body: some View {
-        LabeledContent(title) {
-            VStack(alignment: .leading, spacing: 2) {
-                Slider(value: Binding(get: { Double(value) },
-                                      set: { value = Int($0.rounded()) }),
-                       in: Double(range.lowerBound)...Double(range.upperBound),
-                       step: max(1, (Double(range.upperBound - range.lowerBound) / Double(ticks - 1)).rounded())) {
-                    Text(verbatim: "")
-                } minimumValueLabel: {
-                    Text(verbatim: "\(range.lowerBound)%")
-                } maximumValueLabel: {
-                    Text(verbatim: "\(range.upperBound)%")
-                }
-                Text(verbatim: "\(value)%")
-                    .monospacedDigit()
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+        VStack(spacing: 6) {
+            TickSlider(value: $value, range: range, ticks: ticks)
+                .frame(height: 22)
+            HStack(spacing: 0) {
+                Text(scale[0])
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text(scale[1])
                     .frame(maxWidth: .infinity, alignment: .center)
+                Text(scale[2])
+                    .frame(maxWidth: .infinity, alignment: .trailing)
             }
+            .font(.miniLabel)
+            .foregroundStyle(isEnabled ? Color(nsColor: .controlTextColor) : Color(nsColor: .disabledControlTextColor))
         }
     }
 }
@@ -222,58 +293,152 @@ private struct QualitySlider: View {
 private struct SpeedSettings: View {
     @AppStorage(PrefKey.level) private var level = 4
 
-    private static let labels = [
-        String(localized: "Fast", comment: "Preferences slider label"),
-        String(localized: "Normal", comment: "Preferences slider label"),
-        String(localized: "Extra", comment: "Preferences slider label"),
-        String(localized: "Insane", comment: "Preferences slider label"),
-    ]
-
     var body: some View {
-        Form {
-            Section(String(localized: "Optimization level", comment: "Preferences group")) {
-                Slider(value: Binding(get: { Double(level) }, set: { level = Int($0.rounded()) }),
-                       in: 0...6, step: 1) {
-                    Text(verbatim: "")
-                } minimumValueLabel: {
-                    Text(Self.labels[0])
-                } maximumValueLabel: {
-                    Text(Self.labels[3])
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .top, spacing: 8) {
+                Text(String(localized: "Optimization level", comment: "Preferences slider"))
+                    .frame(width: 113, alignment: .trailing)
+                    .padding(.top, 3)
+
+                VStack(spacing: 6) {
+                    TickSlider(value: $level, range: 0...6, ticks: 7)
+                        .frame(width: 227, height: 22)
+                    HStack(spacing: 0) {
+                        Text(String(localized: "Fast", comment: "Preferences slider label"))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Text(String(localized: "Normal", comment: "Preferences slider label"))
+                            .frame(maxWidth: .infinity, alignment: .center)
+                        Text(String(localized: "Extra", comment: "Preferences slider label"))
+                            .frame(maxWidth: .infinity, alignment: .center)
+                        Text(String(localized: "Insane", comment: "Preferences slider label"))
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
+                    .font(.miniLabel)
+                    .frame(width: 227)
                 }
-                HStack {
-                    Text(Self.labels[1])
-                    Spacer()
-                    Text(Self.labels[2])
-                }
-                .font(.caption)
-                .foregroundStyle(.secondary)
+
+                Spacer(minLength: 0)
             }
-        }
-        .formStyle(.grouped)
-        .safeAreaInset(edge: .bottom) {
-            HelpButton(anchor: "optipng")
+            .padding(.top, 43)
+
+            Spacer(minLength: 12)
+
+            HStack {
+                Spacer()
+                HelpButton(anchor: "optipng")
+            }
         }
     }
 }
 
-// MARK: - Shared bits
+// MARK: - AppKit controls
 
-private struct HelpButton: View {
+/// `NSTabView` with the tabs drawn above the content, hosting SwiftUI pages.
+private struct ClassicTabView: NSViewRepresentable {
+    let tabs: [(title: String, content: AnyView)]
+
+    func makeNSView(context: Context) -> NSTabView {
+        let tabView = NSTabView()
+        tabView.tabViewType = .topTabsBezelBorder
+        for tab in tabs {
+            let item = NSTabViewItem(identifier: tab.title)
+            item.label = tab.title
+            item.view = NSHostingView(rootView: tab.content)
+            tabView.addTabViewItem(item)
+        }
+        return tabView
+    }
+
+    func updateNSView(_ tabView: NSTabView, context: Context) {
+        for (item, tab) in zip(tabView.tabViewItems, tabs) {
+            item.label = tab.title
+            (item.view as? NSHostingView<AnyView>)?.rootView = tab.content
+        }
+    }
+}
+
+/// `NSSlider` with tick marks; SwiftUI's `Slider` can't draw them.
+private struct TickSlider: NSViewRepresentable {
+    @Binding var value: Int
+    let range: ClosedRange<Int>
+    let ticks: Int
+
+    func makeNSView(context: Context) -> NSSlider {
+        let slider = NSSlider(value: Double(value),
+                              minValue: Double(range.lowerBound),
+                              maxValue: Double(range.upperBound),
+                              target: context.coordinator,
+                              action: #selector(Coordinator.sliderMoved(_:)))
+        slider.numberOfTickMarks = ticks
+        slider.allowsTickMarkValuesOnly = true
+        slider.tickMarkPosition = .below
+        slider.isContinuous = true
+        return slider
+    }
+
+    func updateNSView(_ slider: NSSlider, context: Context) {
+        context.coordinator.value = $value
+        if Int(slider.doubleValue.rounded()) != value {
+            slider.doubleValue = Double(value)
+        }
+        slider.isEnabled = context.environment.isEnabled
+    }
+
+    func sizeThatFits(_ proposal: ProposedViewSize, nsView: NSSlider, context: Context) -> CGSize? {
+        CGSize(width: proposal.width ?? 200, height: 22)
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(value: $value)
+    }
+
+    @MainActor
+    final class Coordinator: NSObject {
+        var value: Binding<Int>
+
+        init(value: Binding<Int>) {
+            self.value = value
+        }
+
+        @objc func sliderMoved(_ sender: NSSlider) {
+            let rounded = Int(sender.doubleValue.rounded())
+            if value.wrappedValue != rounded {
+                value.wrappedValue = rounded
+            }
+        }
+    }
+}
+
+/// The round "?" button of the old nib.
+private struct HelpButton: NSViewRepresentable {
     let anchor: String
 
-    var body: some View {
-        HStack {
-            Spacer()
-            Button {
-                Help.show(anchor: anchor)
-            } label: {
-                Image(systemName: "questionmark.circle")
-            }
-            .buttonStyle(.plain)
-            .help(String(localized: "ImageOptim Help", comment: "Menu Item"))
+    func makeNSView(context: Context) -> NSButton {
+        let button = NSButton(title: "", target: context.coordinator, action: #selector(Coordinator.pressed))
+        button.bezelStyle = .helpButton
+        button.toolTip = String(localized: "ImageOptim Help", comment: "Menu Item")
+        return button
+    }
+
+    func updateNSView(_ button: NSButton, context: Context) {
+        context.coordinator.anchor = anchor
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(anchor: anchor)
+    }
+
+    @MainActor
+    final class Coordinator: NSObject {
+        var anchor: String
+
+        init(anchor: String) {
+            self.anchor = anchor
         }
-        .padding(.horizontal)
-        .padding(.bottom, 8)
+
+        @objc func pressed() {
+            Help.show(anchor: anchor)
+        }
     }
 }
 

@@ -57,9 +57,6 @@
 "Best tool" = "Verktøy";
 
 /* Menu Item */
-"Check for Updates…" = "Se etter oppdateringer…";
-
-/* Menu Item */
 "Copy" = "Kopier";
 
 /* Menu Item */
@@ -124,3 +121,18 @@
 
 /* Preferences group */
 "Writing files to disk" = "Alternativer for filhåndtering";
+
+/* Window Title */
+"ImageOptim Preferences" = "Valg for ImageOptim";
+
+/* Preferences tab */
+"General" = "Generelt";
+
+/* Preferences tab */
+"Quality" = "Kvalitet";
+
+/* Preferences tab */
+"Optimization speed" = "Optimaliseringsgrad";
+
+/* Menu Item */
+"Preferences…" = "Valg…";

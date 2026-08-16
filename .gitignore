@@ -63,8 +63,6 @@ imageoptim/*~.*
 imageoptim/build
 imageoptim/DerivedData
 imageoptim/optipng
-imageoptim/pngout
-imageoptim/Sparkle.framework
 jpegoptim/*.1
 jpegoptim/*.c
 jpegoptim/*.h
@@ -137,7 +135,6 @@ imageoptim/*.lproj/Help/Help.helpindex
 pngquant/build/*
 pngcrush/Makefile-nolib
 pngcrush/pngcrush.c.orig
-imageoptim/pngout-20130221-darwin/*
 gifsicle/patched
 pngcrush/patched
 svgo/build/

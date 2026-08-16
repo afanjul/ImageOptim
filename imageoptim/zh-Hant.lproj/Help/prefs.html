@@ -28,7 +28,7 @@
       </dd>
     </dl>
 <h2>Tools</h2>
-    <p data-role="slow-tools">Zopfli and PNGOUT are very good PNG compressors, but are very slow. Disable them if you need to optimize PNG files quickly (leave only AdvPNG for fastest, but still good compression).</p>
+    <p data-role="slow-tools">Zopfli is a very good PNG compressor, but it is very slow. Disable it if you need to optimize PNG files quickly (leave only AdvPNG for fastest, but still good compression).</p>
     <p data-role="dirty-alpha-tools">Zopfli and OxiPNG will clean RGB values of transparent pixels (known as “dirty alpha”). Disable these two tools if you're optimizing special files that use alpha channel for something else than transparency (e.g. heightmap in game data files).</p>
     <div id="jpegoptim">
       <h2><a name="jpegoptim">JPEGOptim</a></h2>
@@ -37,19 +37,6 @@
         <dd>
           <p>設定為100%時，為<strong>無損壓縮</strong>。</p>
           <p>設定為100%以下時，會導致影像品質<strong>下降</strong>。</p>
-        </dd>
-      </dl>
-</div>
-    <div id="pngout">
-      <h2><a name="pngout">PNGOUT</a></h2>
-      <dl>
-<dt>Optimization type</dt>
-        <dd>
-          <p>PNGOUT is very effective, but very slow. Use lower level if you're impatient.</p>
-        </dd>
-        <dt>Interrupt if takes too long</dt>
-        <dd>
-          <p>PNGOUT可能需要<em>大量的時間</em>來處理較大的圖片檔案。此選項啟用後，會將超過一分鐘處理時間的最佳化處理優雅地中斷。</p>
         </dd>
       </dl>
 </div>

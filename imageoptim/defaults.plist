@@ -22,8 +22,6 @@
 	<true/>
 	<key>PngCrush2Enabled</key>
 	<false/>
-	<key>PngOutEnabled</key>
-	<true/>
 	<key>PngOutRemoveChunks</key>
 	<true/>
 	<key>SvgcleanerEnabled</key>

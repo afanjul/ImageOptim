@@ -67,13 +67,11 @@ extension AppModel {
         await addURLsBelowSelection(urls)
     }
 
-    var canPaste: Bool {
-        NSPasteboard.general.canReadObject(forClasses: [NSURL.self])
-    }
-
     // MARK: - Data URLs
 
     /// Small, finished files only — a data: URL of a 10 MB image helps nobody.
+    /// `canCopyAsDataURL` on the model is the throttled flag that drives menu enablement;
+    /// this runs only when the command is actually invoked.
     private var filesForDataURL: [ImageFile] {
         var files: [ImageFile] = []
         var totalSize = 0
@@ -84,10 +82,6 @@ extension AppModel {
             files.append(file)
         }
         return files
-    }
-
-    var canCopyAsDataURL: Bool {
-        !filesForDataURL.isEmpty
     }
 
     func copySelectionAsDataURL() {

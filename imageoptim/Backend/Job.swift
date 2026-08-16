@@ -12,6 +12,34 @@ private struct ToolStats {
     let ratio: Double
 }
 
+/// A counter bumped whenever any job's `statusOrder` actually changes.
+///
+/// Sorting the table by status has to happen again when the jobs move between status
+/// groups, but walking every job to find out whether anything moved is itself O(n) at
+/// the tick rate. This makes the check O(1): the model only re-sorts when the number
+/// differs from the one it sorted at.
+@MainActor
+public enum JobStatusRevision {
+    public private(set) static var current: UInt64 = 0
+
+    static func bump() {
+        current &+= 1
+    }
+}
+
+/// The six values a table row shows, as one comparable snapshot.
+///
+/// Being `Equatable` is the point: the status is rewritten every time a tool starts or stops,
+/// usually to what it already said, and a snapshot that compares equal never reaches SwiftUI.
+public struct JobDisplay: Equatable, Sendable {
+    public var statusImageName: String = "wait"
+    public var statusText: String = ""
+    public var byteSizeOriginal: Int?
+    public var byteSizeOptimized: Int?
+    public var percentOptimized: Double?
+    public var bestToolName: String?
+}
+
 /// One file being optimized, and everything the UI displays about it.
 ///
 /// The whole class lives on the main actor — that's what makes the old `JobProxy`
@@ -25,45 +53,83 @@ public final class Job: Identifiable {
     public private(set) var filePath: URL
     public var displayName: String
 
-    public private(set) var statusImageName = "wait"
-    public private(set) var statusOrder = 0
-    public private(set) var statusText = ""
-    public private(set) var bestToolName: String?
-    public private(set) var isDone = false
-    public private(set) var isFailed = false
+    /// `URL.path` goes through CFURL and allocates, and the path never changes; the row tooltip
+    /// would otherwise re-derive it for every visible row on every scroll frame.
+    @ObservationIgnored public let filePathString: String
+    /// Likewise: the filename shown in the table is fixed for the lifetime of the job.
+    @ObservationIgnored public let fileName: String
 
-    public private(set) var initialInput: ImageFile?
-    public private(set) var unoptimizedInput: ImageFile?
-    public private(set) var wipInput: ImageFile?
-    public private(set) var savedOutput: ImageFile?
-    public private(set) var revertFile: ImageFile?
+    /// Everything the table draws for one row, in a single observed value.
+    ///
+    /// SwiftUI installs an observation tracking when it builds a cell view and cancels it when
+    /// the row is recycled, and the cost of both is proportional to how many properties the cell
+    /// read. The size and savings columns are computed from four or five stored properties each,
+    /// so a row used to register about fourteen key paths — and scrolling a few thousand rows
+    /// spent most of the main thread inside `ObservationRegistrar.Context.registerTracking`
+    /// and `.cancel`. One Equatable snapshot means one key path per cell instead.
+    public private(set) var display = JobDisplay()
 
-    private var bestTools: [String: ToolStats] = [:]
+    // The individual pieces of state are not observed: `display` is what the UI watches, and
+    // everything else here is read from AppModel's own bookkeeping pass, never from a view body.
+    @ObservationIgnored public private(set) var statusImageName = "wait"
+    @ObservationIgnored public private(set) var statusOrder = 0
+    @ObservationIgnored public private(set) var statusText = ""
+    @ObservationIgnored public private(set) var bestToolName: String?
+    @ObservationIgnored public private(set) var isDone = false
+    @ObservationIgnored public private(set) var isFailed = false
+
+    @ObservationIgnored public private(set) var initialInput: ImageFile?
+    @ObservationIgnored public private(set) var unoptimizedInput: ImageFile?
+    @ObservationIgnored public private(set) var wipInput: ImageFile?
+    @ObservationIgnored public private(set) var savedOutput: ImageFile?
+    @ObservationIgnored public private(set) var revertFile: ImageFile?
+
+    // Bookkeeping that no view reads. Without `@ObservationIgnored` every append to
+    // `runningWorkerNames` and every entry in `workersPreviousResults` would go through
+    // the observation registrar — pure overhead multiplied by files × tools.
+    @ObservationIgnored private var bestTools: [String: ToolStats] = [:]
     /// worker name -> settings identifier -> input size it has already seen
-    private var workersPreviousResults: [String: [Int: Int]] = [:]
-    private var runningWorkerNames: [String] = []
+    @ObservationIgnored private var workersPreviousResults: [String: [Int: Int]] = [:]
+    @ObservationIgnored private var runningWorkerNames: [String] = []
 
-    private var lossyConverted = false
-    private var stopping = false
-    private var running = false
-    private var workersTask: Task<Void, Never>?
+    @ObservationIgnored private var lossyConverted = false
+    @ObservationIgnored private var stopping = false
+    @ObservationIgnored private var running = false
+    @ObservationIgnored private var workersTask: Task<Void, Never>?
 
-    private var settingsDigest = Data()
-    private var inputFileHash: ResultHash?
-    private var preservePermissions = true
-    private var preserveDates = false
+    @ObservationIgnored private var settingsDigest = Data()
+    @ObservationIgnored private var inputFileHash: ResultHash?
+    @ObservationIgnored private var preservePermissions = true
+    @ObservationIgnored private var preserveDates = false
 
-    private let db: ResultsDB?
+    @ObservationIgnored private let db: ResultsDB?
 
     public init(filePath: URL, resultsDatabase: ResultsDB?) {
+        let path = filePath.path
         self.filePath = filePath
+        filePathString = path
         db = resultsDatabase
-        displayName = FileManager.default.displayName(atPath: filePath.path)
+        let name = FileManager.default.displayName(atPath: path)
+        displayName = name
+        fileName = name.isEmpty ? filePath.lastPathComponent : name
         setStatus("wait", order: 0, text: IOLocalized("Waiting to be optimized", comment: "tooltip"))
     }
 
-    public var fileName: String {
-        displayName.isEmpty ? filePath.lastPathComponent : displayName
+    // MARK: - What the table draws
+
+    /// Rebuilds `display` and publishes it only if something actually changed. Called from the
+    /// two funnels every state change goes through (`setStatus` and `setFileOptimized`), plus
+    /// the few places that set `isDone`/`bestToolName` on their own.
+    private func updateDisplay() {
+        let updated = JobDisplay(statusImageName: statusImageName,
+                                 statusText: statusText,
+                                 byteSizeOriginal: byteSizeOriginal,
+                                 byteSizeOptimized: byteSizeOptimized,
+                                 percentOptimized: percentOptimized,
+                                 bestToolName: bestToolName)
+        if display != updated {
+            display = updated
+        }
     }
 
     // MARK: - Reported sizes
@@ -119,20 +185,36 @@ public final class Job: Identifiable {
         if isFailed, imageName != "ok", imageName != "err" {
             return
         }
-        statusOrder = order
-        statusText = text
-        statusImageName = imageName
+        // Every worker starting and finishing calls this, usually with the status it already
+        // has. Writing an identical value still invalidates every view observing it, so the
+        // whole table would be rebuilt tools × files times for nothing.
+        if statusOrder != order {
+            statusOrder = order
+            JobStatusRevision.bump()
+        }
+        if statusText != text {
+            statusText = text
+        }
+        if statusImageName != imageName {
+            statusImageName = imageName
+        }
+        updateDisplay()
     }
 
     public func setError(_ text: String) {
-        isFailed = true
+        if !isFailed {
+            isFailed = true
+        }
         setStatus("err", order: 9, text: text)
     }
 
     private func setNooptStatus() {
         setFileOptimized(nil) // Needed to update the 0% optimized display
         setStatus("noopt", order: 5, text: IOLocalized("File cannot be optimized any further", comment: "tooltip"))
-        isDone = true
+        if !isDone {
+            isDone = true
+            updateDisplay() // isDone feeds percentOptimized
+        }
         stopAllWorkers()
     }
 
@@ -157,8 +239,14 @@ public final class Job: Identifiable {
         setFileOptimized(initial)
     }
 
+    /// Every change to the files a row reports its sizes from funnels through here, so this is
+    /// where the snapshot is refreshed — unconditionally, because the caller may have changed
+    /// `initialInput` or `savedOutput` without `wipInput` moving.
     private func setFileOptimized(_ newFile: ImageFile?) {
-        wipInput = newFile
+        if wipInput !== newFile {
+            wipInput = newFile
+        }
+        updateDisplay()
     }
 
     /// Accepts a tool's output if it is smaller than what we have so far.
@@ -203,6 +291,7 @@ public final class Job: Identifiable {
         }
         if newBestToolName != bestToolName {
             bestToolName = newBestToolName
+            updateDisplay()
         }
     }
 
@@ -210,19 +299,20 @@ public final class Job: Identifiable {
 
     /// Marks the job as queued, so the UI shows it as busy right away.
     public func markEnqueued() {
-        isDone = false
-        isFailed = false
-        stopping = false
-        running = true
+        if isDone { isDone = false }
+        if isFailed { isFailed = false }
+        if stopping { stopping = false }
+        if !running { running = true }
+        updateDisplay() // a re-run clears the savings the previous one left on screen
     }
 
     public func run(settings: Settings, cpuLimiter: AsyncSemaphore, fileIOLimiter: AsyncSemaphore, guetzliGate: AsyncSemaphore) async {
         preservePermissions = settings.preservePermissions
         preserveDates = settings.preserveDates
         defer {
-            running = false
+            if running { running = false }
             runningWorkerNames.removeAll()
-            stopping = false
+            if stopping { stopping = false }
         }
 
         setStatus("progress", order: 3, text: IOLocalized("Inspecting file", comment: "tooltip"))
@@ -407,12 +497,8 @@ public final class Job: Identifiable {
 
             var pngcrushEnabled = settings.pngCrushEnabled
             let oxipngEnabled = settings.oxiPngEnabled
-            var pngoutEnabled = settings.pngOutEnabled
             let zopfliEnabled = settings.zopfliEnabled
 
-            if level < 4, zopfliEnabled {
-                pngoutEnabled = false
-            }
             if level < 2, oxipngEnabled {
                 pngcrushEnabled = false
             }
@@ -422,9 +508,6 @@ public final class Job: Identifiable {
             }
             if oxipngEnabled {
                 workerList.append(OxiPngWorker(level: level, stripMetadata: settings.removePngChunks))
-            }
-            if pngoutEnabled {
-                workerList.append(PngoutWorker(level: level, byteSize: input.byteSize, settings: settings))
             }
             if settings.advPngEnabled, settings.removePngChunks {
                 workerList.append(AdvCompWorker(level: level))
@@ -502,7 +585,7 @@ public final class Job: Identifiable {
     private func stopAllWorkers() {
         workersTask?.cancel()
         runningWorkerNames.removeAll()
-        stopping = false
+        if stopping { stopping = false }
     }
 
     public func cleanup() {
@@ -515,7 +598,7 @@ public final class Job: Identifiable {
     private func saveResultAndUpdateStatus(fileIOLimiter: AsyncSemaphore) async {
         if isOptimized {
             let saved = await save(fileIOLimiter: fileIOLimiter)
-            isDone = true
+            if !isDone { isDone = true }
             stopAllWorkers()
             if saved {
                 setStatus("ok", order: 7, text: IOLocalized("Optimized successfully with \(bestToolName ?? "")", comment: "tooltip"))

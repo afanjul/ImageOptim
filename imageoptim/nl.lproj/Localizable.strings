@@ -57,9 +57,6 @@
 "Best tool" = "Gereedschappen";
 
 /* Menu Item */
-"Check for Updates…" = "Controleer op updates…";
-
-/* Menu Item */
 "Copy" = "Kopieer";
 
 /* Menu Item */
@@ -130,3 +127,18 @@
 
 /* Preferences group */
 "Writing files to disk" = "Bezig met het wegschrijven van de bestanden";
+
+/* Window Title */
+"ImageOptim Preferences" = "ImageOptim Voorkeuren";
+
+/* Preferences tab */
+"General" = "Algemeen";
+
+/* Preferences tab */
+"Quality" = "Kwaliteit";
+
+/* Preferences tab */
+"Optimization speed" = "Optimalisatie-niveau";
+
+/* Menu Item */
+"Preferences…" = "Voorkeuren…";

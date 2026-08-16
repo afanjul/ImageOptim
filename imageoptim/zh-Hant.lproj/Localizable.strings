@@ -35,9 +35,6 @@
 "Best tool" = "最佳工具";
 
 /* Menu Item */
-"Check for Updates…" = "檢查更新…";
-
-/* Menu Item */
 "Copy" = "複製";
 
 /* Menu Item */
@@ -123,3 +120,15 @@
 
 /* Preferences group */
 "Writing files to disk" = "檔案寫入";
+
+/* Window Title */
+"ImageOptim Preferences" = "ImageOptim 偏好設定";
+
+/* Preferences tab */
+"General" = "一般";
+
+/* Preferences tab */
+"Optimization speed" = "最佳化程度";
+
+/* Menu Item */
+"Preferences…" = "偏好設定…";

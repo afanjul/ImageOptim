@@ -30,7 +30,7 @@
       </dd>
     </dl>
 <h2>工具</h2>
-    <p data-role="slow-tools">Zopfli 和 PNGOUT 是非常好的 PNG 压缩工具，但速度很慢。如果您想快速优化 PNG 文件，可以禁用它们（只留下 AdvPNG 是速度最快的，它仍然有不错的压缩效果）。</p>
+    <p data-role="slow-tools">Zopfli 是非常好的 PNG 压缩工具，但速度很慢。如果您想快速优化 PNG 文件，可以禁用它（只留下 AdvPNG 是速度最快的，它仍然有不错的压缩效果）。</p>
     <p data-role="dirty-alpha-tools">Zopfli 和 OptiPNG 将清除透明像素（也称“dirty alpha”）的 RGB 值。禁用这两个工具，如果您在优化使用 alpha 通道达到透明的特定文件（例如游戏数据中的 heightmap 文件）。</p>
     <div id="jpegoptim">
       <h2><a name="jpegoptim">JPEGOptim</a></h2>
@@ -39,19 +39,6 @@
         <dd>
           <p>设置为 100% 时，优化为<strong>无损压缩</strong>。</p>
           <p>任何低于 100% 的值将导致<strong>低质量</strong>的文件，如果它们似乎已被采用较高的质量设置保存。</p>
-        </dd>
-      </dl>
-</div>
-    <div id="pngout">
-      <h2><a name="pngout">PNGOUT</a></h2>
-      <dl>
-<dt>优化类型</dt>
-        <dd>
-          <p>PNGOUT 是非常有效的，但是非常缓慢。如果你没有耐心，请设置为较低的级别。</p>
-        </dd>
-        <dt>如果执行时间太长则中断</dt>
-        <dd>
-          <p>PNGOUT 在压缩非常大的图片时可能需要<em>大量</em>的时间。此选项启动后，会将超过1分钟的 PNGOUT 处理优雅的中断。</p>
         </dd>
       </dl>
 </div>

@@ -17,8 +17,8 @@ public enum PrefKey {
     public static let advPngEnabled = "AdvPngEnabled"
     public static let pngCrushEnabled = "PngCrush2Enabled"
     public static let oxiPngEnabled = "OptiPngEnabled"
-    public static let pngOutEnabled = "PngOutEnabled"
-    public static let pngOutRemoveChunks = "PngOutRemoveChunks"
+    /// Named after PNGOUT, which used to own this setting; it applies to every PNG tool now.
+    public static let removePngChunks = "PngOutRemoveChunks"
     public static let zopfliEnabled = "ZopfliEnabled"
     public static let pngMinQuality = "PngMinQuality"
 
@@ -57,7 +57,6 @@ public struct Settings: Sendable {
     public var advPngEnabled = true
     public var pngCrushEnabled = false
     public var oxiPngEnabled = true
-    public var pngOutEnabled = true
     public var removePngChunks = true
     public var zopfliEnabled = true
     public var pngMinQuality = 80
@@ -88,8 +87,7 @@ public struct Settings: Sendable {
         advPngEnabled = defaults.bool(forKey: PrefKey.advPngEnabled)
         pngCrushEnabled = defaults.bool(forKey: PrefKey.pngCrushEnabled)
         oxiPngEnabled = defaults.bool(forKey: PrefKey.oxiPngEnabled)
-        pngOutEnabled = defaults.bool(forKey: PrefKey.pngOutEnabled)
-        removePngChunks = defaults.bool(forKey: PrefKey.pngOutRemoveChunks)
+        removePngChunks = defaults.bool(forKey: PrefKey.removePngChunks)
         zopfliEnabled = defaults.bool(forKey: PrefKey.zopfliEnabled)
         pngMinQuality = defaults.integer(forKey: PrefKey.pngMinQuality)
 

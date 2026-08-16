@@ -72,9 +72,6 @@
 "Best tool" = "ベストツール";
 
 /* Menu Item */
-"Check for Updates…" = "アップデートを確認…";
-
-/* Menu Item */
 "Copy" = "コピー";
 
 /* Menu Item */
@@ -175,3 +172,15 @@
 
 /* Preferences group */
 "Writing files to disk" = "ファイルのディスク書き込み";
+
+/* Window Title */
+"ImageOptim Preferences" = "イメージオプティム環境設定";
+
+/* Preferences tab */
+"General" = "一般";
+
+/* Preferences tab */
+"Optimization speed" = "最適化の速度";
+
+/* Menu Item */
+"Preferences…" = "環境設定…";

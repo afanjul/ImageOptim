@@ -71,9 +71,6 @@
 "Best tool" = "最好的工具";
 
 /* Menu Item */
-"Check for Updates…" = "检查更新…";
-
-/* Menu Item */
 "Copy" = "复制";
 
 /* Menu Item */
@@ -174,3 +171,18 @@
 
 /* Preferences group */
 "Writing files to disk" = "将文件写入磁盘";
+
+/* Window Title */
+"ImageOptim Preferences" = "ImageOptim 首选项";
+
+/* Preferences tab */
+"General" = "常规";
+
+/* Preferences tab */
+"Quality" = "质量";
+
+/* Preferences tab */
+"Optimization speed" = "优化速度";
+
+/* Menu Item */
+"Preferences…" = "首选项...";

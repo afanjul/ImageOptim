@@ -77,9 +77,6 @@
 "Best tool" = "Paras työkalu";
 
 /* Menu Item */
-"Check for Updates…" = "Tarkista päivitykset…";
-
-/* Menu Item */
 "Copy" = "Kopioi";
 
 /* Menu Item */
@@ -174,3 +171,18 @@
 
 /* Preferences group */
 "Writing files to disk" = "Tiedostojen kirjoitus levylle";
+
+/* Window Title */
+"ImageOptim Preferences" = "ImageOptim-asetukset";
+
+/* Preferences tab */
+"General" = "Yleiset";
+
+/* Preferences tab */
+"Quality" = "Laatu";
+
+/* Preferences tab */
+"Optimization speed" = "Optimointinopeus";
+
+/* Menu Item */
+"Preferences…" = "Asetukset…";

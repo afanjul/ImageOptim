@@ -85,7 +85,7 @@ public enum Tools {
         return URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(filename)
     }
 
-    /// PNGOUT and Zopfli are open-ended searches, so they get a deadline proportional
+    /// Zopfli is an open-ended search, so it gets a deadline proportional
     /// to the file size and the optimization level.
     public static func timeLimit(level: Int, byteSize: Int) -> Int {
         min(8 + level * 13, 10 + byteSize / 1024)

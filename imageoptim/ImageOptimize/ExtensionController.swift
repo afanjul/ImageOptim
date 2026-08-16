@@ -92,7 +92,7 @@ final class ExtensionController: NSViewController {
         PrefKey.advPngEnabled: true,
         PrefKey.level: 4,
         PrefKey.zopfliEnabled: true,
-        PrefKey.pngOutRemoveChunks: true,
+        PrefKey.removePngChunks: true,
         PrefKey.preservePermissions: false,
         PrefKey.preserveDates: false,
         PrefKey.runLowPriority: false,

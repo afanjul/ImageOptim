@@ -30,7 +30,7 @@
       </dd>
     </dl>
 <h2>Tools</h2>
-    <p data-role="slow-tools">Zopfli and PNGOUT are very good PNG compressors, but are very slow. Disable them if you need to optimize PNG files quickly (leave only AdvPNG for fastest, but still good compression).</p>
+    <p data-role="slow-tools">Zopfli is a very good PNG compressor, but it is very slow. Disable it if you need to optimize PNG files quickly (leave only AdvPNG for fastest, but still good compression).</p>
     <p data-role="dirty-alpha-tools">Zopfli and OxiPNG will clean RGB values of transparent pixels (known as “dirty alpha”). Disable these two tools if you're optimizing special files that use alpha channel for something else than transparency (e.g. heightmap in game data files).</p>
     <div id="jpegoptim">
       <h2><a name="jpegoptim">JPEGOptim</a></h2>
@@ -39,19 +39,6 @@
         <dd>
           <p>Se definido como 100%, a optimização será <strong>sem perdas</strong>.</p>
           <p>Qualquer valor abaixo de 100% causará <strong>redução de qualidade</strong> nos ficheiros, se parecerem ter sido guardados com uma definição de qualidade máxima mais elevada.</p>
-        </dd>
-      </dl>
-</div>
-    <div id="pngout">
-      <h2><a name="pngout">PNGOUT</a></h2>
-      <dl>
-<dt>Tipo de optimização</dt>
-        <dd>
-          <p>O PNGOUT é muito eficaz mas também muito lento. Utilize o nível mais baixo se for impaciente.</p>
-        </dd>
-        <dt>Interromper se demorar demasiado tempo a executar</dt>
-        <dd>
-          <p>O PNGOUT poderá necessitar de <em>imenso</em> tempo para optimizar imagens muito grandes. Esta opção irá interromper discretamente o PNGOUT após 1 minuto.</p>
         </dd>
       </dl>
 </div>

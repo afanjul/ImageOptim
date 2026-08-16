@@ -34,7 +34,7 @@ struct ResolvedURL: Sendable {
 /// Sorting a `Table` happens on the main actor, but `SortComparator.compare` is nonisolated,
 /// hence the `assumeIsolated`.
 struct JobComparator: SortComparator {
-    enum Field: Sendable {
+    enum Field: Sendable, Equatable {
         case status
         case fileName
     }
@@ -46,7 +46,10 @@ struct JobComparator: SortComparator {
         let result = MainActor.assumeIsolated { () -> ComparisonResult in
             switch field {
             case .status:
-                return NSNumber(value: lhs.statusOrder).compare(NSNumber(value: rhs.statusOrder))
+                // plain integer comparison — boxing both sides into NSNumber allocated
+                // two objects for every one of the n·log n comparisons
+                let left = lhs.statusOrder, right = rhs.statusOrder
+                return left == right ? .orderedSame : (left < right ? .orderedAscending : .orderedDescending)
             case .fileName:
                 return lhs.fileName.caseInsensitiveCompare(rhs.fileName)
             }
@@ -63,26 +66,58 @@ struct JobComparator: SortComparator {
 @Observable
 final class AppModel {
     private(set) var jobs: [Job] = []
-    var selection: Set<Job.ID> = []
-    var sortOrder: [JobComparator] = []
+    var selection: Set<Job.ID> = [] {
+        didSet {
+            if selection != oldValue {
+                updateSelectionState()
+            }
+        }
+    }
+
+    var sortOrder: [JobComparator] = [] {
+        didSet { resort(force: true) }
+    }
+
+    /// The table's rows. Stored rather than computed: sorting inside `body` made the sort run
+    /// on every invalidation, and — because the comparator reads `statusOrder` while SwiftUI is
+    /// tracking — subscribed the view to *every* job's status, so each of the thousands of status
+    /// writes a run produces re-sorted the whole list.
+    private(set) var sortedJobs: [Job] = []
+
     /// Lives here rather than in the view so that the "Show Columns" menu can toggle it too.
     var columnCustomization = TableColumnCustomization<Job>()
 
     /// Status bar text, throttled to avoid spending all the CPU on redrawing a label.
     private(set) var statusText: String
     private(set) var statusTextSelectable = false
+
+    // Menu and toolbar enablement. These used to be computed properties that walked (and sorted)
+    // the whole job list every time the main menu was rebuilt — which is every time any job's
+    // status changed. They are now plain flags, refreshed by the throttled status pass.
+    private(set) var hasJobs = false
+    private(set) var hasSelection = false
     private(set) var isStoppable = false
+    private(set) var canRevert = false
+    private(set) var canClearComplete = false
+    private(set) var canCopyAsDataURL = false
+    private(set) var canStartAgainAny = false
+    private(set) var canStartAgainOptimized = false
+    private(set) var canPaste = false
 
     @ObservationIgnored let queue: JobQueue
     @ObservationIgnored private let db: ResultsDB?
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private var jobsByPath: [String: Job] = [:]
+    @ObservationIgnored private var jobsByID: [Job.ID: Job] = [:]
     @ObservationIgnored private var isEnabled = true
     /// Insertion point for the next batch of files (drag&drop between rows). -1 means "append".
     @ObservationIgnored private var nextInsertRow = -1
     /// Whether the status bar shows the overall or the per-file average ratio. Sticky, with hysteresis.
     @ObservationIgnored private var showsOverallAverage = false
     @ObservationIgnored private var statusTask: Task<Void, Never>?
+    /// `JobStatusRevision` at the last re-sort, so a status sort is only redone when a job moved.
+    @ObservationIgnored private var sortedAtStatusRevision: UInt64 = 0
+    @ObservationIgnored private var pasteboardChangeCount = -1
 
     var isBusy: Bool { queue.isBusy }
 
@@ -156,6 +191,7 @@ final class AppModel {
             } else {
                 let job = Job(filePath: item.url, resultsDatabase: db)
                 jobsByPath[item.url.path] = job
+                jobsByID[job.id] = job
                 toAdd.append(job)
                 queue.add(job)
             }
@@ -173,6 +209,10 @@ final class AppModel {
             jobs.insert(contentsOf: newJobs, at: nextInsertRow)
             nextInsertRow += newJobs.count
         }
+        if !hasJobs {
+            hasJobs = true
+        }
+        resort(force: true)
         setNeedsStatusUpdate()
     }
 
@@ -188,20 +228,20 @@ final class AppModel {
         jobs.removeAll { ids.contains($0.id) }
         for job in removed {
             jobsByPath.removeValue(forKey: job.filePath.path)
+            jobsByID.removeValue(forKey: job.id)
             job.cleanup()
+        }
+        if hasJobs != !jobs.isEmpty {
+            hasJobs = !jobs.isEmpty
         }
         selection.subtract(ids)
         nextInsertRow = -1
+        resort(force: true)
         setNeedsStatusUpdate()
     }
 
     func selectAll() {
         selection = Set(jobs.map(\.id))
-        updateStoppableState()
-    }
-
-    var canClearComplete: Bool {
-        jobs.contains { $0.isDone }
     }
 
     func clearComplete() {
@@ -216,12 +256,17 @@ final class AppModel {
         return selected.isEmpty ? jobs : selected
     }
 
+    /// The selection in the order it is displayed in — for copying, revealing and reverting.
+    /// Only ever called from a user action, never from the status pass.
     var selectedJobs: [Job] {
-        sortedJobs.filter { selection.contains($0.id) }
+        guard !selection.isEmpty else { return [] }
+        return sortedJobs.filter { selection.contains($0.id) }
     }
 
-    func canStartAgain(onlyOptimized: Bool) -> Bool {
-        actionTargets.contains { !$0.isBusy && (!onlyOptimized || $0.isOptimized) }
+    /// The selection in no particular order, which is all the enablement checks need,
+    /// and costs `selection.count` lookups instead of a scan of every job.
+    private var selectedJobsUnordered: [Job] {
+        selection.compactMap { jobsByID[$0] }
     }
 
     func startAgain(onlyOptimized: Bool) {
@@ -246,14 +291,10 @@ final class AppModel {
     }
 
     func stopSelected() {
-        for job in selectedJobs {
+        for job in selectedJobsUnordered {
             _ = job.stop()
         }
-        updateStoppableState()
-    }
-
-    var canRevert: Bool {
-        selectedJobs.contains(where: \.canRevert)
+        updateSelectionState()
     }
 
     func revertSelected() async {
@@ -290,8 +331,26 @@ final class AppModel {
 
     // MARK: - Sorting
 
-    var sortedJobs: [Job] {
-        sortOrder.isEmpty ? jobs : jobs.sorted(using: sortOrder)
+    private var sortsByStatus: Bool {
+        sortOrder.contains { $0.field == .status }
+    }
+
+    /// Recomputes the row order. With no sort selected this is just `jobs`, so the common
+    /// case costs nothing; the result is only assigned when the order actually changed,
+    /// which keeps the array's identity stable and the table from re-diffing every row.
+    private func resort(force: Bool = false) {
+        sortedAtStatusRevision = JobStatusRevision.current
+        let ordered = sortOrder.isEmpty ? jobs : jobs.sorted(using: sortOrder)
+        if force || !ordered.elementsEqual(sortedJobs, by: ===) {
+            sortedJobs = ordered
+        }
+    }
+
+    /// Jobs move between status groups as they run, so a status sort has to be redone —
+    /// but only from the throttled pass, and only when a job really did change status.
+    private func resortIfStatusChanged() {
+        guard sortsByStatus, JobStatusRevision.current != sortedAtStatusRevision else { return }
+        resort()
     }
 
     // MARK: - Supported file types
@@ -307,9 +366,8 @@ final class AppModel {
     private var typesEnabled: EnabledTypes {
         var types: EnabledTypes = []
 
-        if defaults.bool(forKey: PrefKey.pngCrushEnabled) || defaults.bool(forKey: PrefKey.pngOutEnabled)
-            || defaults.bool(forKey: PrefKey.oxiPngEnabled) || defaults.bool(forKey: PrefKey.advPngEnabled)
-            || defaults.bool(forKey: PrefKey.zopfliEnabled) {
+        if defaults.bool(forKey: PrefKey.pngCrushEnabled) || defaults.bool(forKey: PrefKey.oxiPngEnabled)
+            || defaults.bool(forKey: PrefKey.advPngEnabled) || defaults.bool(forKey: PrefKey.zopfliEnabled) {
             types.insert(.png)
         }
         if defaults.bool(forKey: PrefKey.jpegOptimEnabled) || defaults.bool(forKey: PrefKey.jpegTranEnabled) {
@@ -355,15 +413,26 @@ final class AppModel {
     @ObservationIgnored private var statusNeedsUpdate = true
 
     /// The Objective-C version coalesced status updates onto a dispatch source that slept
-    /// 1/10th of a second after every run. This does the same, and idles at 2 Hz.
+    /// 1/10th of a second after every run. This does the same, and idles at 2 Hz — but the
+    /// pass walks every job, so with a big queue it backs off to keep the main actor free.
     private func runStatusUpdates() async {
         while !Task.isCancelled {
             if statusNeedsUpdate || queue.isBusy {
                 statusNeedsUpdate = false
                 updateStatus()
+                resortIfStatusChanged()
+                updateSelectionState()
             }
-            try? await Task.sleep(for: .milliseconds(queue.isBusy ? 100 : 500))
+            try? await Task.sleep(for: .milliseconds(tickInterval))
         }
+    }
+
+    /// 100 ms while busy, stretched towards a second as the list grows: at ten thousand files
+    /// a single pass is ten thousand property reads, and doing that ten times a second leaves
+    /// nothing for the UI.
+    private var tickInterval: Int {
+        guard queue.isBusy else { return 500 }
+        return min(1000, max(100, jobs.count / 10))
     }
 
     private func updateStatus() {
@@ -378,10 +447,26 @@ final class AppModel {
         var maxOptimizedFraction = 0.0
         var optimizedFileCount = 0
         var anyBusyFiles = false
+        // folded into the same pass rather than costing a walk of the job list each:
+        // these back the "Optimize Again" / "Delete Completed" menu items
+        var anyDone = false
+        var anyRestartable = false
+        var anyOptimizedRestartable = false
+        let restartTargetsAreSelection = !selection.isEmpty
 
         for job in jobs {
             if !anyBusyFiles, job.isBusy {
                 anyBusyFiles = true
+            }
+            if !anyDone, job.isDone {
+                anyDone = true
+            }
+            if !anyRestartable || !anyOptimizedRestartable,
+               !job.isBusy, !restartTargetsAreSelection || selection.contains(job.id) {
+                anyRestartable = true
+                if job.isOptimized {
+                    anyOptimizedRestartable = true
+                }
             }
             guard let bytes = job.byteSizeOriginal, let optimized = job.byteSizeOptimized,
                   bytes > 0, optimized > 0, bytes != optimized || job.isDone else {
@@ -430,9 +515,36 @@ final class AppModel {
             text = ""
         }
 
-        statusText = text
-        statusTextSelectable = selectable
-        updateStoppableState()
+        // Guard every write: assigning an identical value is a full invalidation in SwiftUI,
+        // and this runs several times a second.
+        if statusText != text {
+            statusText = text
+        }
+        if statusTextSelectable != selectable {
+            statusTextSelectable = selectable
+        }
+        if canClearComplete != anyDone {
+            canClearComplete = anyDone
+        }
+        if canStartAgainAny != anyRestartable {
+            canStartAgainAny = anyRestartable
+        }
+        if canStartAgainOptimized != anyOptimizedRestartable {
+            canStartAgainOptimized = anyOptimizedRestartable
+        }
+        updatePasteState()
+    }
+
+    /// `NSPasteboard.canReadObject` is an IPC round trip to the pasteboard server. It used to
+    /// happen inside the menu's `body`, i.e. on every rebuild; `changeCount` is the cheap check.
+    private func updatePasteState() {
+        let changeCount = NSPasteboard.general.changeCount
+        guard changeCount != pasteboardChangeCount else { return }
+        pasteboardChangeCount = changeCount
+        let canRead = NSPasteboard.general.canReadObject(forClasses: [NSURL.self])
+        if canPaste != canRead {
+            canPaste = canRead
+        }
     }
 
     private func appendQuality(_ name: String, key: String, to list: inout [String]) {
@@ -442,8 +554,38 @@ final class AppModel {
         }
     }
 
-    func updateStoppableState() {
-        isStoppable = queue.isBusy && selectedJobs.contains(where: \.isStoppable)
+    /// Everything the menus derive from the selection, in one pass over the selected jobs
+    /// (not over every job, and without sorting). Called on selection changes and from the tick.
+    func updateSelectionState() {
+        let selected = selectedJobsUnordered
+        let busy = queue.isBusy
+
+        var stoppable = false
+        var revertable = false
+        var dataURLBytes = 0
+        var dataURLPossible = false
+
+        for job in selected {
+            if busy, !stoppable, job.isStoppable {
+                stoppable = true
+            }
+            if !revertable, job.canRevert {
+                revertable = true
+            }
+            if !dataURLPossible, job.isDone,
+               let file = job.savedOutputOrInput, file.byteSize <= 100_000 {
+                dataURLBytes += file.byteSize
+                if dataURLBytes <= 1_000_000 {
+                    dataURLPossible = true
+                }
+            }
+        }
+
+        let selectionExists = !selected.isEmpty
+        if hasSelection != selectionExists { hasSelection = selectionExists }
+        if isStoppable != stoppable { isStoppable = stoppable }
+        if canRevert != revertable { canRevert = revertable }
+        if canCopyAsDataURL != dataURLPossible { canCopyAsDataURL = dataURLPossible }
     }
 
     private static let sizeFormatter = ByteCountFormatter()

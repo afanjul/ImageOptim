@@ -16,8 +16,11 @@
 
 /* recovered from the pre-SwiftUI nib translations */
 
-/* Preferences group */
+/* Preferences slider */
 "Optimization level" = "Optimisation level";
+
+/* Preferences tab */
+"Optimization speed" = "Optimisation level";
 
 /* Menu Item */
 "Optimize Again" = "Optimise Again";

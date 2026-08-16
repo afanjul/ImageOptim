@@ -18,8 +18,8 @@ public enum SharedPrefs {
         PrefKey.advPngEnabled, PrefKey.level, PrefKey.gifsicleEnabled,
         PrefKey.jpegOptimEnabled, PrefKey.jpegTranEnabled, PrefKey.jpegTranStripAll,
         PrefKey.oxiPngEnabled,
-        PrefKey.pngCrushEnabled, PrefKey.pngOutEnabled,
-        PrefKey.pngOutRemoveChunks, PrefKey.zopfliEnabled,
+        PrefKey.pngCrushEnabled,
+        PrefKey.removePngChunks, PrefKey.zopfliEnabled,
         PrefKey.pngMinQuality, PrefKey.jpegOptimMaxQuality, PrefKey.gifQuality,
     ]
 

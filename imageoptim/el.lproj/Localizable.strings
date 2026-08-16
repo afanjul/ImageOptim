@@ -72,9 +72,6 @@
 "Best tool" = "Βέλτιστο εργαλείο";
 
 /* Menu Item */
-"Check for Updates…" = "Έλεγχος για ενημερώσεις...";
-
-/* Menu Item */
 "Copy" = "Αντιγραφή";
 
 /* Menu Item */
@@ -169,3 +166,18 @@
 
 /* Preferences group */
 "Writing files to disk" = "Εγγραφή αρχείων στο δίσκο";
+
+/* Window Title */
+"ImageOptim Preferences" = "Προτιμήσεις";
+
+/* Preferences tab */
+"General" = "Γενικές";
+
+/* Preferences tab */
+"Quality" = "Ποιότητα";
+
+/* Preferences tab */
+"Optimization speed" = "Ταχύτητα βελτιστοποίησης";
+
+/* Menu Item */
+"Preferences…" = "Προτιμήσεις...";

@@ -57,9 +57,6 @@
 "Best tool" = "최고의 도구";
 
 /* Menu Item */
-"Check for Updates…" = "업데이트 확인";
-
-/* Menu Item */
 "Copy" = "복사(C)";
 
 /* Menu Item */
@@ -142,3 +139,12 @@
 
 /* Preferences group */
 "Writing files to disk" = "디스크에 파일 쓰기";
+
+/* Preferences tab */
+"General" = "일반";
+
+/* Preferences tab */
+"Optimization speed" = "최적화 레벨";
+
+/* Menu Item */
+"Preferences…" = "환경 설정...";

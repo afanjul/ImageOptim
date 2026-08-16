@@ -71,9 +71,6 @@
 "Best tool" = "Najlepší nástroj";
 
 /* Menu Item */
-"Check for Updates…" = "Skontrolovať aktualizácie...";
-
-/* Menu Item */
 "Copy" = "Kopírovať";
 
 /* Menu Item */
@@ -171,3 +168,18 @@
 
 /* Preferences group */
 "Writing files to disk" = "Zápis súborov na disk";
+
+/* Window Title */
+"ImageOptim Preferences" = "Nastavenia ImageOptim";
+
+/* Preferences tab */
+"General" = "Všeobecné";
+
+/* Preferences tab */
+"Quality" = "Kvalita";
+
+/* Preferences tab */
+"Optimization speed" = "Rýchlosť optimalizácie";
+
+/* Menu Item */
+"Preferences…" = "Nastavenia...";

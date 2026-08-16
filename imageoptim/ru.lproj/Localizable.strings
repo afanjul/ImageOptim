@@ -72,9 +72,6 @@
 "Best tool" = "Лучший инструмент";
 
 /* Menu Item */
-"Check for Updates…" = "Проверить на наличие обновлений…";
-
-/* Menu Item */
 "Copy" = "Копировать";
 
 /* Menu Item */
@@ -175,3 +172,18 @@
 
 /* Preferences group */
 "Writing files to disk" = "Запись файлов на диск";
+
+/* Window Title */
+"ImageOptim Preferences" = "Настройки ImageOptim";
+
+/* Preferences tab */
+"General" = "Основные";
+
+/* Preferences tab */
+"Quality" = "Качество";
+
+/* Preferences tab */
+"Optimization speed" = "Скорость оптимизации";
+
+/* Menu Item */
+"Preferences…" = "Настройки…";

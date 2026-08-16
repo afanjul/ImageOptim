@@ -38,11 +38,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         defs[PrefKey.runConcurrentDirscans] = Int((Double(maxTasks) / 3.9).rounded(.up))
 
         // Use lighter defaults on slower machines
-        if maxTasks <= 4 {
-            defs[PrefKey.pngOutEnabled] = false
-            if maxTasks <= 2 {
-                defs[PrefKey.pngCrushEnabled] = false
-            }
+        if maxTasks <= 2 {
+            defs[PrefKey.pngCrushEnabled] = false
         }
         return defs
     }

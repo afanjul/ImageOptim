@@ -77,9 +77,6 @@
 "Best tool" = "أحسن أداة";
 
 /* Menu Item */
-"Check for Updates…" = "بحث عن تحديثات...";
-
-/* Menu Item */
 "Copy" = "نسخ";
 
 /* Menu Item */
@@ -180,3 +177,18 @@
 
 /* Preferences group */
 "Writing files to disk" = "كتابة الملفات للقرص";
+
+/* Window Title */
+"ImageOptim Preferences" = "خصائص ImageOptim";
+
+/* Preferences tab */
+"General" = "عام";
+
+/* Preferences tab */
+"Quality" = "الجودة";
+
+/* Preferences tab */
+"Optimization speed" = "حالة التحسين";
+
+/* Menu Item */
+"Preferences…" = "خصائص...";

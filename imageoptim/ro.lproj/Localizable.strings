@@ -72,9 +72,6 @@
 "Best tool" = "Cea mai bună unealtă";
 
 /* Menu Item */
-"Check for Updates…" = "Verificare actualizări...";
-
-/* Menu Item */
 "Copy" = "Copiere";
 
 /* Menu Item */
@@ -169,3 +166,15 @@
 
 /* Preferences group */
 "Writing files to disk" = "Scriere fişiere pe disc";
+
+/* Window Title */
+"ImageOptim Preferences" = "Preferinţe ImageOptim";
+
+/* Preferences tab */
+"Quality" = "Calitate";
+
+/* Preferences tab */
+"Optimization speed" = "Viteză optimizare";
+
+/* Menu Item */
+"Preferences…" = "Preferinţe...";

@@ -72,9 +72,6 @@
 "Best tool" = "Bedste værktøj";
 
 /* Menu Item */
-"Check for Updates…" = "Tjek for opdateringer…";
-
-/* Menu Item */
 "Copy" = "Kopier";
 
 /* Menu Item */
@@ -166,3 +163,18 @@
 
 /* Preferences group */
 "Writing files to disk" = "Skriver filer til disken";
+
+/* Window Title */
+"ImageOptim Preferences" = "ImageOptim indstillinger";
+
+/* Preferences tab */
+"General" = "Generelt";
+
+/* Preferences tab */
+"Quality" = "Kvalitet";
+
+/* Preferences tab */
+"Optimization speed" = "Optimeringshastighed";
+
+/* Menu Item */
+"Preferences…" = "Indstillinger…";

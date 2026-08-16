@@ -58,6 +58,7 @@
 /* tooltip */
 "Waiting to be optimized" = "Väntar på optimering";
 
+
 /* recovered from the pre-SwiftUI nib translations */
 
 /* Window Title */
@@ -74,9 +75,6 @@
 
 /* Menu Item */
 "Best tool" = "Bästa verktyg";
-
-/* Menu Item */
-"Check for Updates…" = "Sök efter uppdateringar…";
 
 /* Menu Item */
 "Copy" = "Kopiera";
@@ -161,3 +159,18 @@
 
 /* Preferences group */
 "Writing files to disk" = "Vid sparande";
+
+/* Window Title */
+"ImageOptim Preferences" = "ImageOptim Inställningar";
+
+/* Preferences tab */
+"General" = "Allmänt";
+
+/* Preferences tab */
+"Quality" = "Kvalité";
+
+/* Preferences tab */
+"Optimization speed" = "Optimeringshastighet";
+
+/* Menu Item */
+"Preferences…" = "Inställningar…";

@@ -71,9 +71,6 @@
 "Best tool" = "Найкращий інструмент";
 
 /* Menu Item */
-"Check for Updates…" = "Перевірити оновлення...";
-
-/* Menu Item */
 "Copy" = "Скопіювати";
 
 /* Menu Item */
@@ -174,3 +171,18 @@
 
 /* Preferences group */
 "Writing files to disk" = "Записати файли на носій";
+
+/* Window Title */
+"ImageOptim Preferences" = "Налаштування ImageOptim";
+
+/* Preferences tab */
+"General" = "Чільні";
+
+/* Preferences tab */
+"Quality" = "Якість";
+
+/* Preferences tab */
+"Optimization speed" = "Швидкісь Оптимізації";
+
+/* Menu Item */
+"Preferences…" = "Налаштування...";
