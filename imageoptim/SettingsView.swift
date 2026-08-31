@@ -356,15 +356,13 @@ private struct ClassicTabView: NSViewRepresentable {
                   let container = item.view, container.subviews.isEmpty
             else { return }
 
+            // Autoresizing, not constraints: pinning the page with Auto Layout gives the tab view
+            // a fitting size of its own, and the representable then reports that size to SwiftUI
+            // instead of filling the window — the page collapsed to a small box in an empty window.
             let hosting = NSHostingView(rootView: pages[index]())
-            hosting.translatesAutoresizingMaskIntoConstraints = false
+            hosting.frame = container.bounds
+            hosting.autoresizingMask = [.width, .height]
             container.addSubview(hosting)
-            NSLayoutConstraint.activate([
-                hosting.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-                hosting.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-                hosting.topAnchor.constraint(equalTo: container.topAnchor),
-                hosting.bottomAnchor.constraint(equalTo: container.bottomAnchor),
-            ])
         }
     }
 
