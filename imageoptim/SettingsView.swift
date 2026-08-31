@@ -14,9 +14,9 @@ struct SettingsView: View {
         // SwiftUI's own TabView moves its tabs into the title bar on macOS 26,
         // so the tabs are an NSTabView, like the nib's
         ClassicTabView(tabs: [
-            (String(localized: "General", comment: "Preferences tab"), AnyView(GeneralSettings())),
-            (String(localized: "Quality", comment: "Preferences tab"), AnyView(QualitySettings())),
-            (String(localized: "Optimization speed", comment: "Preferences tab"), AnyView(SpeedSettings())),
+            (String(localized: "General", comment: "Preferences tab"), { AnyView(GeneralSettings()) }),
+            (String(localized: "Quality", comment: "Preferences tab"), { AnyView(QualitySettings()) }),
+            (String(localized: "Optimization speed", comment: "Preferences tab"), { AnyView(SpeedSettings()) }),
         ])
         .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
         .frame(width: 663, height: 376)
@@ -335,24 +335,70 @@ private struct SpeedSettings: View {
 
 /// `NSTabView` with the tabs drawn above the content, hosting SwiftUI pages.
 private struct ClassicTabView: NSViewRepresentable {
-    let tabs: [(title: String, content: AnyView)]
+    /// The pages are closures, not built views: opening Preferences used to evaluate all three
+    /// bodies — every slider, every `@AppStorage` read — for the two tabs nobody has clicked yet.
+    let tabs: [(title: String, content: () -> AnyView)]
+
+    @MainActor
+    final class Coordinator: NSObject, NSTabViewDelegate {
+        var pages: [() -> AnyView] = []
+
+        func tabView(_ tabView: NSTabView, willSelect tabViewItem: NSTabViewItem?) {
+            guard let tabViewItem,
+                  let index = tabView.tabViewItems.firstIndex(of: tabViewItem)
+            else { return }
+            host(page: index, in: tabViewItem)
+        }
+
+        /// Builds the page the first time its tab is shown, and leaves it alone afterwards.
+        func host(page index: Int, in item: NSTabViewItem) {
+            guard pages.indices.contains(index),
+                  let container = item.view, container.subviews.isEmpty
+            else { return }
+
+            let hosting = NSHostingView(rootView: pages[index]())
+            hosting.translatesAutoresizingMaskIntoConstraints = false
+            container.addSubview(hosting)
+            NSLayoutConstraint.activate([
+                hosting.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+                hosting.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+                hosting.topAnchor.constraint(equalTo: container.topAnchor),
+                hosting.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+            ])
+        }
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
 
     func makeNSView(context: Context) -> NSTabView {
         let tabView = NSTabView()
         tabView.tabViewType = .topTabsBezelBorder
+        context.coordinator.pages = tabs.map(\.content)
+        tabView.delegate = context.coordinator
+
         for tab in tabs {
             let item = NSTabViewItem(identifier: tab.title)
             item.label = tab.title
-            item.view = NSHostingView(rootView: tab.content)
+            item.view = NSView()
             tabView.addTabViewItem(item)
+        }
+
+        // `willSelect` is not sent for the tab the view opens on.
+        if let first = tabView.tabViewItems.first {
+            context.coordinator.host(page: 0, in: first)
         }
         return tabView
     }
 
     func updateNSView(_ tabView: NSTabView, context: Context) {
-        for (item, tab) in zip(tabView.tabViewItems, tabs) {
+        // Deliberately not reassigning any `rootView`: each hosted page is a self-contained view
+        // that observes its own defaults, so it updates itself. Pushing a freshly built `AnyView`
+        // into all three hosting views from here re-rendered the whole Preferences window.
+        context.coordinator.pages = tabs.map(\.content)
+        for (item, tab) in zip(tabView.tabViewItems, tabs) where item.label != tab.title {
             item.label = tab.title
-            (item.view as? NSHostingView<AnyView>)?.rootView = tab.content
         }
     }
 }

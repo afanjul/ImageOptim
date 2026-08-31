@@ -82,13 +82,13 @@ struct AppCommands: Commands {
                 model.startAgain(onlyOptimized: NSApp.currentEvent?.modifierFlags.contains(.option) == true)
             }
             .keyboardShortcut("r")
-            .disabled(!model.canStartAgainAny)
+            .enabled(when: \.canStartAgainAny, of: model)
 
             Button(String(localized: "Optimize Optimized", comment: "Menu Item")) {
                 model.startAgain(onlyOptimized: true)
             }
             .keyboardShortcut("r", modifiers: [.command, .option])
-            .disabled(!model.canStartAgainOptimized)
+            .enabled(when: \.canStartAgainOptimized, of: model)
 
             Divider()
 
@@ -96,12 +96,12 @@ struct AppCommands: Commands {
                 model.stopSelected()
             }
             .keyboardShortcut("s")
-            .disabled(!model.isStoppable)
+            .enabled(when: \.isStoppable, of: model)
 
             Button(String(localized: "Revert to Original", comment: "Menu Item")) {
                 Task { await model.revertSelected() }
             }
-            .disabled(!model.canRevert)
+            .enabled(when: \.canRevert, of: model)
 
             Divider()
 
@@ -109,12 +109,12 @@ struct AppCommands: Commands {
                 QuickLook.toggle()
             }
             .keyboardShortcut("y")
-            .disabled(!model.hasSelection)
+            .enabled(when: \.hasSelection, of: model)
 
             Button(String(localized: "Show in Finder", comment: "Menu Item")) {
                 model.revealSelectedInFinder()
             }
-            .disabled(!model.hasSelection)
+            .enabled(when: \.hasSelection, of: model)
         }
 
         CommandGroup(replacing: .pasteboard) {
@@ -122,25 +122,25 @@ struct AppCommands: Commands {
                 model.cutSelection()
             }
             .keyboardShortcut("x")
-            .disabled(!model.hasSelection)
+            .enabled(when: \.hasSelection, of: model)
 
             Button(String(localized: "Copy", comment: "Menu Item")) {
                 model.copySelection()
             }
             .keyboardShortcut("c")
-            .disabled(!model.hasSelection)
+            .enabled(when: \.hasSelection, of: model)
 
             Button(String(localized: "Paste", comment: "Menu Item")) {
                 Task { await model.paste() }
             }
             .keyboardShortcut("v")
-            .disabled(!model.canPaste)
+            .enabled(when: \.canPaste, of: model)
 
             Button(String(localized: "Copy as Data URL", comment: "Menu Item")) {
                 model.copySelectionAsDataURL()
             }
             .keyboardShortcut("c", modifiers: [.command, .shift])
-            .disabled(!model.canCopyAsDataURL)
+            .enabled(when: \.canCopyAsDataURL, of: model)
 
             Divider()
 
@@ -148,12 +148,12 @@ struct AppCommands: Commands {
                 model.deleteSelected()
             }
             .keyboardShortcut(.delete, modifiers: [])
-            .disabled(!model.hasSelection)
+            .enabled(when: \.hasSelection, of: model)
 
             Button(String(localized: "Delete Completed", comment: "Menu Item")) {
                 model.clearComplete()
             }
-            .disabled(!model.canClearComplete)
+            .enabled(when: \.canClearComplete, of: model)
 
             Divider()
 
@@ -202,6 +202,26 @@ struct AppCommands: Commands {
                 openURL(URL(string: "https://imageoptim.com/source")!)
             }
         }
+    }
+}
+
+/// Reads one of the model's menu flags inside a body of its own.
+///
+/// `AppCommands.body` is a single Observation tracking scope: a flag read there subscribes the
+/// whole main menu, so one click that flips `hasSelection` rebuilds every menu item in the app.
+/// A modifier has its own body, so the flag it reads invalidates only the item it is attached to.
+private struct EnabledWhen: ViewModifier {
+    let model: AppModel
+    let flag: KeyPath<AppModel, Bool>
+
+    func body(content: Content) -> some View {
+        content.disabled(!model[keyPath: flag])
+    }
+}
+
+extension View {
+    fileprivate func enabled(when flag: KeyPath<AppModel, Bool>, of model: AppModel) -> some View {
+        modifier(EnabledWhen(model: model, flag: flag))
     }
 }
 

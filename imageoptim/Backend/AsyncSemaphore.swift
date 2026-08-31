@@ -77,3 +77,23 @@ public final class AsyncSemaphore: Sendable {
         return try await body()
     }
 }
+
+/// Runs `body` off the calling actor, at `priority`, and cancels it along with the caller.
+///
+/// `Task.detached` is what takes the work off `@MainActor`, but it also leaves the structured
+/// task tree: a cancelled caller — a stopped run, a quitting app — used to leave the detached
+/// work running to completion on its own. `withTaskCancellationHandler` puts that link back.
+///
+/// `priority` is the priority of the work itself, not of whoever asked for it. Anything that runs
+/// while holding a permit of one of the app's semaphores wants `.userInitiated` even when the
+/// caller is background work: a low priority there does not save any CPU, it only holds the permit
+/// longer and makes everybody queued behind it wait.
+public func offMainActor<T: Sendable>(priority: TaskPriority,
+                                      _ body: @escaping @Sendable () -> T) async -> T {
+    let task = Task.detached(priority: priority, operation: body)
+    return await withTaskCancellationHandler {
+        await task.value
+    } onCancel: {
+        task.cancel()
+    }
+}

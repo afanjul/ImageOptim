@@ -326,13 +326,15 @@ public final class Job: Identifiable {
         setStatus("progress", order: 3, text: IOLocalized("Inspecting file", comment: "tooltip"))
 
         let path = filePath
+        // Nothing below is worth a permit if the run is already being torn down.
+        guard !Task.isCancelled else { return }
         let loaded: (data: Data, file: ImageFile)? = await fileIOLimiter.withPermit {
-            await Task.detached(priority: .utility) { () -> (data: Data, file: ImageFile)? in
+            await offMainActor(priority: .userInitiated) { () -> (data: Data, file: ImageFile)? in
                 guard let data = try? Data(contentsOf: path, options: .mappedIfSafe),
                       let file = ImageFile(data: data, url: path)
                 else { return nil }
                 return (data, file)
-            }.value
+            }
         }
 
         guard let loaded else {
@@ -375,12 +377,12 @@ public final class Job: Identifiable {
 
         let fileData = loaded.data
         let digest = settingsDigest
-        let hash = await Task.detached(priority: .utility) {
+        let hash = await offMainActor(priority: .utility) {
             var md5 = Insecure.MD5()
             md5.update(data: digest)
             md5.update(data: fileData)
             return ResultHash(digest: md5.finalize())
-        }.value
+        }
         inputFileHash = hash
 
         if await db?.hasResult(hash: hash) == true {
@@ -634,8 +636,10 @@ public final class Job: Identifiable {
             preserveDates: preserveDates
         )
 
+        // Not gated on `Task.isCancelled`: by this point the file has already been optimized,
+        // and dropping the write would throw that work away and leave the file untouched.
         let outcome = await fileIOLimiter.withPermit {
-            await Task.detached(priority: .utility) { Self.performSave(request) }.value
+            await offMainActor(priority: .userInitiated) { Self.performSave(request) }
         }
 
         guard outcome.success else { return false }
@@ -894,7 +898,7 @@ public final class Job: Identifiable {
 
         let target = filePath
         let source = revertFile.url
-        let replacement: ReplaceOutcome = await Task.detached(priority: .utility) {
+        let replacement: ReplaceOutcome = await offMainActor(priority: .userInitiated) {
             var resultingURL: NSURL?
             do {
                 try FileManager.default.replaceItem(at: target, withItemAt: source, backupItemName: nil, options: .usingNewMetadataOnly, resultingItemURL: &resultingURL)
@@ -903,7 +907,7 @@ public final class Job: Identifiable {
                 return .failed
             }
             return .replaced(resultingURL as URL?)
-        }.value
+        }
 
         guard case .replaced(let resultingURL) = replacement else { return false }
 

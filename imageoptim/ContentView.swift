@@ -44,6 +44,17 @@ struct ContentView: View {
 
 // MARK: - Table
 
+/// The column headers, resolved once instead of on every pass of `JobsTable.body`:
+/// `String(localized:)` is a bundle lookup, and the body runs on every selection change
+/// and every batch of rows a directory scan delivers.
+private enum ColumnTitle {
+    static let file = String(localized: "File", comment: "Table Column Title (MUST BE SHORT)")
+    static let originalSize = String(localized: "Original Size", comment: "Table Column Title (MUST BE SHORT)")
+    static let size = String(localized: "Size", comment: "Table Column Title (MUST BE SHORT)")
+    static let savings = String(localized: "Savings", comment: "Table Column Title (MUST BE SHORT)")
+    static let bestTool = String(localized: "Best tool", comment: "Table Column Title (MUST BE SHORT)")
+}
+
 /// A view of its own, so that the status bar ticking away below it does not invalidate
 /// (and re-diff every row of) the table. Its body reads the row array and the table's own
 /// bindings — nothing that changes several times a second.
@@ -65,7 +76,7 @@ private struct JobsTable: View {
             .customizationID("status")
             .disabledCustomizationBehavior(.visibility)
 
-            TableColumn(Text(String(localized: "File", comment: "Table Column Title (MUST BE SHORT)")),
+            TableColumn(Text(ColumnTitle.file),
                         sortUsing: JobComparator(field: .fileName)) { job in
                 FileNameCell(model: model, job: job)
             }
@@ -73,7 +84,7 @@ private struct JobsTable: View {
             .customizationID("filename")
             .disabledCustomizationBehavior(.visibility)
 
-            TableColumn(Text(String(localized: "Original Size", comment: "Table Column Title (MUST BE SHORT)"))) { job in
+            TableColumn(Text(ColumnTitle.originalSize)) { job in
                 Text(Formatters.size(job.display.byteSizeOriginal))
                     .monospacedDigit()
                     .frame(maxWidth: .infinity, alignment: .trailing)
@@ -82,7 +93,7 @@ private struct JobsTable: View {
             .customizationID("originalsize")
             .defaultVisibility(.hidden)
 
-            TableColumn(Text(String(localized: "Size", comment: "Table Column Title (MUST BE SHORT)"))) { job in
+            TableColumn(Text(ColumnTitle.size)) { job in
                 Text(Formatters.size(job.display.byteSizeOptimized))
                     .monospacedDigit()
                     .frame(maxWidth: .infinity, alignment: .trailing)
@@ -90,7 +101,7 @@ private struct JobsTable: View {
             .width(85)
             .customizationID("size")
 
-            TableColumn(Text(String(localized: "Savings", comment: "Table Column Title (MUST BE SHORT)"))) { job in
+            TableColumn(Text(ColumnTitle.savings)) { job in
                 Text(Formatters.savings(job.display.percentOptimized))
                     .monospacedDigit()
                     .frame(maxWidth: .infinity, alignment: .trailing)
@@ -98,7 +109,7 @@ private struct JobsTable: View {
             .width(85)
             .customizationID("savings")
 
-            TableColumn(Text(String(localized: "Best tool", comment: "Table Column Title (MUST BE SHORT)"))) { job in
+            TableColumn(Text(ColumnTitle.bestTool)) { job in
                 Text(job.display.bestToolName ?? "")
                     .monospacedDigit()
             }
@@ -130,31 +141,56 @@ private struct JobsTable: View {
 /// The height is read back from the table rather than hard-coded, so the rows keep exactly the
 /// size AppKit had already decided on and the list looks unchanged.
 private struct FixedRowHeight: NSViewRepresentable {
+    /// Remembers that the height has already been fixed.
+    ///
+    /// `updateNSView` runs on every update pass of the table — several times a second while a
+    /// folder is being scanned — and finding the table view means a recursive walk of the whole
+    /// window's view hierarchy. Without this flag that walk, and the hop onto the main actor that
+    /// precedes it, went on forever for a job that is done after the first successful pass.
+    @MainActor
+    final class Coordinator {
+        var isApplied = false
+        var isScheduled = false
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
     func makeNSView(context: Context) -> NSView {
         NSView(frame: .zero)
     }
 
     func updateNSView(_ view: NSView, context: Context) {
+        let coordinator = context.coordinator
+        guard !coordinator.isApplied, !coordinator.isScheduled else { return }
+
         // The table has usually not laid out its rows yet at this point in the update, and it may
         // have none at all, so this runs after the current pass and gives up until the next one.
+        coordinator.isScheduled = true
         Task { @MainActor in
-            apply(near: view)
+            coordinator.isScheduled = false
+            coordinator.isApplied = apply(near: view)
         }
     }
 
-    private func apply(near view: NSView) {
+    /// Returns true when there is nothing left to do — either the height was fixed, or the table
+    /// is already off automatic heights.
+    private func apply(near view: NSView) -> Bool {
         guard let root = view.window?.contentView,
-              let table = Self.firstTableView(in: root),
-              table.usesAutomaticRowHeights,
-              table.numberOfRows > 0
-        else { return }
+              let table = Self.firstTableView(in: root)
+        else { return false }
+
+        guard table.usesAutomaticRowHeights else { return true }
+        guard table.numberOfRows > 0 else { return false }
 
         let measured = table.rect(ofRow: 0).height
-        guard measured > 4, measured < 200 else { return } // not laid out yet; try again next update
+        guard measured > 4, measured < 200 else { return false } // not laid out yet; try again next update
 
         table.usesAutomaticRowHeights = false
         table.rowHeight = measured
         table.noteHeightOfRows(withIndexesChanged: IndexSet(integersIn: 0 ..< table.numberOfRows))
+        return true
     }
 
     private static func firstTableView(in view: NSView) -> NSTableView? {

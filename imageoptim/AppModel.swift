@@ -48,13 +48,33 @@ struct JobComparator: SortComparator {
             case .status:
                 // plain integer comparison — boxing both sides into NSNumber allocated
                 // two objects for every one of the n·log n comparisons
-                let left = lhs.statusOrder, right = rhs.statusOrder
-                return left == right ? .orderedSame : (left < right ? .orderedAscending : .orderedDescending)
+                return Self.order(lhs.statusOrder, rhs.statusOrder)
             case .fileName:
                 return lhs.fileName.caseInsensitiveCompare(rhs.fileName)
             }
         }
-        switch order {
+        return applyingOrder(to: result)
+    }
+
+    /// The same ordering over a snapshot instead of a live `Job`, so that a long sort can run
+    /// off the main actor — `Job` is `@MainActor` and can't be touched from there. Not an
+    /// overload of `compare`: that name is the `SortComparator` requirement, and a second one
+    /// would leave `Compared` ambiguous.
+    fileprivate func order(_ lhs: JobSortKey, _ rhs: JobSortKey) -> ComparisonResult {
+        let result: ComparisonResult
+        switch field {
+        case .status: result = Self.order(lhs.statusOrder, rhs.statusOrder)
+        case .fileName: result = lhs.fileName.caseInsensitiveCompare(rhs.fileName)
+        }
+        return applyingOrder(to: result)
+    }
+
+    private static func order(_ lhs: Int, _ rhs: Int) -> ComparisonResult {
+        lhs == rhs ? .orderedSame : (lhs < rhs ? .orderedAscending : .orderedDescending)
+    }
+
+    private func applyingOrder(to result: ComparisonResult) -> ComparisonResult {
+        switch self.order {
         case .forward: return result
         case .reverse: return result == .orderedAscending ? .orderedDescending
             : result == .orderedDescending ? .orderedAscending : .orderedSame
@@ -62,17 +82,49 @@ struct JobComparator: SortComparator {
     }
 }
 
+/// Everything `JobComparator` needs from a `Job`, as a value that can leave the main actor.
+fileprivate struct JobSortKey: Sendable {
+    let statusOrder: Int
+    let fileName: String
+}
+
+/// Sorts *indices* rather than jobs: the jobs themselves are main-actor-bound, and a permutation
+/// is all the caller needs to reorder the array it is already holding. Ties fall back to the
+/// original position, which keeps the sort stable the way `sorted(using:)` is.
+private func sortedIndices(of keys: [JobSortKey], using comparators: [JobComparator]) -> [Int] {
+    keys.indices.sorted { lhs, rhs in
+        for comparator in comparators {
+            switch comparator.order(keys[lhs], keys[rhs]) {
+            case .orderedAscending: return true
+            case .orderedDescending: return false
+            case .orderedSame: continue
+            }
+        }
+        return lhs < rhs
+    }
+}
+
 @MainActor
 @Observable
 final class AppModel {
-    private(set) var jobs: [Job] = []
+    private(set) var jobs: [Job] = [] {
+        // Bumped here rather than at each mutation site, so a sort that is still running off the
+        // main actor can always tell that the list it was given has moved under it.
+        didSet { jobsRevision &+= 1 }
+    }
     var selection: Set<Job.ID> = [] {
         didSet {
             if selection != oldValue {
                 updateSelectionState()
+                onSelectionChanged?()
             }
         }
     }
+
+    /// Called after the selection changed, so the Quick Look panel can follow it.
+    /// A callback rather than an observation, because the delegate that owns the panel is
+    /// not a view and has no update pass to hang a `withObservationTracking` off.
+    @ObservationIgnored var onSelectionChanged: (@MainActor () -> Void)?
 
     var sortOrder: [JobComparator] = [] {
         didSet { resort(force: true) }
@@ -117,6 +169,11 @@ final class AppModel {
     @ObservationIgnored private var statusTask: Task<Void, Never>?
     /// `JobStatusRevision` at the last re-sort, so a status sort is only redone when a job moved.
     @ObservationIgnored private var sortedAtStatusRevision: UInt64 = 0
+    /// Incremented on every change to `jobs`; see the property's `didSet`.
+    @ObservationIgnored private var jobsRevision: UInt64 = 0
+    @ObservationIgnored private var sortTask: Task<Void, Never>?
+    /// `jobsRevision` at the last reconciliation, so a repeated status sort doesn't redo it.
+    @ObservationIgnored private var reconciledAtRevision: UInt64 = .max
     @ObservationIgnored private var pasteboardChangeCount = -1
 
     var isBusy: Bool { queue.isBusy }
@@ -154,7 +211,7 @@ final class AppModel {
     @discardableResult
     func addURLs(_ urls: [URL]) async -> Bool {
         guard isEnabled, !urls.isEmpty else { return false }
-        let resolved = await Task.detached(priority: .userInitiated) { resolve(urls) }.value
+        let resolved = await offMainActor(priority: .userInitiated) { resolve(urls) }
         return add(resolved)
     }
 
@@ -379,6 +436,8 @@ final class AppModel {
     func cleanup() {
         isEnabled = false
         statusTask?.cancel()
+        sortTask?.cancel()
+        sortTask = nil
         rowFlushTask?.cancel()
         rowFlushTask = nil
         queue.cleanup()
@@ -410,15 +469,68 @@ final class AppModel {
         sortOrder.contains { $0.field == .status }
     }
 
+    /// Above this many rows the sort moves off the main actor. Below it the hop costs more than
+    /// the sort does: a few hundred comparisons are microseconds, and running them inline keeps
+    /// a click on a column header instant instead of landing a frame later.
+    private static let asyncSortThreshold = 2000
+
     /// Recomputes the row order. With no sort selected this is just `jobs`, so the common
     /// case costs nothing; the result is only assigned when the order actually changed,
     /// which keeps the array's identity stable and the table from re-diffing every row.
+    ///
+    /// A long list is sorted off the main actor. `n·log n` comparisons, each of them a read of a
+    /// job's status or file name, is not work to do between two frames — and on a status sort it
+    /// is work that repeats for as long as the queue is running.
     private func resort(force: Bool = false) {
+        sortTask?.cancel()
         sortedAtStatusRevision = JobStatusRevision.current
-        let ordered = sortOrder.isEmpty ? jobs : jobs.sorted(using: sortOrder)
+
+        guard !sortOrder.isEmpty else {
+            setSortedJobs(jobs, force: force)
+            return
+        }
+        guard jobs.count > Self.asyncSortThreshold else {
+            setSortedJobs(jobs.sorted(using: sortOrder), force: force)
+            return
+        }
+
+        // The order is a frame or two behind now, so the contents are brought in line straight
+        // away: the table and the selection care about *which* rows exist much more than where.
+        reconcileSortedJobs()
+
+        let keys = jobs.map { JobSortKey(statusOrder: $0.statusOrder, fileName: $0.fileName) }
+        let comparators = sortOrder
+        let revision = jobsRevision
+        sortTask = Task { [weak self] in
+            let permutation = await offMainActor(priority: .userInitiated) {
+                sortedIndices(of: keys, using: comparators)
+            }
+            guard let self, !Task.isCancelled, jobsRevision == revision else { return }
+            setSortedJobs(permutation.map { jobs[$0] }, force: force)
+        }
+    }
+
+    private func setSortedJobs(_ ordered: [Job], force: Bool) {
+        reconciledAtRevision = jobsRevision
         if force || !ordered.elementsEqual(sortedJobs, by: ===) {
             sortedJobs = ordered
         }
+    }
+
+    /// Makes `sortedJobs` hold exactly the jobs `jobs` holds, without sorting: rows that were
+    /// removed go (they have been cleaned up and must not stay on screen), rows that were added
+    /// land at the end until the background sort says where they belong.
+    private func reconcileSortedJobs() {
+        guard reconciledAtRevision != jobsRevision else { return }
+        reconciledAtRevision = jobsRevision
+
+        let live = Set(jobs.map(ObjectIdentifier.init))
+        var kept = sortedJobs.filter { live.contains(ObjectIdentifier($0)) }
+        if kept.count != jobs.count {
+            let present = Set(kept.map(ObjectIdentifier.init))
+            kept.append(contentsOf: jobs.filter { !present.contains(ObjectIdentifier($0)) })
+        }
+        setSortedJobs(kept, force: false)
     }
 
     /// Jobs move between status groups as they run, so a status sort has to be redone —
@@ -494,7 +606,7 @@ final class AppModel {
         while !Task.isCancelled {
             if statusNeedsUpdate || queue.isBusy {
                 statusNeedsUpdate = false
-                updateStatus()
+                await updateStatus()
                 resortIfStatusChanged()
                 updateSelectionState()
             }
@@ -510,7 +622,12 @@ final class AppModel {
         return min(1000, max(100, jobs.count / 10))
     }
 
-    private func updateStatus() {
+    /// How many jobs the status pass walks before letting the main actor breathe.
+    /// The whole walk is a handful of property reads per job, so the chunk can be large;
+    /// what it must not be is unbounded, or a ten-thousand-file list drops frames on every tick.
+    private static let statusChunkSize = 2000
+
+    private func updateStatus() async {
         var text = Launch.quitWhenDone
             ? String(localized: "ImageOptim will quit when optimizations are complete", comment: "status bar")
             : String(localized: "Drag and drop image files onto the area above", comment: "status bar")
@@ -529,7 +646,14 @@ final class AppModel {
         var anyOptimizedRestartable = false
         let restartTargetsAreSelection = !selection.isEmpty
 
-        for job in jobs {
+        // A snapshot, because the walk below suspends: rows can be inserted while it runs, and
+        // this pass is throttled anyway — whatever it misses the next tick picks up.
+        let snapshot = jobs
+        for (index, job) in snapshot.enumerated() {
+            if index > 0, index.isMultiple(of: Self.statusChunkSize) {
+                await Task.yield()
+                if Task.isCancelled { return }
+            }
             if !anyBusyFiles, job.isBusy {
                 anyBusyFiles = true
             }
@@ -632,15 +756,22 @@ final class AppModel {
     /// Everything the menus derive from the selection, in one pass over the selected jobs
     /// (not over every job, and without sorting). Called on selection changes and from the tick.
     func updateSelectionState() {
-        let selected = selectedJobsUnordered
         let busy = queue.isBusy
 
         var stoppable = false
         var revertable = false
         var dataURLBytes = 0
         var dataURLPossible = false
+        var selectionExists = false
 
-        for job in selected {
+        // Walks the id set rather than `selectedJobsUnordered`, which allocated an array of every
+        // selected job — on every tick, and Select All on a big folder makes that the whole list.
+        // Nothing here needs an order, and all four answers are booleans, so it stops as soon as
+        // they are all settled.
+        for id in selection {
+            guard let job = jobsByID[id] else { continue }
+            selectionExists = true
+
             if busy, !stoppable, job.isStoppable {
                 stoppable = true
             }
@@ -654,9 +785,11 @@ final class AppModel {
                     dataURLPossible = true
                 }
             }
+
+            // `stoppable` can only ever become true while the queue is running.
+            if revertable, dataURLPossible, stoppable || !busy { break }
         }
 
-        let selectionExists = !selected.isEmpty
         if hasSelection != selectionExists { hasSelection = selectionExists }
         if isStoppable != stoppable { isStoppable = stoppable }
         if canRevert != revertable { canRevert = revertable }

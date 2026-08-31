@@ -23,6 +23,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         defaults.register(defaults: Self.registrationDefaults())
         model = AppModel(defaults: defaults)
         super.init()
+        model.onSelectionChanged = { [weak self] in
+            self?.reloadPreviewPanel()
+        }
     }
 
     /// `defaults.plist` plus the concurrency limits, which depend on the machine.
