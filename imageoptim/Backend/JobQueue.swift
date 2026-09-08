@@ -32,6 +32,34 @@ public final class JobQueue {
     @ObservationIgnored private let dirScanLimiter: AsyncSemaphore
     /// Guetzli is a memory hog, so only one large image may be processed at a time.
     @ObservationIgnored private let guetzliGate = AsyncSemaphore(value: 1)
+    /// Gates moving originals to the Trash, separately from `fileIOLimiter`.
+    ///
+    /// `FileManager.trashItem` is not disk-bound work: it is a call into DesktopServices, which
+    /// rewrites the Trash's Finder property store (`.Trash/.DS_Store`) on every single item. That
+    /// store is a B-tree that grows with every file ever trashed and never compacts, so a batch
+    /// that trashes tens of thousands of originals makes each subsequent call slower than the last
+    /// — seconds of CPU inside `BTree::PutInternal` for one small PNG. Holding a file-I/O permit
+    /// for that starved the two permits every other job needs to read its input and write its
+    /// result, which is what made a long run grind to a halt.
+    ///
+    /// One at a time: DesktopServices takes a lock on the volume's property store anyway, so
+    /// concurrent callers only pile up contention on the same B-tree.
+    @ObservationIgnored private let trashLimiter = AsyncSemaphore(value: 1)
+
+    /// Held for as long as there is work in the queue, to keep the app out of App Nap.
+    ///
+    /// macOS naps a foreground app as soon as its window is occluded, and a napping process has
+    /// *every* thread — the main one included — dropped to background priority (4 instead of the
+    /// usual 31+) with its disk I/O throttled on top. The optimizers themselves are unaffected,
+    /// they get their own `.userInitiated` in `Command`, but everything the app does for them —
+    /// reading the input, writing the result, moving the original to the Trash — is done by this
+    /// process, so napping through a long batch slows the whole pipeline down for as long as the
+    /// window stays hidden behind another one.
+    ///
+    /// `userInitiatedAllowingIdleSystemSleep` rather than `userInitiated`: App Nap is the thing
+    /// worth suppressing here, and a batch that keeps the Mac awake for days is not something the
+    /// user asked for by dropping a folder on the window.
+    @ObservationIgnored private var activity: (any NSObjectProtocol)?
 
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private var tasks: [UUID: Task<Void, Never>] = [:]
@@ -105,10 +133,11 @@ public final class JobQueue {
         pending.append { [weak self] in
             guard let self else { return }
             jobsInFlight += 1
-            track { [cpuLimiter, fileIOLimiter, guetzliGate] in
+            track { [cpuLimiter, fileIOLimiter, trashLimiter, guetzliGate] in
                 await job.run(settings: settings,
                               cpuLimiter: cpuLimiter,
                               fileIOLimiter: fileIOLimiter,
+                              trashLimiter: trashLimiter,
                               guetzliGate: guetzliGate)
             } whenFinished: { [weak self] in
                 guard let self else { return }
@@ -174,8 +203,15 @@ public final class JobQueue {
 
     /// Assigning the same value still invalidates every view observing it.
     private func setBusy(_ busy: Bool) {
-        if isBusy != busy {
-            isBusy = busy
+        guard isBusy != busy else { return }
+        isBusy = busy
+        if busy {
+            activity = ProcessInfo.processInfo.beginActivity(
+                options: .userInitiatedAllowingIdleSystemSleep,
+                reason: "Optimizing images")
+        } else if let activity {
+            ProcessInfo.processInfo.endActivity(activity)
+            self.activity = nil
         }
     }
 
@@ -213,5 +249,6 @@ public final class JobQueue {
         for task in tasks.values {
             task.cancel()
         }
+        setBusy(false)
     }
 }

@@ -314,7 +314,7 @@ public final class Job: Identifiable {
         updateDisplay() // a re-run clears the savings the previous one left on screen
     }
 
-    public func run(settings: Settings, cpuLimiter: AsyncSemaphore, fileIOLimiter: AsyncSemaphore, guetzliGate: AsyncSemaphore) async {
+    public func run(settings: Settings, cpuLimiter: AsyncSemaphore, fileIOLimiter: AsyncSemaphore, trashLimiter: AsyncSemaphore, guetzliGate: AsyncSemaphore) async {
         preservePermissions = settings.preservePermissions
         preserveDates = settings.preserveDates
         defer {
@@ -396,7 +396,7 @@ public final class Job: Identifiable {
         let context = WorkerContext(lowPriority: settings.runLowPriority, guetzliGate: guetzliGate)
         await runWorkers(plan.first, plan.later, cpuLimiter: cpuLimiter, context: context)
 
-        await saveResultAndUpdateStatus(fileIOLimiter: fileIOLimiter)
+        await saveResultAndUpdateStatus(fileIOLimiter: fileIOLimiter, trashLimiter: trashLimiter)
     }
 
     private func runWorkers(_ runFirst: [any Worker], _ runLater: [any Worker], cpuLimiter: AsyncSemaphore, context: WorkerContext) async {
@@ -605,9 +605,9 @@ public final class Job: Identifiable {
 
     // MARK: - Saving
 
-    private func saveResultAndUpdateStatus(fileIOLimiter: AsyncSemaphore) async {
+    private func saveResultAndUpdateStatus(fileIOLimiter: AsyncSemaphore, trashLimiter: AsyncSemaphore) async {
         if isOptimized {
-            let saved = await save(fileIOLimiter: fileIOLimiter)
+            let saved = await save(fileIOLimiter: fileIOLimiter, trashLimiter: trashLimiter)
             if !isDone { isDone = true }
             stopAllWorkers()
             if saved {
@@ -624,7 +624,7 @@ public final class Job: Identifiable {
         }
     }
 
-    private func save(fileIOLimiter: AsyncSemaphore) async -> Bool {
+    private func save(fileIOLimiter: AsyncSemaphore, trashLimiter: AsyncSemaphore) async -> Bool {
         guard let fileToSave = wipInput, let unoptimizedInput else { return false }
 
         let request = SaveRequest(
@@ -638,8 +638,18 @@ public final class Job: Identifiable {
 
         // Not gated on `Task.isCancelled`: by this point the file has already been optimized,
         // and dropping the write would throw that work away and leave the file untouched.
-        let outcome = await fileIOLimiter.withPermit {
-            await offMainActor(priority: .userInitiated) { Self.performSave(request) }
+        let prepared = await fileIOLimiter.withPermit {
+            await offMainActor(priority: .userInitiated) { Self.prepareSave(request) }
+        }
+        guard let prepared else { return false }
+
+        // The file-I/O permit is gone by now: the second phase is bounded by `trashLimiter`
+        // instead, so that a slow `trashItem` no longer keeps the next job from reading its
+        // input. Dropbox is the exception — it never reaches the Trash and pays two one-second
+        // sleeps instead, which have no business holding up everybody else's trashing.
+        let commitLimiter = prepared.isDropboxFolder ? fileIOLimiter : trashLimiter
+        let outcome = await commitLimiter.withPermit {
+            await offMainActor(priority: .userInitiated) { Self.commitSave(request, prepared) }
         }
 
         guard outcome.success else { return false }
@@ -667,8 +677,23 @@ public final class Job: Identifiable {
         var revertFile: ImageFile?
     }
 
-    private nonisolated static func performSave(_ request: SaveRequest) -> SaveOutcome {
-        var outcome = SaveOutcome()
+    /// What the second half of the save needs to know about the first half.
+    private struct SavePreparation: Sendable {
+        /// The file holding the optimized bytes, to be moved onto `filePath` once the original
+        /// is out of the way. Either the worker's temp file, or — when permissions are being
+        /// preserved — the original file with the optimized bytes written into it.
+        let moveFromPath: URL
+        let isDropboxFolder: Bool
+    }
+
+    /// Everything about saving that is genuinely disk-bound, and so belongs under a file-I/O permit:
+    /// it gets the optimized bytes onto the volume, next to the original, without touching the
+    /// original's own path. `commitSave` then does the swap.
+    ///
+    /// If the app dies between the two, the result is a stale `.name~imageoptim.ext` next to an
+    /// untouched original — the same leftover the single-phase version could produce, and the same
+    /// one the `preservePermissions` branch below cleans up on the next run.
+    private nonisolated static func prepareSave(_ request: SaveRequest) -> SavePreparation? {
         let fm = FileManager.default
         let filePath = request.filePath
         let fileToSave = request.fileToSave
@@ -685,7 +710,7 @@ public final class Job: Identifiable {
 
         guard fm.isWritableFile(atPath: enclosingDir.path) else {
             IOWarn("The file \(filePath.path) is in non-writeable directory \(enclosingDir.path)")
-            return outcome
+            return nil
         }
 
         if !isDropboxFolder, request.preservePermissions {
@@ -700,7 +725,7 @@ public final class Job: Identifiable {
                         try fm.removeItem(at: writeToURL)
                     } catch {
                         IOWarn("\(error)")
-                        return outcome
+                        return nil
                     }
                 }
             }
@@ -710,7 +735,7 @@ public final class Job: Identifiable {
                 try fm.moveItem(at: filePath, to: writeToURL)
             } catch {
                 IOWarn("Can't move to \(writeToURL.path) \(error)")
-                return outcome
+                return nil
             }
 
             // copy the original data back, so it can be trashed under the original file name
@@ -718,27 +743,27 @@ public final class Job: Identifiable {
                 try fm.copyItem(at: writeToURL, to: filePath)
             } catch {
                 IOWarn("Can't write to \(filePath.path) \(error)")
-                return outcome
+                return nil
             }
 
             guard let data = try? Data(contentsOf: fileToSave.url) else {
                 IOWarn("Unable to read \(fileToSave.url.path)")
-                return outcome
+                return nil
             }
             guard data.count == fileToSave.byteSize else {
                 IOWarn("Temp file size \(data.count) does not match expected \(fileToSave.byteSize) in \(fileToSave.url.path) for \(filePath.path)")
-                return outcome
+                return nil
             }
             guard data.count >= 30 else {
                 IOWarn("File \(fileToSave.url.path) is suspiciously small, could be truncated")
-                return outcome
+                return nil
             }
 
             // overwrite the old file that is under the temporary name,
             // so that only the content is replaced, not the file metadata
             guard let writeHandle = try? FileHandle(forWritingTo: writeToURL) else {
                 IOWarn("Unable to open \(filePath.path) for writing. Check file permissions.")
-                return outcome
+                return nil
             }
             do {
                 try writeHandle.write(contentsOf: data)
@@ -746,7 +771,7 @@ public final class Job: Identifiable {
                 try writeHandle.close()
             } catch {
                 IOWarn("Failed to write \(writeToURL.path) \(error)")
-                return outcome
+                return nil
             }
 
             moveFromPath = writeToURL
@@ -761,9 +786,28 @@ public final class Job: Identifiable {
                 try fm.setAttributes(attributesToTransfer, ofItemAtPath: moveFromPath.path)
             } catch {
                 IOWarn("Could not transfer creation and modification date for \(filePath.path) \(error)")
-                return outcome
+                return nil
             }
         }
+
+        return SavePreparation(moveFromPath: moveFromPath, isDropboxFolder: isDropboxFolder)
+    }
+
+    /// Moves the original to the Trash and puts the optimized file in its place.
+    ///
+    /// Split out of `prepareSave` because of `trashFile`: see `JobQueue.trashLimiter` for why
+    /// that call is the slowest thing in a large batch and why it must not be holding a file-I/O
+    /// permit while it runs. Nothing here is disk-bound — it is two renames and a DesktopServices
+    /// round-trip — so the original still ends up in the Trash under its own name, and `revert()`
+    /// still gets a real Trash URL to restore from.
+    private nonisolated static func commitSave(_ request: SaveRequest, _ preparation: SavePreparation) -> SaveOutcome {
+        var outcome = SaveOutcome()
+        let fm = FileManager.default
+        let filePath = request.filePath
+        let fileToSave = request.fileToSave
+        let moveFromPath = preparation.moveFromPath
+        let isDropboxFolder = preparation.isDropboxFolder
+        let enclosingDir = filePath.deletingLastPathComponent()
 
         let trashResult = isDropboxFolder ? (trashed: false, url: nil as URL?) : trashFile(at: filePath)
         if trashResult.trashed {
