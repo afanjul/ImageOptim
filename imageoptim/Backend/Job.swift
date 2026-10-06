@@ -27,7 +27,153 @@ public enum JobStatusRevision {
     }
 }
 
-/// The six values a table row shows, as one comparable snapshot.
+public struct ToolTiming: Sendable, Identifiable, Hashable, Equatable, Codable {
+    public var id: String { toolName }
+    public let toolName: String
+    public let durationSeconds: Double
+    public let inputBytes: Int
+    public let outputBytes: Int?
+    public let didImprove: Bool
+    public let error: String?
+
+    public init(toolName: String, durationSeconds: Double, inputBytes: Int, outputBytes: Int?, didImprove: Bool, error: String? = nil) {
+        self.toolName = toolName
+        self.durationSeconds = durationSeconds
+        self.inputBytes = inputBytes
+        self.outputBytes = outputBytes
+        self.didImprove = didImprove
+        self.error = error
+    }
+
+    public var savedBytes: Int {
+        guard let outputBytes, didImprove else { return 0 }
+        return max(0, inputBytes - outputBytes)
+    }
+
+    public var formattedDuration: String {
+        if durationSeconds < 0.001 {
+            return "< 1 ms"
+        } else if durationSeconds < 1.0 {
+            return String(format: "%.0f ms", durationSeconds * 1000)
+        } else if durationSeconds < 10.0 {
+            return String(format: "%.2f s", durationSeconds)
+        } else {
+            return String(format: "%.1f s", durationSeconds)
+        }
+    }
+}
+
+public struct EngineBenchmark: Sendable, Identifiable, Hashable, Equatable, Codable {
+    public var id: String { engineName }
+    public let engineName: String
+    public var runsCount: Int
+    public var totalDurationSeconds: Double
+    public var lastDurationSeconds: Double?
+    public var totalSavedBytes: Int
+    public var lastSavedBytes: Int?
+
+    public init(engineName: String, runsCount: Int = 0, totalDurationSeconds: Double = 0, lastDurationSeconds: Double? = nil, totalSavedBytes: Int = 0, lastSavedBytes: Int? = nil) {
+        self.engineName = engineName
+        self.runsCount = runsCount
+        self.totalDurationSeconds = totalDurationSeconds
+        self.lastDurationSeconds = lastDurationSeconds
+        self.totalSavedBytes = totalSavedBytes
+        self.lastSavedBytes = lastSavedBytes
+    }
+
+    public var averageDurationSeconds: Double {
+        runsCount > 0 ? totalDurationSeconds / Double(runsCount) : 0
+    }
+
+    public var formattedAverageDuration: String {
+        guard runsCount > 0 else { return "—" }
+        return formatDuration(averageDurationSeconds)
+    }
+
+    public var formattedLastDuration: String {
+        guard let last = lastDurationSeconds else { return "—" }
+        return formatDuration(last)
+    }
+
+    public var speedCategory: String {
+        guard runsCount > 0 else { return "Untested" }
+        if averageDurationSeconds < 0.08 {
+            return "⚡ Ultra-Fast"
+        } else if averageDurationSeconds < 0.6 {
+            return "🚀 Fast"
+        } else if averageDurationSeconds < 2.0 {
+            return "⏳ Moderate"
+        } else {
+            return "🐢 Exhaustive"
+        }
+    }
+
+    private func formatDuration(_ sec: Double) -> String {
+        if sec < 0.001 {
+            return "< 1 ms"
+        } else if sec < 1.0 {
+            return String(format: "%.0f ms", sec * 1000)
+        } else if sec < 10.0 {
+            return String(format: "%.2f s", sec)
+        } else {
+            return String(format: "%.1f s", sec)
+        }
+    }
+}
+
+@MainActor
+@Observable
+public final class BenchmarkTracker {
+    public static let shared = BenchmarkTracker()
+
+    public private(set) var stats: [String: EngineBenchmark] = [:]
+
+    private let userDefaultsKey = "ImageOptimEngineBenchmarks_v1"
+
+    public init() {
+        loadPersisted()
+    }
+
+    public var allBenchmarksSorted: [EngineBenchmark] {
+        stats.values.sorted {
+            if $0.runsCount != $1.runsCount {
+                return $0.runsCount > $1.runsCount
+            }
+            return $0.averageDurationSeconds < $1.averageDurationSeconds
+        }
+    }
+
+    public func record(toolName: String, duration: Double, savedBytes: Int) {
+        var stat = stats[toolName] ?? EngineBenchmark(engineName: toolName)
+        stat.runsCount += 1
+        stat.totalDurationSeconds += duration
+        stat.lastDurationSeconds = duration
+        stat.totalSavedBytes += savedBytes
+        stat.lastSavedBytes = savedBytes
+        stats[toolName] = stat
+        savePersisted()
+    }
+
+    public func reset() {
+        stats.removeAll()
+        UserDefaults.standard.removeObject(forKey: userDefaultsKey)
+    }
+
+    private func savePersisted() {
+        if let data = try? JSONEncoder().encode(stats) {
+            UserDefaults.standard.set(data, forKey: userDefaultsKey)
+        }
+    }
+
+    private func loadPersisted() {
+        if let data = UserDefaults.standard.data(forKey: userDefaultsKey),
+           let loaded = try? JSONDecoder().decode([String: EngineBenchmark].self, from: data) {
+            stats = loaded
+        }
+    }
+}
+
+/// The values a table row shows, as one comparable snapshot.
 ///
 /// Being `Equatable` is the point: the status is rewritten every time a tool starts or stops,
 /// usually to what it already said, and a snapshot that compares equal never reaches SwiftUI.
@@ -38,6 +184,8 @@ public struct JobDisplay: Equatable, Sendable {
     public var byteSizeOptimized: Int?
     public var percentOptimized: Double?
     public var bestToolName: String?
+    public var toolTimings: [ToolTiming] = []
+    public var totalDurationSeconds: Double?
 }
 
 /// One file being optimized, and everything the UI displays about it.
@@ -96,6 +244,7 @@ public final class Job: Identifiable {
     // Bookkeeping that no view reads. Without `@ObservationIgnored` every append to
     // `runningWorkerNames` and every entry in `workersPreviousResults` would go through
     // the observation registrar — pure overhead multiplied by files × tools.
+    @ObservationIgnored public private(set) var toolTimings: [ToolTiming] = []
     @ObservationIgnored private var bestTools: [String: ToolStats] = [:]
     /// worker name -> settings identifier -> input size it has already seen
     @ObservationIgnored private var workersPreviousResults: [String: [Int: Int]] = [:]
@@ -125,16 +274,42 @@ public final class Job: Identifiable {
 
     // MARK: - What the table draws
 
+    public var timingsSummaryText: String {
+        guard !display.toolTimings.isEmpty else { return display.statusText }
+        var parts: [String] = []
+        if let total = display.totalDurationSeconds {
+            let totalStr = total < 1.0 ? String(format: "%.0f ms", total * 1000) : String(format: "%.2f s", total)
+            parts.append("⏱️ Total: \(totalStr)")
+        }
+        for t in display.toolTimings {
+            let change: String
+            if t.didImprove, let out = t.outputBytes {
+                let saved = t.inputBytes - out
+                let pct = t.inputBytes > 0 ? (Double(saved) / Double(t.inputBytes)) * 100.0 : 0.0
+                change = String(format: "saved %.1f%%", pct)
+            } else if t.error != nil {
+                change = "failed"
+            } else {
+                change = "0%"
+            }
+            parts.append("• \(t.toolName): \(t.formattedDuration) (\(change))")
+        }
+        return parts.joined(separator: "\n")
+    }
+
     /// Rebuilds `display` and publishes it only if something actually changed. Called from the
     /// two funnels every state change goes through (`setStatus` and `setFileOptimized`), plus
     /// the few places that set `isDone`/`bestToolName` on their own.
     private func updateDisplay() {
+        let totalDuration = toolTimings.isEmpty ? nil : toolTimings.reduce(0.0) { $0 + $1.durationSeconds }
         let updated = JobDisplay(statusImageName: statusImageName,
                                  statusText: statusText,
                                  byteSizeOriginal: byteSizeOriginal,
                                  byteSizeOptimized: byteSizeOptimized,
                                  percentOptimized: percentOptimized,
-                                 bestToolName: bestToolName)
+                                 bestToolName: bestToolName,
+                                 toolTimings: toolTimings,
+                                 totalDurationSeconds: totalDuration)
         if display != updated {
             display = updated
         }
@@ -247,6 +422,7 @@ public final class Job: Identifiable {
         bestToolName = nil
         lossyConverted = false
         bestTools.removeAll()
+        toolTimings.removeAll()
         setFileOptimized(initial)
     }
 
@@ -314,6 +490,7 @@ public final class Job: Identifiable {
         if isFailed { isFailed = false }
         if stopping { stopping = false }
         if !running { running = true }
+        toolTimings.removeAll()
         updateDisplay() // a re-run clears the savings the previous one left on screen
     }
 
@@ -455,20 +632,39 @@ public final class Job: Identifiable {
 
         let temp = Tools.temporaryURL(for: worker.name)
         var producedOutput = false
+        let startTime = CFAbsoluteTimeGetCurrent()
+        let inputSize = input.byteSize
+        var outputSize: Int? = nil
+        var didImprove = false
+        var toolError: String? = nil
+
         do {
             if let result = try await worker.optimize(input, to: temp, context: context) {
                 producedOutput = true
-                setFileOptimized(result.file, toolName: result.toolName)
+                outputSize = result.file.byteSize
+                didImprove = setFileOptimized(result.file, toolName: result.toolName)
             }
         } catch is CancellationError {
             // stopped by the user
+            toolError = "Cancelled"
         } catch CommandError.executableMissing(let tool) {
             IOWarn("Cannot launch \(tool)")
             setError(IOLocalized("\(tool) failed to start", comment: "tooltip"))
+            toolError = "\(tool) failed to start"
         } catch {
             IOWarn("\(worker.name) failed: \(error)")
             setError("Internal Error: \(error)")
+            toolError = "\(error)"
         }
+
+        let duration = max(0.0001, CFAbsoluteTimeGetCurrent() - startTime)
+        let timing = ToolTiming(toolName: worker.name,
+                                durationSeconds: duration,
+                                inputBytes: inputSize,
+                                outputBytes: outputSize,
+                                didImprove: didImprove,
+                                error: toolError)
+        recordToolTiming(timing)
 
         // When the worker produced an ImageFile, that object owns (and deletes) the temp file
         if !producedOutput {
@@ -478,6 +674,18 @@ public final class Job: Identifiable {
         if !Task.isCancelled, !isFailed, let currentSize = wipInput?.byteSize {
             workersPreviousResults[worker.name, default: [:]][worker.settingsIdentifier] = currentSize
         }
+    }
+
+    private func recordToolTiming(_ timing: ToolTiming) {
+        if let index = toolTimings.firstIndex(where: { $0.toolName == timing.toolName }) {
+            toolTimings[index] = timing
+        } else {
+            toolTimings.append(timing)
+        }
+        BenchmarkTracker.shared.record(toolName: timing.toolName,
+                                       duration: timing.durationSeconds,
+                                       savedBytes: timing.savedBytes)
+        updateDisplay()
     }
 
     private static func settingsDigest(for workers: [any Worker]) -> Data {

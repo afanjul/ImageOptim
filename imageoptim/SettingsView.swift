@@ -20,7 +20,7 @@ struct SettingsView: View {
             (String(localized: "Output & Formats", comment: "Preferences tab"), { AnyView(OutputSettings()) }),
         ])
         .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
-        .frame(width: 663, height: 396)
+        .frame(width: 663, height: 410)
     }
 }
 
@@ -295,7 +295,7 @@ private struct SpeedSettings: View {
     @AppStorage(PrefKey.level) private var level = 4
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top, spacing: 8) {
                 Text(String(localized: "Optimization level", comment: "Preferences slider"))
                     .frame(width: 113, alignment: .trailing)
@@ -320,15 +320,110 @@ private struct SpeedSettings: View {
 
                 Spacer(minLength: 0)
             }
-            .padding(.top, 43)
+            .padding(.top, 4)
 
-            Spacer(minLength: 12)
+            GroupBox(String(localized: "Engine Benchmarks (Execution Times)", comment: "Preferences group")) {
+                EngineBenchmarksBox()
+            }
+
+            Spacer(minLength: 6)
 
             HStack {
                 Spacer()
                 HelpButton(anchor: "optipng")
             }
         }
+    }
+}
+
+private struct EngineBenchmarksBox: View {
+    @State private var tracker = BenchmarkTracker.shared
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            let benchmarks = tracker.allBenchmarksSorted
+
+            if benchmarks.isEmpty {
+                VStack(spacing: 6) {
+                    Image(systemName: "gauge.with.needle")
+                        .font(.system(size: 22))
+                        .foregroundStyle(.secondary)
+                    Text(String(localized: "No engine benchmarks recorded yet.", comment: "Preferences hint"))
+                        .font(.smallLabel.bold())
+                    Text(String(localized: "Drag and drop images to see live execution times, speed ratings, and historical averages for each engine.", comment: "Preferences hint"))
+                        .font(.miniLabel)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+            } else {
+                VStack(spacing: 0) {
+                    HStack {
+                        Text(String(localized: "Engine", comment: "Table header")).bold().frame(width: 100, alignment: .leading)
+                        Text(String(localized: "Average", comment: "Table header")).bold().frame(width: 75, alignment: .trailing)
+                        Text(String(localized: "Last Run", comment: "Table header")).bold().frame(width: 75, alignment: .trailing)
+                        Text(String(localized: "Runs", comment: "Table header")).bold().frame(width: 45, alignment: .trailing)
+                        Text(String(localized: "Rating", comment: "Table header")).bold().frame(maxWidth: .infinity, alignment: .trailing)
+                    }
+                    .font(.miniLabel)
+                    .foregroundStyle(.secondary)
+                    .padding(.bottom, 4)
+
+                    Divider()
+
+                    ScrollView {
+                        VStack(spacing: 4) {
+                            ForEach(benchmarks) { stat in
+                                HStack {
+                                    Text(stat.engineName)
+                                        .font(.smallLabel.weight(.medium))
+                                        .frame(width: 100, alignment: .leading)
+
+                                    Text(stat.formattedAverageDuration)
+                                        .font(.smallLabel.monospacedDigit())
+                                        .frame(width: 75, alignment: .trailing)
+
+                                    Text(stat.formattedLastDuration)
+                                        .font(.smallLabel.monospacedDigit())
+                                        .foregroundStyle(.secondary)
+                                        .frame(width: 75, alignment: .trailing)
+
+                                    Text("\(stat.runsCount)")
+                                        .font(.smallLabel.monospacedDigit())
+                                        .foregroundStyle(.secondary)
+                                        .frame(width: 45, alignment: .trailing)
+
+                                    Text(stat.speedCategory)
+                                        .font(.miniLabel.bold())
+                                        .frame(maxWidth: .infinity, alignment: .trailing)
+                                }
+                                .padding(.vertical, 1)
+                            }
+                        }
+                        .padding(.vertical, 2)
+                    }
+                    .frame(maxHeight: 110)
+
+                    Divider()
+
+                    HStack {
+                        Button(String(localized: "Reset Benchmark Stats", comment: "Button")) {
+                            tracker.reset()
+                        }
+                        .controlSize(.small)
+
+                        Spacer()
+
+                        Text("\(benchmarks.count) engines measured")
+                            .font(.miniLabel)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.top, 4)
+                }
+            }
+        }
+        .padding(6)
     }
 }
 

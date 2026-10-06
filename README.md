@@ -72,6 +72,22 @@ Configure exactly where and how your files are saved via the new **Output & Form
 
 ---
 
+### 4. ⏱️ Tool Execution Timings & Live Benchmarks
+* **Per-File Tool Breakdown Popover**: Every completed job tracks how much time each engine took and how many bytes it squeezed. Click the gauge icon or hover over any status icon to see:
+  ```
+  ⏱️ mark-test.png (Total: 3.92 s)
+  • OxiPNG:   18 ms   (saved 31.4% / 15.2 KB)
+  • AdvPNG:   85 ms   (no savings)
+  • Zopfli:   3.82 s  (saved 0.5% / 280 B)
+  ```
+* **Persistent Engine Benchmarks in Preferences**: View historical and live statistics for every engine under *Preferences → Optimization speed*:
+  * **Average Execution Time**: e.g., `21 ms`, `3.85 s`.
+  * **Last Run Duration**: e.g., `18 ms`.
+  * **Run Counts & Speed Ratings**: Dynamic badges (`⚡ Ultra-Fast`, `🚀 Fast`, `🐢 Exhaustive`).
+  * **One-Click Reset**: Clear metrics anytime with *Reset Benchmark Stats*.
+
+---
+
 ## ⚡ Performance & Engine Guide
 
 ImageOptim utilizes a multi-engine cascade to ensure the absolute smallest file size. Understanding how the engines operate helps you configure optimal speed vs. compression trade-offs:
@@ -148,6 +164,8 @@ The resulting `ImageOptim-2.0.0.dmg` will be placed in `build/Build/Products/Rel
 * Added real-time segmented **Queue Filter Bar** (`All`, `Active`, `Done`, `Failed`) with live count badges.
 * Added **Retry Failed** and **Clear Done** batch control buttons.
 * Added multi-selection savings calculation displaying aggregated source vs. optimized file sizes and percentage saved.
+* Added **Tool Execution Timings & Popover Inspector**: click the gauge icon on any finished row or hover over the status to see exact per-tool durations and savings breakdown.
+* Added **Persistent Engine Benchmarks** in Preferences (*Optimization speed* tab) displaying historical averages, last run duration, run counts, and speed categories (`⚡ Ultra-Fast`, `🚀 Fast`, `🐢 Exhaustive`).
 * Modernized macOS Settings window with tabs for General, Output & Formats, Quality, and Engines.
 * Updated About dialog and credits view reflecting the 2.0 community super-fork.
 

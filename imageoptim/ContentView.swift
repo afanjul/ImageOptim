@@ -119,7 +119,7 @@ private struct JobsTable: View {
                      columnCustomization: $model.columnCustomization) {
             TableColumn(Text(verbatim: ""), sortUsing: JobComparator(field: .status)) { job in
                 StatusIcon(name: job.display.statusImageName)
-                    .help(job.display.statusText)
+                    .help(job.timingsSummaryText)
             }
             .width(22)
             .customizationID("status")
@@ -151,16 +151,23 @@ private struct JobsTable: View {
             .customizationID("size")
 
             TableColumn(Text(ColumnTitle.savings)) { job in
-                Text(Formatters.savings(job.display.percentOptimized))
-                    .monospacedDigit()
-                    .frame(maxWidth: .infinity, alignment: .trailing)
+                HStack(spacing: 4) {
+                    if job.display.totalDurationSeconds != nil && !job.display.toolTimings.isEmpty {
+                        JobTimingsButton(job: job)
+                    }
+                    Text(Formatters.savings(job.display.percentOptimized))
+                        .monospacedDigit()
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                }
+                .help(job.timingsSummaryText)
             }
-            .width(85)
+            .width(min: 85, ideal: 100, max: 130)
             .customizationID("savings")
 
             TableColumn(Text(ColumnTitle.bestTool)) { job in
                 Text(job.display.bestToolName ?? "")
                     .monospacedDigit()
+                    .help(job.timingsSummaryText)
             }
             .width(min: 40, ideal: 85, max: 250)
             .customizationID("besttool")
@@ -411,7 +418,7 @@ private struct FileNameCell: View {
             .allowsHitTesting(isHovering)
         }
         .onHover { isHovering = $0 }
-        .help(job.display.statusText)
+        .help(job.timingsSummaryText)
     }
 }
 
@@ -465,5 +472,119 @@ private struct DropZone: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .accessibilityLabel(Text(String(localized: "Drop images here", comment: "Drop zone")))
+    }
+}
+
+// MARK: - Tool Timings Popover
+
+private struct JobTimingsPopoverView: View {
+    let job: Job
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 6) {
+                Image(systemName: "gauge.with.needle")
+                    .foregroundStyle(.blue)
+                Text(job.fileName)
+                    .font(.headline)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                Spacer(minLength: 8)
+                if let total = job.display.totalDurationSeconds {
+                    Text(formatDuration(total))
+                        .font(.subheadline.monospacedDigit().bold())
+                        .foregroundStyle(.primary)
+                }
+            }
+
+            Divider()
+
+            if job.display.toolTimings.isEmpty {
+                Text(String(localized: "No engine execution times recorded yet.", comment: "Popover text"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.vertical, 4)
+            } else {
+                VStack(spacing: 6) {
+                    ForEach(job.display.toolTimings) { timing in
+                        HStack(spacing: 8) {
+                            Text(timing.toolName)
+                                .font(.system(size: 12, weight: .medium))
+                                .frame(width: 85, alignment: .leading)
+
+                            Text(timing.formattedDuration)
+                                .font(.system(size: 12).monospacedDigit())
+                                .foregroundStyle(.secondary)
+                                .frame(width: 65, alignment: .trailing)
+
+                            Spacer(minLength: 4)
+
+                            if timing.didImprove, let out = timing.outputBytes {
+                                let saved = timing.inputBytes - out
+                                let pct = timing.inputBytes > 0 ? (Double(saved) / Double(timing.inputBytes)) * 100.0 : 0.0
+                                Text(String(format: "-%.1f%%", pct))
+                                    .font(.system(size: 11, weight: .bold).monospacedDigit())
+                                    .foregroundStyle(.green)
+                            } else if timing.error != nil {
+                                Text(String(localized: "failed", comment: "Tool failed"))
+                                    .font(.caption)
+                                    .foregroundStyle(.red)
+                            } else {
+                                Text("0%")
+                                    .font(.system(size: 11).monospacedDigit())
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                }
+            }
+
+            if let percent = job.display.percentOptimized, percent > 0 {
+                Divider()
+                HStack {
+                    Text(String(localized: "Total saved:", comment: "Popover label"))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(Formatters.savings(percent))
+                        .font(.caption.bold())
+                        .foregroundStyle(.green)
+                }
+            }
+        }
+        .padding(12)
+        .frame(width: 280)
+    }
+
+    private func formatDuration(_ sec: Double) -> String {
+        if sec < 0.001 {
+            return "< 1 ms"
+        } else if sec < 1.0 {
+            return String(format: "%.0f ms", sec * 1000)
+        } else if sec < 10.0 {
+            return String(format: "%.2f s", sec)
+        } else {
+            return String(format: "%.1f s", sec)
+        }
+    }
+}
+
+private struct JobTimingsButton: View {
+    let job: Job
+    @State private var isShowingPopover = false
+
+    var body: some View {
+        Button {
+            isShowingPopover.toggle()
+        } label: {
+            Image(systemName: "gauge.with.needle")
+                .font(.system(size: 10))
+                .foregroundStyle(isShowingPopover ? .primary : .secondary)
+        }
+        .buttonStyle(.plain)
+        .popover(isPresented: $isShowingPopover, arrowEdge: .trailing) {
+            JobTimingsPopoverView(job: job)
+        }
+        .help(job.timingsSummaryText)
     }
 }
