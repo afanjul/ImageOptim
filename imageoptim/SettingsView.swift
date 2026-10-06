@@ -3,22 +3,99 @@
 //  ImageOptim
 //
 //  Option A: Modern macOS HIG Settings with pixel-perfect layouts,
-//  consistent spacing, semantic CPU effort slider, and live benchmarks.
+//  consistent spacing, generous padding, semantic CPU effort slider,
+//  and live benchmarks.
 //
 
 import ImageOptimGPL
 import SwiftUI
 
 struct SettingsView: View {
+    @State private var selectedTab: SettingsTab = .compression
+
+    enum SettingsTab: Int, CaseIterable, Identifiable {
+        case compression = 0
+        case formats = 1
+        case files = 2
+        case performance = 3
+
+        var id: Int { rawValue }
+
+        var title: String {
+            switch self {
+            case .compression: return String(localized: "Compresión", comment: "Preferences tab")
+            case .formats: return String(localized: "Formatos & Motores", comment: "Preferences tab")
+            case .files: return String(localized: "Archivos & Metadatos", comment: "Preferences tab")
+            case .performance: return String(localized: "Rendimiento", comment: "Preferences tab")
+            }
+        }
+
+        var icon: LucideIconName {
+            switch self {
+            case .compression: return .zap
+            case .formats: return .image
+            case .files: return .folder
+            case .performance: return .gauge
+            }
+        }
+    }
+
     var body: some View {
-        ClassicTabView(tabs: [
-            (String(localized: "Compresión", comment: "Preferences tab"), { AnyView(CompressionSettings()) }),
-            (String(localized: "Formatos & Motores", comment: "Preferences tab"), { AnyView(FormatsEnginesSettings()) }),
-            (String(localized: "Archivos & Metadatos", comment: "Preferences tab"), { AnyView(OutputFilesSettings()) }),
-            (String(localized: "Rendimiento", comment: "Preferences tab"), { AnyView(PerformanceSettings()) }),
-        ])
-        .padding(EdgeInsets(top: 14, leading: 22, bottom: 20, trailing: 22))
-        .frame(width: 710, height: 480)
+        VStack(spacing: 0) {
+            // Modern macOS Segmented Tab Bar Header with Lucide Icons
+            HStack(spacing: 8) {
+                ForEach(SettingsTab.allCases) { tab in
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.15)) {
+                            selectedTab = tab
+                        }
+                    } label: {
+                        HStack(spacing: 6) {
+                            LucideIcon(tab.icon, size: 13, color: selectedTab == tab ? .white : .secondary)
+                            Text(tab.title)
+                                .font(.system(size: 12.5, weight: selectedTab == tab ? .semibold : .medium))
+                                .foregroundStyle(selectedTab == tab ? .white : .primary)
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 7)
+                        .background {
+                            if selectedTab == tab {
+                                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                    .fill(Color.accentColor)
+                                    .shadow(color: Color.accentColor.opacity(0.35), radius: 4, y: 1.5)
+                            } else {
+                                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                    .fill(Color(nsColor: .controlBackgroundColor).opacity(0.75))
+                            }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.top, 14)
+            .padding(.bottom, 12)
+
+            Divider()
+
+            // Tab Content with generous breathing room and proper insets
+            Group {
+                switch selectedTab {
+                case .compression:
+                    CompressionSettings()
+                case .formats:
+                    FormatsEnginesSettings()
+                case .files:
+                    OutputFilesSettings()
+                case .performance:
+                    PerformanceSettings()
+                }
+            }
+            .padding(.top, 20)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 18)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        }
+        .frame(width: 715, height: 495)
     }
 }
 
@@ -87,7 +164,6 @@ private struct CompressionSettings: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            .padding(.top, 2)
 
             Divider()
 
@@ -125,7 +201,7 @@ private struct CompressionSettings: View {
                     Spacer()
                 }
 
-                // Tarjeta explicativa dinámica según el nivel seleccionado
+                // Tarjeta explicativa dinámica que NUNCA se trunca
                 HStack {
                     Spacer().frame(width: 142)
                     HStack(spacing: 8) {
@@ -133,10 +209,12 @@ private struct CompressionSettings: View {
                         Text(effortDescription)
                             .font(.miniLabel)
                             .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                     .padding(.horizontal, 12)
                     .padding(.vertical, 7)
-                    .frame(width: 480, alignment: .leading)
+                    .frame(maxWidth: 500, alignment: .leading)
                     .background(Color(nsColor: .controlBackgroundColor).opacity(0.85), in: RoundedRectangle(cornerRadius: 6))
                 }
             }
@@ -257,13 +335,13 @@ private struct CompressionSettings: View {
     private var effortDescription: String {
         switch level {
         case 0...1:
-            return String(localized: "⚡ 1 pase ultrarrápido (milisegundos). Máxima velocidad, ideal para lotes de miles de fotos.", comment: "Effort hint")
+            return String(localized: "⚡ 1 pase ultrarrápido (ms). Máxima velocidad para lotes grandes.", comment: "Effort hint")
         case 2...4:
-            return String(localized: "⚖️ Equilibrado (Recomendado): Compromiso óptimo diario entre reducción de bytes y uso de CPU.", comment: "Effort hint")
+            return String(localized: "⚖️ Compromiso ideal: excelente compresión con bajo consumo de CPU.", comment: "Effort hint")
         case 5:
-            return String(localized: "🔬 Compresión profunda: Múltiples iteraciones de Zopfli y MozJPEG. Ahorro de bytes adicional en segundos.", comment: "Effort hint")
+            return String(localized: "🔬 Compresión exhaustiva con múltiples pasadas Zopfli y MozJPEG.", comment: "Effort hint")
         default:
-            return String(localized: "🧬 Exhaustivo (Fuerza bruta): Hasta 21 iteraciones Zopfli para el menor peso posible. Intensivo en procesador.", comment: "Effort hint")
+            return String(localized: "🧬 Fuerza bruta Zopfli (hasta 21 pasadas). Máximo ahorro posible.", comment: "Effort hint")
         }
     }
 
@@ -748,63 +826,6 @@ private struct QualitySlider: View {
 }
 
 // MARK: - AppKit Controls
-
-private struct ClassicTabView: NSViewRepresentable {
-    let tabs: [(title: String, content: () -> AnyView)]
-
-    @MainActor
-    final class Coordinator: NSObject, NSTabViewDelegate {
-        var pages: [() -> AnyView] = []
-
-        func tabView(_ tabView: NSTabView, willSelect tabViewItem: NSTabViewItem?) {
-            guard let tabViewItem,
-                  let index = tabView.tabViewItems.firstIndex(of: tabViewItem)
-            else { return }
-            host(page: index, in: tabViewItem)
-        }
-
-        func host(page index: Int, in item: NSTabViewItem) {
-            guard pages.indices.contains(index),
-                  let container = item.view, container.subviews.isEmpty
-            else { return }
-
-            let hosting = NSHostingView(rootView: pages[index]())
-            hosting.frame = container.bounds
-            hosting.autoresizingMask = [.width, .height]
-            container.addSubview(hosting)
-        }
-    }
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator()
-    }
-
-    func makeNSView(context: Context) -> NSTabView {
-        let tabView = NSTabView()
-        tabView.tabViewType = .topTabsBezelBorder
-        context.coordinator.pages = tabs.map(\.content)
-        tabView.delegate = context.coordinator
-
-        for tab in tabs {
-            let item = NSTabViewItem(identifier: tab.title)
-            item.label = tab.title
-            item.view = NSView()
-            tabView.addTabViewItem(item)
-        }
-
-        if let first = tabView.tabViewItems.first {
-            context.coordinator.host(page: 0, in: first)
-        }
-        return tabView
-    }
-
-    func updateNSView(_ tabView: NSTabView, context: Context) {
-        context.coordinator.pages = tabs.map(\.content)
-        for (item, tab) in zip(tabView.tabViewItems, tabs) where item.label != tab.title {
-            item.label = tab.title
-        }
-    }
-}
 
 private struct TickSlider: NSViewRepresentable {
     @Binding var value: Int
