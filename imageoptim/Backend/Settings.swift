@@ -35,6 +35,16 @@ public enum PrefKey {
     public static let svgoEnabled = "SvgoEnabled"
     public static let svgCleanerEnabled = "SvgcleanerEnabled"
 
+    public static let webpEnabled = "WebpEnabled"
+    public static let avifEnabled = "AvifEnabled"
+    public static let jxlEnabled = "JxlEnabled"
+    public static let heicToJpegEnabled = "HeicToJpegEnabled"
+
+    public static let preserveOriginal = "PreserveOriginal"
+    public static let outputFolderPath = "OutputFolderPath"
+    public static let filenamePrefix = "FilenamePrefix"
+    public static let filenameSuffix = "FilenameSuffix"
+
     public static let preservePermissions = "PreservePermissions"
     public static let preserveDates = "PreserveDates"
 
@@ -73,6 +83,16 @@ public struct Settings: Sendable {
     public var svgoEnabled = false
     public var svgCleanerEnabled = true
 
+    public var webpEnabled = true
+    public var avifEnabled = true
+    public var jxlEnabled = true
+    public var heicToJpegEnabled = true
+
+    public var preserveOriginal = false
+    public var outputFolderPath = ""
+    public var filenamePrefix = ""
+    public var filenameSuffix = ""
+
     public var preservePermissions = true
     public var preserveDates = false
 
@@ -102,6 +122,16 @@ public struct Settings: Sendable {
 
         svgoEnabled = defaults.bool(forKey: PrefKey.svgoEnabled)
         svgCleanerEnabled = defaults.bool(forKey: PrefKey.svgCleanerEnabled)
+
+        webpEnabled = defaults.object(forKey: PrefKey.webpEnabled) != nil ? defaults.bool(forKey: PrefKey.webpEnabled) : true
+        avifEnabled = defaults.object(forKey: PrefKey.avifEnabled) != nil ? defaults.bool(forKey: PrefKey.avifEnabled) : true
+        jxlEnabled = defaults.object(forKey: PrefKey.jxlEnabled) != nil ? defaults.bool(forKey: PrefKey.jxlEnabled) : true
+        heicToJpegEnabled = defaults.object(forKey: PrefKey.heicToJpegEnabled) != nil ? defaults.bool(forKey: PrefKey.heicToJpegEnabled) : true
+
+        preserveOriginal = defaults.bool(forKey: PrefKey.preserveOriginal)
+        outputFolderPath = defaults.string(forKey: PrefKey.outputFolderPath) ?? ""
+        filenamePrefix = defaults.string(forKey: PrefKey.filenamePrefix) ?? ""
+        filenameSuffix = defaults.string(forKey: PrefKey.filenameSuffix) ?? ""
 
         preservePermissions = defaults.bool(forKey: PrefKey.preservePermissions)
         preserveDates = defaults.bool(forKey: PrefKey.preserveDates)

@@ -164,6 +164,9 @@ public final class Job: Identifiable {
         guard let unoptimizedInput, let optimized = optimizedFile(fallback: false), optimized !== unoptimizedInput else {
             return false
         }
+        if unoptimizedInput.type == .heic, optimized.type == .jpeg {
+            return true
+        }
         return optimized.byteSize < unoptimizedInput.byteSize
     }
 
@@ -356,7 +359,9 @@ public final class Job: Identifiable {
             setFileOptimized(input)
         }
 
-        guard FileManager.default.isWritableFile(atPath: filePath.path) else {
+        let destinationURL = computeDestinationURL(settings: settings)
+        let writesInPlace = !settings.preserveOriginal && destinationURL == filePath
+        if writesInPlace, !FileManager.default.isWritableFile(atPath: filePath.path) {
             setError(IOLocalized("Optimized file could not be saved", comment: "tooltip"))
             return
         }
@@ -396,7 +401,7 @@ public final class Job: Identifiable {
         let context = WorkerContext(lowPriority: settings.runLowPriority, guetzliGate: guetzliGate)
         await runWorkers(plan.first, plan.later, cpuLimiter: cpuLimiter, context: context)
 
-        await saveResultAndUpdateStatus(fileIOLimiter: fileIOLimiter, trashLimiter: trashLimiter)
+        await saveResultAndUpdateStatus(settings: settings, destinationURL: destinationURL, fileIOLimiter: fileIOLimiter, trashLimiter: trashLimiter)
     }
 
     private func runWorkers(_ runFirst: [any Worker], _ runLater: [any Worker], cpuLimiter: AsyncSemaphore, context: WorkerContext) async {
@@ -560,8 +565,34 @@ public final class Job: Identifiable {
                 workerList.append(SvgcleanerWorker(lossy: lossyEnabled))
             }
 
+        case .webp:
+            if settings.webpEnabled {
+                workerList.append(WebpWorker())
+            }
+
+        case .avif:
+            if settings.avifEnabled {
+                workerList.append(AvifWorker())
+            }
+
+        case .jxl:
+            if settings.jxlEnabled {
+                workerList.append(JxlWorker())
+            }
+
+        case .heic:
+            if settings.heicToJpegEnabled {
+                runFirst.append(HeicToJpegWorker())
+                if settings.jpegOptimEnabled {
+                    workerList.append(JpegoptimWorker(settings: settings))
+                }
+                if settings.jpegTranEnabled {
+                    workerList.append(JpegtranWorker(settings: settings))
+                }
+            }
+
         case nil:
-            setError(IOLocalized("File is neither PNG, GIF nor JPEG", comment: "tooltip"))
+            setError(IOLocalized("File format not supported", comment: "tooltip"))
             cleanup()
             return nil
         }
@@ -603,11 +634,60 @@ public final class Job: Identifiable {
         setFileOptimized(nil)
     }
 
+    // MARK: - Destination and Tokens
+
+    private func computeDestinationURL(settings: Settings) -> URL {
+        let isHeicConversion = unoptimizedInput?.type == .heic
+        let ext = isHeicConversion ? "jpg" : filePath.pathExtension
+        let base = filePath.deletingPathExtension().lastPathComponent
+
+        let now = Date()
+        let prefix = expandDateTokens(in: settings.filenamePrefix, at: now)
+        let suffix = expandDateTokens(in: settings.filenameSuffix, at: now)
+        let destDir = settings.outputFolderPath.isEmpty
+            ? filePath.deletingLastPathComponent()
+            : URL(fileURLWithPath: settings.outputFolderPath, isDirectory: true)
+
+        let newName = "\(prefix)\(base)\(suffix)"
+        var destination = destDir.appendingPathComponent(newName).appendingPathExtension(ext)
+
+        if settings.preserveOriginal && destination == filePath {
+            let fallbackName = "\(prefix)\(base)\(suffix)-optimized"
+            destination = destDir.appendingPathComponent(fallbackName).appendingPathExtension(ext)
+        }
+        return destination
+    }
+
+    private func expandDateTokens(in template: String, at date: Date) -> String {
+        guard template.contains("{date") else { return template }
+        guard let regex = try? NSRegularExpression(pattern: "\\{date(?::([^}]+))?\\}") else {
+            return template
+        }
+        let nsTemplate = template as NSString
+        let matches = regex.matches(in: template, range: NSRange(location: 0, length: nsTemplate.length))
+        var result = template
+        for match in matches.reversed() {
+            let formatSpec: String
+            if match.range(at: 1).location != NSNotFound {
+                formatSpec = nsTemplate.substring(with: match.range(at: 1))
+            } else {
+                formatSpec = "yy.MM.dd"
+            }
+            let formatter = DateFormatter()
+            formatter.dateFormat = formatSpec
+            let formatted = formatter.string(from: date).replacingOccurrences(of: "/", with: "-")
+            if let range = Range(match.range, in: result) {
+                result.replaceSubrange(range, with: formatted)
+            }
+        }
+        return result
+    }
+
     // MARK: - Saving
 
-    private func saveResultAndUpdateStatus(fileIOLimiter: AsyncSemaphore, trashLimiter: AsyncSemaphore) async {
+    private func saveResultAndUpdateStatus(settings: Settings, destinationURL: URL, fileIOLimiter: AsyncSemaphore, trashLimiter: AsyncSemaphore) async {
         if isOptimized {
-            let saved = await save(fileIOLimiter: fileIOLimiter, trashLimiter: trashLimiter)
+            let saved = await save(settings: settings, destinationURL: destinationURL, fileIOLimiter: fileIOLimiter, trashLimiter: trashLimiter)
             if !isDone { isDone = true }
             stopAllWorkers()
             if saved {
@@ -624,16 +704,18 @@ public final class Job: Identifiable {
         }
     }
 
-    private func save(fileIOLimiter: AsyncSemaphore, trashLimiter: AsyncSemaphore) async -> Bool {
+    private func save(settings: Settings, destinationURL: URL, fileIOLimiter: AsyncSemaphore, trashLimiter: AsyncSemaphore) async -> Bool {
         guard let fileToSave = wipInput, let unoptimizedInput else { return false }
 
         let request = SaveRequest(
             filePath: filePath,
+            destinationURL: destinationURL,
             fileToSave: fileToSave,
             unoptimizedInput: unoptimizedInput,
             needsRevertFile: revertFile == nil,
             preservePermissions: preservePermissions,
-            preserveDates: preserveDates
+            preserveDates: preserveDates,
+            preserveOriginal: settings.preserveOriginal
         )
 
         // Not gated on `Task.isCancelled`: by this point the file has already been optimized,
@@ -664,11 +746,13 @@ public final class Job: Identifiable {
 
     private struct SaveRequest: Sendable {
         let filePath: URL
+        let destinationURL: URL
         let fileToSave: ImageFile
         let unoptimizedInput: ImageFile
         let needsRevertFile: Bool
         let preservePermissions: Bool
         let preserveDates: Bool
+        let preserveOriginal: Bool
     }
 
     private struct SaveOutcome: Sendable {
@@ -684,6 +768,7 @@ public final class Job: Identifiable {
         /// preserved — the original file with the optimized bytes written into it.
         let moveFromPath: URL
         let isDropboxFolder: Bool
+        let isSeparateDestination: Bool
     }
 
     /// Everything about saving that is genuinely disk-bound, and so belongs under a file-I/O permit:
@@ -696,24 +781,32 @@ public final class Job: Identifiable {
     private nonisolated static func prepareSave(_ request: SaveRequest) -> SavePreparation? {
         let fm = FileManager.default
         let filePath = request.filePath
+        let destinationURL = request.destinationURL
+        let isSeparateDestination = request.preserveOriginal || destinationURL != filePath
         let fileToSave = request.fileToSave
 
         var moveFromPath = fileToSave.url
-        let enclosingDir = filePath.deletingLastPathComponent()
+        let enclosingDir = destinationURL.deletingLastPathComponent()
+
+        if isSeparateDestination {
+            if !fm.fileExists(atPath: enclosingDir.path) {
+                try? fm.createDirectory(at: enclosingDir, withIntermediateDirectories: true)
+            }
+        }
 
         // Dropbox is super buggy and actually loses files when they're moved/trashed quickly
         let isDropboxFolder = fm.fileExists(atPath: enclosingDir.appendingPathComponent(".dropbox").path)
-            || filePath.path.contains("/Dropbox/")
+            || destinationURL.path.contains("/Dropbox/")
         if isDropboxFolder {
-            IOWarn("Detected path \(filePath.path) is inside Dropbox. Will try to avoid Dropbox's bugs.")
+            IOWarn("Detected path \(destinationURL.path) is inside Dropbox. Will try to avoid Dropbox's bugs.")
         }
 
         guard fm.isWritableFile(atPath: enclosingDir.path) else {
-            IOWarn("The file \(filePath.path) is in non-writeable directory \(enclosingDir.path)")
+            IOWarn("The destination \(destinationURL.path) is in non-writeable directory \(enclosingDir.path)")
             return nil
         }
 
-        if !isDropboxFolder, request.preservePermissions {
+        if !isSeparateDestination, !isDropboxFolder, request.preservePermissions {
             let baseName = filePath.deletingPathExtension().lastPathComponent
             let writeToURL = enclosingDir
                 .appendingPathComponent(".\(baseName)~imageoptim")
@@ -790,7 +883,7 @@ public final class Job: Identifiable {
             }
         }
 
-        return SavePreparation(moveFromPath: moveFromPath, isDropboxFolder: isDropboxFolder)
+        return SavePreparation(moveFromPath: moveFromPath, isDropboxFolder: isDropboxFolder, isSeparateDestination: isSeparateDestination)
     }
 
     /// Moves the original to the Trash and puts the optimized file in its place.
@@ -804,11 +897,39 @@ public final class Job: Identifiable {
         var outcome = SaveOutcome()
         let fm = FileManager.default
         let filePath = request.filePath
+        let destinationURL = request.destinationURL
         let fileToSave = request.fileToSave
         let moveFromPath = preparation.moveFromPath
         let isDropboxFolder = preparation.isDropboxFolder
-        let enclosingDir = filePath.deletingLastPathComponent()
+        let isSeparateDestination = preparation.isSeparateDestination
 
+        if isSeparateDestination {
+            if fm.fileExists(atPath: destinationURL.path) {
+                _ = try? fm.removeItem(at: destinationURL)
+            }
+            do {
+                try fm.moveItem(at: moveFromPath, to: destinationURL)
+            } catch {
+                do {
+                    try fm.copyItem(at: moveFromPath, to: destinationURL)
+                    try? fm.removeItem(at: moveFromPath)
+                } catch {
+                    IOWarn("Failed to copy to \(destinationURL.path); \(error)")
+                    return outcome
+                }
+            }
+
+            outcome.savedOutput = fileToSave.copy(at: destinationURL, byteSize: fileToSave.byteSize)
+            outcome.success = true
+
+            if isDropboxFolder {
+                sleep(1)
+            }
+            removeExtendedAttributes(at: destinationURL)
+            return outcome
+        }
+
+        let enclosingDir = filePath.deletingLastPathComponent()
         let trashResult = isDropboxFolder ? (trashed: false, url: nil as URL?) : trashFile(at: filePath)
         if trashResult.trashed {
             if request.needsRevertFile, let trashedURL = trashResult.url {

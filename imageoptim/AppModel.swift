@@ -31,6 +31,16 @@ struct ResolvedURL: Sendable {
     let exists: Bool
 }
 
+/// Filter mode for the jobs queue.
+enum QueueFilter: String, CaseIterable, Identifiable, Sendable {
+    case all = "All"
+    case active = "Active"
+    case completed = "Completed"
+    case failed = "Failed"
+
+    var id: String { rawValue }
+}
+
 /// Sorting a `Table` happens on the main actor, but `SortComparator.compare` is nonisolated,
 /// hence the `assumeIsolated`.
 struct JobComparator: SortComparator {
@@ -121,6 +131,39 @@ final class AppModel {
         }
     }
 
+    /// Current filter applied to the visible queue.
+    var queueFilter: QueueFilter = .all
+
+    var visibleJobs: [Job] {
+        switch queueFilter {
+        case .all:
+            return sortedJobs
+        case .active:
+            return sortedJobs.filter { $0.isBusy }
+        case .completed:
+            return sortedJobs.filter { $0.isDone && !$0.isFailed }
+        case .failed:
+            return sortedJobs.filter { $0.isFailed }
+        }
+    }
+
+    var countActive: Int { jobs.filter { $0.isBusy }.count }
+    var countCompleted: Int { jobs.filter { $0.isDone && !$0.isFailed }.count }
+    var countFailed: Int { jobs.filter { $0.isFailed }.count }
+
+    var selectionSummaryText: String? {
+        guard selection.count > 1 else { return nil }
+        let selected = selectedJobs
+        let original = selected.compactMap(\.byteSizeOriginal).reduce(0, +)
+        let optimized = selected.compactMap(\.byteSizeOptimized).reduce(0, +)
+        if original > 0 && optimized > 0 && original > optimized {
+            let saved = Self.sizeFormatter.string(fromByteCount: Int64(original - optimized))
+            let pct = Self.percentFormatter.string(from: (1.0 - Double(optimized) / Double(original)) as NSNumber) ?? ""
+            return "\(selected.count) selected: saved \(saved) (\(pct))"
+        }
+        return "\(selected.count) selected"
+    }
+
     /// Called after the selection changed, so the Quick Look panel can follow it.
     /// A callback rather than an observation, because the delegate that owns the panel is
     /// not a view and has no update pass to hang a `withObservationTracking` off.
@@ -151,6 +194,7 @@ final class AppModel {
     private(set) var isStoppable = false
     private(set) var canRevert = false
     private(set) var canClearComplete = false
+    private(set) var canRetryFailed = false
     private(set) var canCopyAsDataURL = false
     private(set) var canStartAgainAny = false
     private(set) var canStartAgainOptimized = false
@@ -370,6 +414,19 @@ final class AppModel {
         remove(ids: Set(jobs.filter(\.isDone).map(\.id)))
     }
 
+    func retryFailed() {
+        flushPendingRows()
+        var anyStarted = false
+        for job in jobs where job.isFailed && !job.isBusy {
+            queue.add(job)
+            anyStarted = true
+        }
+        if !anyStarted {
+            NSSound.beep()
+        }
+        setNeedsStatusUpdate()
+    }
+
     // MARK: - Running
 
     /// The jobs the menu commands act on: the selection, or everything when nothing is selected.
@@ -548,6 +605,10 @@ final class AppModel {
         static let jpeg = EnabledTypes(rawValue: 2)
         static let gif = EnabledTypes(rawValue: 4)
         static let svg = EnabledTypes(rawValue: 8)
+        static let webp = EnabledTypes(rawValue: 16)
+        static let avif = EnabledTypes(rawValue: 32)
+        static let jxl = EnabledTypes(rawValue: 64)
+        static let heic = EnabledTypes(rawValue: 128)
     }
 
     private var typesEnabled: EnabledTypes {
@@ -566,6 +627,18 @@ final class AppModel {
         if defaults.bool(forKey: PrefKey.svgoEnabled) || defaults.bool(forKey: PrefKey.svgCleanerEnabled) {
             types.insert(.svg)
         }
+        if defaults.object(forKey: PrefKey.webpEnabled) == nil || defaults.bool(forKey: PrefKey.webpEnabled) {
+            types.insert(.webp)
+        }
+        if defaults.object(forKey: PrefKey.avifEnabled) == nil || defaults.bool(forKey: PrefKey.avifEnabled) {
+            types.insert(.avif)
+        }
+        if defaults.object(forKey: PrefKey.jxlEnabled) == nil || defaults.bool(forKey: PrefKey.jxlEnabled) {
+            types.insert(.jxl)
+        }
+        if defaults.object(forKey: PrefKey.heicToJpegEnabled) == nil || defaults.bool(forKey: PrefKey.heicToJpegEnabled) {
+            types.insert(.heic)
+        }
 
         return types.isEmpty ? .png : types // will show an error in the list
     }
@@ -578,6 +651,10 @@ final class AppModel {
         if types.contains(.jpeg) { extensions.formUnion(["jpg", "jpeg"]) }
         if types.contains(.gif) { extensions.insert("gif") }
         if types.contains(.svg) { extensions.insert("svg") }
+        if types.contains(.webp) { extensions.insert("webp") }
+        if types.contains(.avif) { extensions.insert("avif") }
+        if types.contains(.jxl) { extensions.insert("jxl") }
+        if types.contains(.heic) { extensions.formUnion(["heic", "heif"]) }
         return extensions
     }
 
@@ -588,6 +665,22 @@ final class AppModel {
         if types.contains(.jpeg) { contentTypes.append(.jpeg) }
         if types.contains(.gif) { contentTypes.append(.gif) }
         if types.contains(.svg) { contentTypes.append(.svg) }
+        if types.contains(.webp) {
+            if let t = UTType("public.webp") ?? UTType(filenameExtension: "webp") {
+                contentTypes.append(t)
+            } else {
+                contentTypes.append(.webP)
+            }
+        }
+        if types.contains(.avif), let t = UTType("public.avif") ?? UTType(filenameExtension: "avif") {
+            contentTypes.append(t)
+        }
+        if types.contains(.jxl), let t = UTType("public.jxl") ?? UTType(filenameExtension: "jxl") {
+            contentTypes.append(t)
+        }
+        if types.contains(.heic) {
+            contentTypes.append(.heic)
+        }
         return contentTypes
     }
 
@@ -644,6 +737,7 @@ final class AppModel {
         var anyDone = false
         var anyRestartable = false
         var anyOptimizedRestartable = false
+        var anyFailed = false
         let restartTargetsAreSelection = !selection.isEmpty
 
         // A snapshot, because the walk below suspends: rows can be inserted while it runs, and
@@ -659,6 +753,9 @@ final class AppModel {
             }
             if !anyDone, job.isDone {
                 anyDone = true
+            }
+            if !anyFailed, job.isFailed {
+                anyFailed = true
             }
             if !anyRestartable || !anyOptimizedRestartable,
                !job.isBusy, !restartTargetsAreSelection || selection.contains(job.id) {
@@ -724,6 +821,9 @@ final class AppModel {
         }
         if canClearComplete != anyDone {
             canClearComplete = anyDone
+        }
+        if canRetryFailed != anyFailed {
+            canRetryFailed = anyFailed
         }
         if canStartAgainAny != anyRestartable {
             canStartAgainAny = anyRestartable

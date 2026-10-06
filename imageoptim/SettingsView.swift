@@ -17,9 +17,10 @@ struct SettingsView: View {
             (String(localized: "General", comment: "Preferences tab"), { AnyView(GeneralSettings()) }),
             (String(localized: "Quality", comment: "Preferences tab"), { AnyView(QualitySettings()) }),
             (String(localized: "Optimization speed", comment: "Preferences tab"), { AnyView(SpeedSettings()) }),
+            (String(localized: "Output & Formats", comment: "Preferences tab"), { AnyView(OutputSettings()) }),
         ])
         .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
-        .frame(width: 663, height: 376)
+        .frame(width: 663, height: 396)
     }
 }
 
@@ -327,6 +328,111 @@ private struct SpeedSettings: View {
                 Spacer()
                 HelpButton(anchor: "optipng")
             }
+        }
+    }
+}
+
+// MARK: - Output & Formats
+
+private struct OutputSettings: View {
+    @AppStorage(PrefKey.webpEnabled) private var webp = true
+    @AppStorage(PrefKey.avifEnabled) private var avif = true
+    @AppStorage(PrefKey.jxlEnabled) private var jxl = true
+    @AppStorage(PrefKey.heicToJpegEnabled) private var heicToJpeg = true
+
+    @AppStorage(PrefKey.preserveOriginal) private var preserveOriginal = false
+    @AppStorage(PrefKey.outputFolderPath) private var outputFolderPath = ""
+    @AppStorage(PrefKey.filenamePrefix) private var filenamePrefix = ""
+    @AppStorage(PrefKey.filenameSuffix) private var filenameSuffix = ""
+
+    var body: some View {
+        VStack(spacing: 12) {
+            HStack(alignment: .top, spacing: 12) {
+                GroupBox(String(localized: "Modern Formats", comment: "Preferences group")) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Toggle("WebP (cwebp)", isOn: $webp)
+                        Hint(String(localized: "Lossless compression for WebP images", comment: "Preferences hint"))
+
+                        Toggle("AVIF (avifoptim / avifenc)", isOn: $avif)
+                        Hint(String(localized: "Next-generation AV1 image compression", comment: "Preferences hint"))
+
+                        Toggle("JPEG XL (jxloptim / cjxl)", isOn: $jxl)
+                        Hint(String(localized: "Next-generation JPEG XL compression", comment: "Preferences hint"))
+
+                        Toggle("HEIC / HEIF to JPEG", isOn: $heicToJpeg)
+                        Hint(String(localized: "Converts Apple HEIC photos to web-compatible JPEG", comment: "Preferences hint"))
+                    }
+                    .padding(.leading, 6)
+                    .padding(.vertical, 6)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
+                GroupBox(String(localized: "Output & Destination", comment: "Preferences group")) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Toggle(String(localized: "Preserve original file (save to copy)", comment: "Preferences checkbox"),
+                               isOn: $preserveOriginal)
+                        Hint(String(localized: "Never overwrites the original input image", comment: "Preferences hint"))
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(String(localized: "Output folder:", comment: "Preferences label"))
+                                .font(.smallLabel)
+                            HStack {
+                                TextField(String(localized: "Same as original", comment: "Placeholder"), text: $outputFolderPath)
+                                    .textFieldStyle(.roundedBorder)
+                                Button(String(localized: "Choose…", comment: "Button")) {
+                                    selectOutputFolder()
+                                }
+                                if !outputFolderPath.isEmpty {
+                                    Button(String(localized: "Reset", comment: "Button")) {
+                                        outputFolderPath = ""
+                                    }
+                                }
+                            }
+                        }
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(String(localized: "Filename template:", comment: "Preferences label"))
+                                .font(.smallLabel)
+                            HStack {
+                                TextField(String(localized: "Prefix", comment: "Placeholder"), text: $filenamePrefix)
+                                    .textFieldStyle(.roundedBorder)
+                                Text("+ [name] +")
+                                    .font(.smallLabel)
+                                    .foregroundStyle(.secondary)
+                                TextField(String(localized: "Suffix", comment: "Placeholder"), text: $filenameSuffix)
+                                    .textFieldStyle(.roundedBorder)
+                            }
+                            Hint(String(localized: "Supports {date} tokens. Example: \(previewFilename)", comment: "Preferences hint"))
+                        }
+                    }
+                    .padding(.leading, 6)
+                    .padding(.vertical, 6)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+
+            Spacer(minLength: 12)
+        }
+    }
+
+    private var previewFilename: String {
+        let now = Date()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let dateStr = formatter.string(from: now)
+        let p = filenamePrefix.replacingOccurrences(of: "{date}", with: dateStr)
+        let s = filenameSuffix.replacingOccurrences(of: "{date}", with: dateStr)
+        return "\(p)photo\(s).jpg"
+    }
+
+    private func selectOutputFolder() {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.canCreateDirectories = true
+        if panel.runModal() == .OK, let url = panel.url {
+            outputFolderPath = url.path
         }
     }
 }

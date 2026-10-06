@@ -85,6 +85,10 @@
 		EF70BBBB8220954E1010929C /* ImageFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = BED4EB180DBA4A9647FBDC90 /* ImageFile.swift */; };
 		F38DA726C6E4D2D0B983C666 /* DirScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6E963715606F1C05D4AA98E /* DirScanner.swift */; };
 		FB2C5BFC9E43D697137159CF /* JobQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB3C97FA3015229A7EF52F9E /* JobQueue.swift */; };
+		B1000001291C0217065B6201 /* WebpWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001291C0217065B6201 /* WebpWorker.swift */; };
+		B1000002291C0217065B6202 /* AvifWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002291C0217065B6202 /* AvifWorker.swift */; };
+		B1000003291C0217065B6203 /* JxlWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000003291C0217065B6203 /* JxlWorker.swift */; };
+		B1000004291C0217065B6204 /* HeicToJpegWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000004291C0217065B6204 /* HeicToJpegWorker.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -526,6 +530,10 @@
 		F207896E85893C4CF2FFA7C3 /* SharedPrefs.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SharedPrefs.swift; path = Backend/SharedPrefs.swift; sourceTree = "<group>"; };
 		F8C4ABCD1755C91B004FC041 /* ko */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ko; path = ko.lproj/Help; sourceTree = "<group>"; };
 		F8C4ABCF1755C91B004FC041 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
+		A1000001291C0217065B6201 /* WebpWorker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WebpWorker.swift; sourceTree = "<group>"; };
+		A1000002291C0217065B6202 /* AvifWorker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AvifWorker.swift; sourceTree = "<group>"; };
+		A1000003291C0217065B6203 /* JxlWorker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = JxlWorker.swift; sourceTree = "<group>"; };
+		A1000004291C0217065B6204 /* HeicToJpegWorker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HeicToJpegWorker.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -847,6 +855,10 @@
 				47A2278199AFBB2B90A20DA5 /* SvgoWorker.swift */,
 				A9ADFF82291C0217065B6250 /* Worker.swift */,
 				A44AF5447FAF34352F932295 /* ZopfliWorker.swift */,
+				A1000001291C0217065B6201 /* WebpWorker.swift */,
+				A1000002291C0217065B6202 /* AvifWorker.swift */,
+				A1000003291C0217065B6203 /* JxlWorker.swift */,
+				A1000004291C0217065B6204 /* HeicToJpegWorker.swift */,
 			);
 			name = Workers;
 			path = Backend/Workers;
@@ -1294,6 +1306,10 @@
 				A4F49C5150578E7E097DB913 /* SvgoWorker.swift in Sources */,
 				556BD7EE9FD8D588FE5AD560 /* Worker.swift in Sources */,
 				E02AD053545914F46A7F5493 /* ZopfliWorker.swift in Sources */,
+				B1000001291C0217065B6201 /* WebpWorker.swift in Sources */,
+				B1000002291C0217065B6202 /* AvifWorker.swift in Sources */,
+				B1000003291C0217065B6203 /* JxlWorker.swift in Sources */,
+				B1000004291C0217065B6204 /* HeicToJpegWorker.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -21,7 +21,11 @@ struct ContentView: View {
         VStack(spacing: 0) {
             ZStack {
                 if model.hasJobs {
-                    JobsTable(model: model)
+                    VStack(spacing: 0) {
+                        FilterBar(model: model)
+                        Divider()
+                        JobsTable(model: model)
+                    }
                 } else {
                     DropZone(isTargeted: isDropTarget)
                 }
@@ -39,6 +43,51 @@ struct ContentView: View {
         .onAppear {
             model.updateSelectionState()
         }
+    }
+}
+
+// MARK: - Filter Bar
+
+private struct FilterBar: View {
+    let model: AppModel
+
+    var body: some View {
+        @Bindable var model = model
+
+        HStack(spacing: 8) {
+            Picker("Filter", selection: $model.queueFilter) {
+                Text(verbatim: "All (\(model.jobs.count))").tag(QueueFilter.all)
+                Text(verbatim: "Active (\(model.countActive))").tag(QueueFilter.active)
+                Text(verbatim: "Done (\(model.countCompleted))").tag(QueueFilter.completed)
+                Text(verbatim: "Failed (\(model.countFailed))").tag(QueueFilter.failed)
+            }
+            .pickerStyle(.segmented)
+            .controlSize(.small)
+            .frame(maxWidth: 360)
+
+            Spacer()
+
+            if model.countFailed > 0 {
+                Button {
+                    model.retryFailed()
+                } label: {
+                    Label(String(localized: "Retry Failed", comment: "Button"), systemImage: "arrow.clockwise")
+                }
+                .controlSize(.small)
+            }
+
+            if model.canClearComplete {
+                Button {
+                    model.clearComplete()
+                } label: {
+                    Label(String(localized: "Clear Done", comment: "Button"), systemImage: "trash")
+                }
+                .controlSize(.small)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .background(Color(nsColor: .controlBackgroundColor))
     }
 }
 
@@ -64,7 +113,7 @@ private struct JobsTable: View {
     var body: some View {
         @Bindable var model = model
 
-        return Table(model.sortedJobs,
+        return Table(model.visibleJobs,
                      selection: $model.selection,
                      sortOrder: $model.sortOrder,
                      columnCustomization: $model.columnCustomization) {
@@ -262,7 +311,9 @@ private struct BottomBar: View {
 
             // `.enabled` and `.disabled` are different types, so the branch is on the view
             Group {
-                if model.statusTextSelectable {
+                if let summary = model.selectionSummaryText {
+                    Text(summary).foregroundStyle(.secondary)
+                } else if model.statusTextSelectable {
                     Text(model.statusText).textSelection(.enabled)
                 } else {
                     Text(model.statusText).textSelection(.disabled)

@@ -151,3 +151,5 @@ libjpeg/build/
 oxipng/build/
 svgcleaner/build/
 zopfli-png/build/
+build/
+

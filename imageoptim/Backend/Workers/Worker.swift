@@ -54,16 +54,23 @@ public enum Tools {
 
     /// Bundled command-line tool, in `Contents/MacOS` or `Contents/Resources`.
     public static func executable(named name: String) -> URL? {
-        let path = bundle.url(forAuxiliaryExecutable: name) ?? bundle.url(forResource: name, withExtension: nil)
-        guard let path else {
-            IOWarn("Can't find working executable for \(name) - disabling")
-            return nil
+        if let path = bundle.url(forAuxiliaryExecutable: name) ?? bundle.url(forResource: name, withExtension: nil),
+           FileManager.default.isExecutableFile(atPath: path.path) {
+            return path
         }
-        guard FileManager.default.isExecutableFile(atPath: path.path) else {
-            IOWarn("File \(path.path) for \(name) is not executable")
-            return nil
+        let fallbackDirs = [
+            "/opt/homebrew/bin",
+            "/usr/local/bin",
+            "/usr/bin"
+        ]
+        for dir in fallbackDirs {
+            let candidate = URL(fileURLWithPath: dir).appendingPathComponent(name)
+            if FileManager.default.isExecutableFile(atPath: candidate.path) {
+                return candidate
+            }
         }
-        return path
+        IOWarn("Can't find working executable for \(name) - disabling")
+        return nil
     }
 
     public static func requireExecutable(named name: String) throws -> URL {
