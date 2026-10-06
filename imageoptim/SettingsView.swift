@@ -2,9 +2,8 @@
 //  SettingsView.swift
 //  ImageOptim
 //
-//  Option A: Modern macOS HIG Settings with pixel-perfect layouts,
-//  consistent spacing, generous padding, semantic CPU effort slider,
-//  and live benchmarks.
+//  Option A: Modern macOS HIG Settings with canonical segmented control tab bar,
+//  top-anchored content alignment, and zero vertical jumping between panes.
 //
 
 import ImageOptimGPL
@@ -30,55 +29,39 @@ struct SettingsView: View {
             }
         }
 
-        var icon: LucideIconName {
+        var systemImage: String {
             switch self {
-            case .compression: return .zap
-            case .formats: return .image
-            case .files: return .folder
-            case .performance: return .gauge
+            case .compression: return "bolt.fill"
+            case .formats: return "photo.stack"
+            case .files: return "folder.fill"
+            case .performance: return "gauge.with.needle"
             }
         }
     }
 
     var body: some View {
         VStack(spacing: 0) {
-            // Modern macOS Segmented Tab Bar Header with Lucide Icons
-            HStack(spacing: 8) {
-                ForEach(SettingsTab.allCases) { tab in
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.15)) {
-                            selectedTab = tab
-                        }
-                    } label: {
-                        HStack(spacing: 6) {
-                            LucideIcon(tab.icon, size: 13, color: selectedTab == tab ? .white : .secondary)
-                            Text(tab.title)
-                                .font(.system(size: 12.5, weight: selectedTab == tab ? .semibold : .medium))
-                                .foregroundStyle(selectedTab == tab ? .white : .primary)
-                        }
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 7)
-                        .background {
-                            if selectedTab == tab {
-                                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                    .fill(Color.accentColor)
-                                    .shadow(color: Color.accentColor.opacity(0.35), radius: 4, y: 1.5)
-                            } else {
-                                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                    .fill(Color(nsColor: .controlBackgroundColor).opacity(0.75))
-                            }
-                        }
+            // Header: Canonical macOS Segmented Control Tab Bar
+            HStack {
+                Spacer()
+                Picker("", selection: $selectedTab) {
+                    ForEach(SettingsTab.allCases) { tab in
+                        Label(tab.title, systemImage: tab.systemImage).tag(tab)
                     }
-                    .buttonStyle(.plain)
                 }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .controlSize(.regular)
+                .frame(width: 540)
+                Spacer()
             }
             .padding(.top, 14)
             .padding(.bottom, 12)
 
             Divider()
 
-            // Tab Content with generous breathing room and proper insets
-            Group {
+            // Content Area: Fixed top-leading anchor to eliminate any jumping
+            ZStack(alignment: .topLeading) {
                 switch selectedTab {
                 case .compression:
                     CompressionSettings()
@@ -90,12 +73,12 @@ struct SettingsView: View {
                     PerformanceSettings()
                 }
             }
-            .padding(.top, 20)
+            .padding(.top, 18)
             .padding(.horizontal, 24)
-            .padding(.bottom, 18)
+            .padding(.bottom, 16)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
-        .frame(width: 715, height: 495)
+        .frame(width: 715, height: 505)
     }
 }
 
@@ -140,88 +123,93 @@ private struct CompressionSettings: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            // 1. Selector de Fidelidad Visual (Lossless vs Lossy)
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 12) {
-                    Text(String(localized: "Modo de fidelidad:", comment: "Preferences label"))
-                        .font(.smallLabel.weight(.medium))
-                        .frame(width: 130, alignment: .trailing)
+            // GroupBox 1: Modo de Fidelidad & Esfuerzo de CPU
+            GroupBox(String(localized: "Modo de Compresión & Esfuerzo de CPU", comment: "Preferences group")) {
+                VStack(alignment: .leading, spacing: 12) {
+                    // Modo de fidelidad
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 12) {
+                            Text(String(localized: "Modo de fidelidad:", comment: "Preferences label"))
+                                .font(.smallLabel.weight(.medium))
+                                .frame(width: 125, alignment: .trailing)
 
-                    Picker("", selection: $lossyEnabled) {
-                        Text(String(localized: "🛡️ Sin pérdida (Lossless)", comment: "Mode option")).tag(false)
-                        Text(String(localized: "✨ Optimización visual (Lossy)", comment: "Mode option")).tag(true)
-                    }
-                    .pickerStyle(.segmented)
-                    .frame(width: 360)
-                }
-
-                HStack {
-                    Spacer().frame(width: 142)
-                    Text(lossyEnabled
-                         ? String(localized: "Reduce hasta un 70% adicional descartando detalles imperceptibles al ojo humano.", comment: "Mode hint")
-                         : String(localized: "Preserva cada píxel 100% idéntico al original. Compresión puramente matemática.", comment: "Mode hint"))
-                        .font(.miniLabel)
-                        .foregroundStyle(.secondary)
-                }
-            }
-
-            Divider()
-
-            // 2. Slider corregido de Esfuerzo de Procesador (CPU Effort)
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(alignment: .top, spacing: 12) {
-                    VStack(alignment: .trailing, spacing: 2) {
-                        Text(String(localized: "Esfuerzo de CPU:", comment: "Preferences slider"))
-                            .font(.smallLabel.weight(.medium))
-                        Text(String(localized: "Pasadas de compresión", comment: "Preferences sublabel"))
-                            .font(.miniLabel)
-                            .foregroundStyle(.secondary)
-                    }
-                    .frame(width: 130, alignment: .trailing)
-                    .padding(.top, 2)
-
-                    VStack(spacing: 4) {
-                        TickSlider(value: $level, range: 0...6, ticks: 7)
-                            .frame(width: 360, height: 26)
-
-                        HStack(spacing: 0) {
-                            Text(String(localized: "⚡ Rápido", comment: "Slider tick"))
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            Text(String(localized: "⚖️ Equilibrado", comment: "Slider tick"))
-                                .frame(maxWidth: .infinity, alignment: .center)
-                            Text(String(localized: "🔬 Profundo", comment: "Slider tick"))
-                                .frame(maxWidth: .infinity, alignment: .center)
-                            Text(String(localized: "🧬 Exhaustivo", comment: "Slider tick"))
-                                .frame(maxWidth: .infinity, alignment: .trailing)
+                            Picker("", selection: $lossyEnabled) {
+                                Text(String(localized: "🛡️ Sin pérdida (Lossless)", comment: "Mode option")).tag(false)
+                                Text(String(localized: "✨ Optimización visual (Lossy)", comment: "Mode option")).tag(true)
+                            }
+                            .pickerStyle(.segmented)
+                            .frame(width: 350)
                         }
-                        .font(.miniLabel.weight(.medium))
-                        .frame(width: 360)
+
+                        HStack {
+                            Spacer().frame(width: 137)
+                            Text(lossyEnabled
+                                 ? String(localized: "Reduce hasta un 70% adicional descartando detalles imperceptibles al ojo humano.", comment: "Mode hint")
+                                 : String(localized: "Preserva cada píxel 100% idéntico al original. Compresión puramente matemática.", comment: "Mode hint"))
+                                .font(.miniLabel)
+                                .foregroundStyle(.secondary)
+                        }
                     }
 
-                    Spacer()
-                }
+                    Divider()
 
-                // Tarjeta explicativa dinámica que NUNCA se trunca
-                HStack {
-                    Spacer().frame(width: 142)
-                    HStack(spacing: 8) {
-                        LucideIcon(effortIcon, size: 14, color: effortColor)
-                        Text(effortDescription)
-                            .font(.miniLabel)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
-                            .fixedSize(horizontal: false, vertical: true)
+                    // Esfuerzo de CPU
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(alignment: .top, spacing: 12) {
+                            VStack(alignment: .trailing, spacing: 2) {
+                                Text(String(localized: "Esfuerzo de CPU:", comment: "Preferences slider"))
+                                    .font(.smallLabel.weight(.medium))
+                                Text(String(localized: "Pasadas de cálculo", comment: "Preferences sublabel"))
+                                    .font(.miniLabel)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .frame(width: 125, alignment: .trailing)
+                            .padding(.top, 2)
+
+                            VStack(spacing: 4) {
+                                TickSlider(value: $level, range: 0...6, ticks: 7)
+                                    .frame(width: 350, height: 26)
+
+                                HStack(spacing: 0) {
+                                    Text(String(localized: "⚡ Rápido", comment: "Slider tick"))
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    Text(String(localized: "⚖️ Equilibrado", comment: "Slider tick"))
+                                        .frame(maxWidth: .infinity, alignment: .center)
+                                    Text(String(localized: "🔬 Profundo", comment: "Slider tick"))
+                                        .frame(maxWidth: .infinity, alignment: .center)
+                                    Text(String(localized: "🧬 Exhaustivo", comment: "Slider tick"))
+                                        .frame(maxWidth: .infinity, alignment: .trailing)
+                                }
+                                .font(.miniLabel.weight(.medium))
+                                .frame(width: 350)
+                            }
+
+                            Spacer()
+                        }
+
+                        // Tarjeta explicativa dinámica que nunca se trunca
+                        HStack {
+                            Spacer().frame(width: 137)
+                            HStack(spacing: 8) {
+                                LucideIcon(effortIcon, size: 14, color: effortColor)
+                                Text(effortDescription)
+                                    .font(.miniLabel)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(2)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color(nsColor: .controlBackgroundColor).opacity(0.85), in: RoundedRectangle(cornerRadius: 6))
+                        }
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 7)
-                    .frame(maxWidth: 500, alignment: .leading)
-                    .background(Color(nsColor: .controlBackgroundColor).opacity(0.85), in: RoundedRectangle(cornerRadius: 6))
                 }
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            Divider()
-
-            // 3. Calidad Visual (Sliders Lossy alineados en columna con espacio holgado)
+            // GroupBox 2: Calidad Visual (Sliders Lossy)
             GroupBox(String(localized: "Calidad Visual (Solo activa en modo Lossy)", comment: "Preferences group")) {
                 VStack(alignment: .leading, spacing: 10) {
                     // JPEG Quality row
@@ -294,15 +282,17 @@ private struct CompressionSettings: View {
                     .disabled(!lossyEnabled)
                 }
                 .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            Spacer(minLength: 4)
+            Spacer(minLength: 2)
 
             HStack {
                 Spacer()
                 HelpButton(anchor: "general")
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .onChange(of: guetzli) { _, isEnabled in
             guetzliChanged(isEnabled)
         }
@@ -507,13 +497,14 @@ private struct FormatsEnginesSettings: View {
                 .frame(maxWidth: .infinity)
             }
 
-            Spacer(minLength: 4)
+            Spacer(minLength: 2)
 
             HStack {
                 Spacer()
                 HelpButton(anchor: "general")
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }
 
@@ -639,13 +630,14 @@ private struct OutputFilesSettings: View {
                 .frame(maxWidth: .infinity)
             }
 
-            Spacer(minLength: 4)
+            Spacer(minLength: 2)
 
             HStack {
                 Spacer()
                 HelpButton(anchor: "general")
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
     private var previewFilename: String {
@@ -786,15 +778,17 @@ private struct PerformanceSettings: View {
                     }
                 }
                 .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            Spacer(minLength: 4)
+            Spacer(minLength: 2)
 
             HStack {
                 Spacer()
                 HelpButton(anchor: "optipng")
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }
 
