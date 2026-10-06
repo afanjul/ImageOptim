@@ -22,10 +22,10 @@ struct SettingsView: View {
 
         var title: String {
             switch self {
-            case .compression: return String(localized: "Compresión", comment: "Preferences tab")
-            case .formats: return String(localized: "Formatos & Motores", comment: "Preferences tab")
-            case .files: return String(localized: "Archivos & Metadatos", comment: "Preferences tab")
-            case .performance: return String(localized: "Rendimiento", comment: "Preferences tab")
+            case .compression: return String(localized: "Compression", comment: "Preferences tab")
+            case .formats: return String(localized: "Formats & Engines", comment: "Preferences tab")
+            case .files: return String(localized: "Files & Metadata", comment: "Preferences tab")
+            case .performance: return String(localized: "Performance", comment: "Preferences tab")
             }
         }
 
@@ -105,7 +105,7 @@ private struct Hint: View {
     }
 }
 
-// MARK: - Tab 1: Compresión (Modo, Esfuerzo de CPU y Calidad)
+// MARK: - Tab 1: Compression (Mode, CPU Effort, and Quality)
 
 private struct CompressionSettings: View {
     @AppStorage(PrefKey.lossyEnabled) private var lossyEnabled = false
@@ -123,19 +123,19 @@ private struct CompressionSettings: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            // GroupBox 1: Modo de Fidelidad & Esfuerzo de CPU
-            GroupBox(String(localized: "Modo de Compresión & Esfuerzo de CPU", comment: "Preferences group")) {
+            // GroupBox 1: Compression Mode & CPU Effort
+            GroupBox(String(localized: "Compression Mode & CPU Effort", comment: "Preferences group")) {
                 VStack(alignment: .leading, spacing: 12) {
-                    // Modo de fidelidad
+                    // Fidelity mode
                     VStack(alignment: .leading, spacing: 4) {
                         HStack(spacing: 12) {
-                            Text(String(localized: "Modo de fidelidad:", comment: "Preferences label"))
+                            Text(String(localized: "Fidelity mode:", comment: "Preferences label"))
                                 .font(.smallLabel.weight(.medium))
                                 .frame(width: 125, alignment: .trailing)
 
                             Picker("", selection: $lossyEnabled) {
-                                Text(String(localized: "🛡️ Sin pérdida (Lossless)", comment: "Mode option")).tag(false)
-                                Text(String(localized: "✨ Optimización visual (Lossy)", comment: "Mode option")).tag(true)
+                                Text(String(localized: "🛡️ Lossless", comment: "Mode option")).tag(false)
+                                Text(String(localized: "✨ Visually Lossless (Lossy)", comment: "Mode option")).tag(true)
                             }
                             .pickerStyle(.segmented)
                             .frame(width: 350)
@@ -144,8 +144,8 @@ private struct CompressionSettings: View {
                         HStack {
                             Spacer().frame(width: 137)
                             Text(lossyEnabled
-                                 ? String(localized: "Reduce hasta un 70% adicional descartando detalles imperceptibles al ojo humano.", comment: "Mode hint")
-                                 : String(localized: "Preserva cada píxel 100% idéntico al original. Compresión puramente matemática.", comment: "Mode hint"))
+                                 ? String(localized: "Reduces file size by up to 70% by discarding details imperceptible to the human eye.", comment: "Mode hint")
+                                 : String(localized: "Preserves every pixel 100% identical to the original. Pure mathematical compression.", comment: "Mode hint"))
                                 .font(.miniLabel)
                                 .foregroundStyle(.secondary)
                         }
@@ -153,13 +153,13 @@ private struct CompressionSettings: View {
 
                     Divider()
 
-                    // Esfuerzo de CPU
+                    // CPU Effort
                     VStack(alignment: .leading, spacing: 6) {
                         HStack(alignment: .top, spacing: 12) {
                             VStack(alignment: .trailing, spacing: 2) {
-                                Text(String(localized: "Esfuerzo de CPU:", comment: "Preferences slider"))
+                                Text(String(localized: "CPU Effort:", comment: "Preferences slider"))
                                     .font(.smallLabel.weight(.medium))
-                                Text(String(localized: "Pasadas de cálculo", comment: "Preferences sublabel"))
+                                Text(String(localized: "Optimization passes", comment: "Preferences sublabel"))
                                     .font(.miniLabel)
                                     .foregroundStyle(.secondary)
                             }
@@ -171,13 +171,13 @@ private struct CompressionSettings: View {
                                     .frame(width: 350, height: 26)
 
                                 HStack(spacing: 0) {
-                                    Text(String(localized: "⚡ Rápido", comment: "Slider tick"))
+                                    Text(String(localized: "⚡ Fast", comment: "Slider tick"))
                                         .frame(maxWidth: .infinity, alignment: .leading)
-                                    Text(String(localized: "⚖️ Equilibrado", comment: "Slider tick"))
+                                    Text(String(localized: "⚖️ Balanced", comment: "Slider tick"))
                                         .frame(maxWidth: .infinity, alignment: .center)
-                                    Text(String(localized: "🔬 Profundo", comment: "Slider tick"))
+                                    Text(String(localized: "🔬 Deep", comment: "Slider tick"))
                                         .frame(maxWidth: .infinity, alignment: .center)
-                                    Text(String(localized: "🧬 Exhaustivo", comment: "Slider tick"))
+                                    Text(String(localized: "🧬 Exhaustive", comment: "Slider tick"))
                                         .frame(maxWidth: .infinity, alignment: .trailing)
                                 }
                                 .font(.miniLabel.weight(.medium))
@@ -187,7 +187,7 @@ private struct CompressionSettings: View {
                             Spacer()
                         }
 
-                        // Tarjeta explicativa dinámica que nunca se trunca
+                        // Dynamic effort card
                         HStack {
                             Spacer().frame(width: 137)
                             HStack(spacing: 8) {
@@ -209,15 +209,15 @@ private struct CompressionSettings: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            // GroupBox 2: Calidad Visual (Sliders Lossy)
-            GroupBox(String(localized: "Calidad Visual (Solo activa en modo Lossy)", comment: "Preferences group")) {
+            // GroupBox 2: Visual Quality
+            GroupBox(String(localized: "Visual Quality (Active in Lossy mode only)", comment: "Preferences group")) {
                 VStack(alignment: .leading, spacing: 10) {
                     // JPEG Quality row
                     HStack(alignment: .center, spacing: 10) {
                         FormatBadge(format: "JPEG")
                             .frame(width: 42, alignment: .center)
 
-                        Text(String(localized: "Calidad JPEG:", comment: "Preferences slider"))
+                        Text(String(localized: "JPEG Quality:", comment: "Preferences slider"))
                             .font(.smallLabel)
                             .foregroundStyle(lossyEnabled ? Color(nsColor: .controlTextColor) : Color(nsColor: .disabledControlTextColor))
                             .frame(width: 85, alignment: .trailing)
@@ -240,7 +240,7 @@ private struct CompressionSettings: View {
                         FormatBadge(format: "PNG")
                             .frame(width: 42, alignment: .center)
 
-                        Text(String(localized: "Calidad PNG:", comment: "Preferences slider"))
+                        Text(String(localized: "PNG Quality:", comment: "Preferences slider"))
                             .font(.smallLabel)
                             .foregroundStyle(lossyEnabled ? Color(nsColor: .controlTextColor) : Color(nsColor: .disabledControlTextColor))
                             .frame(width: 85, alignment: .trailing)
@@ -263,7 +263,7 @@ private struct CompressionSettings: View {
                         FormatBadge(format: "GIF")
                             .frame(width: 42, alignment: .center)
 
-                        Text(String(localized: "Calidad GIF:", comment: "Preferences slider"))
+                        Text(String(localized: "GIF Quality:", comment: "Preferences slider"))
                             .font(.smallLabel)
                             .foregroundStyle(lossyEnabled ? Color(nsColor: .controlTextColor) : Color(nsColor: .disabledControlTextColor))
                             .frame(width: 85, alignment: .trailing)
@@ -325,13 +325,13 @@ private struct CompressionSettings: View {
     private var effortDescription: String {
         switch level {
         case 0...1:
-            return String(localized: "⚡ 1 pase ultrarrápido (ms). Máxima velocidad para lotes grandes.", comment: "Effort hint")
+            return String(localized: "⚡ 1 ultra-fast pass (ms). Maximum speed for large batch jobs.", comment: "Effort hint")
         case 2...4:
-            return String(localized: "⚖️ Compromiso ideal: excelente compresión con bajo consumo de CPU.", comment: "Effort hint")
+            return String(localized: "⚖️ Ideal balance: great compression with low CPU overhead.", comment: "Effort hint")
         case 5:
-            return String(localized: "🔬 Compresión exhaustiva con múltiples pasadas Zopfli y MozJPEG.", comment: "Effort hint")
+            return String(localized: "🔬 Deep compression with multiple Zopfli and MozJPEG passes.", comment: "Effort hint")
         default:
-            return String(localized: "🧬 Fuerza bruta Zopfli (hasta 21 pasadas). Máximo ahorro posible.", comment: "Effort hint")
+            return String(localized: "🧬 Exhaustive Zopfli brute-force (up to 21 passes). Maximum possible savings.", comment: "Effort hint")
         }
     }
 
@@ -355,7 +355,7 @@ private struct CompressionSettings: View {
     }
 }
 
-// MARK: - Tab 2: Formatos & Motores
+// MARK: - Tab 2: Formats & Engines
 
 private struct FormatsEnginesSettings: View {
     @AppStorage(PrefKey.zopfliEnabled) private var zopfli = true
@@ -379,28 +379,28 @@ private struct FormatsEnginesSettings: View {
     var body: some View {
         VStack(spacing: 12) {
             HStack(alignment: .top, spacing: 14) {
-                // Columna 1: PNG y Vectores
+                // Column 1: PNG and Vectors
                 VStack(spacing: 12) {
                     GroupBox {
                         VStack(alignment: .leading, spacing: 6) {
                             HStack(spacing: 6) {
                                 FormatBadge(format: "PNG")
-                                Text("PNG (Sin pérdida)")
+                                Text(String(localized: "PNG (Lossless)", comment: "Preferences group title"))
                                     .font(.smallLabel.bold())
                             }
                             .padding(.bottom, 2)
 
                             VStack(alignment: .leading, spacing: 5) {
-                                Toggle("Zopfli (Google Deflate)", isOn: $zopfli)
+                                Toggle(String(localized: "Zopfli (Google Deflate)", comment: "Engine checkbox"), isOn: $zopfli)
                                     .toggleStyle(.checkbox)
                                     .help(String(localized: "Google's exhaustive DEFLATE algorithm (highest compression)", comment: "tooltip"))
-                                Toggle("OxiPNG (Multihilo Rust)", isOn: $oxiPng)
+                                Toggle(String(localized: "OxiPNG (Multithreaded Rust)", comment: "Engine checkbox"), isOn: $oxiPng)
                                     .toggleStyle(.checkbox)
                                     .help(String(localized: "High-performance multi-threaded lossless optimizer (Rust)", comment: "tooltip"))
-                                Toggle("AdvPNG (AdvanceCOMP 7z)", isOn: $advPng)
+                                Toggle(String(localized: "AdvPNG (AdvanceCOMP 7z)", comment: "Engine checkbox"), isOn: $advPng)
                                     .toggleStyle(.checkbox)
                                     .help(String(localized: "AdvanceCOMP 7z DEFLATE recompression", comment: "tooltip"))
-                                Toggle("PNGCrush (Filtros PNG)", isOn: $pngCrush)
+                                Toggle(String(localized: "PNGCrush (PNG Filters)", comment: "Engine checkbox"), isOn: $pngCrush)
                                     .toggleStyle(.checkbox)
                                     .help(String(localized: "PNG filter optimization and chunk reduction", comment: "tooltip"))
                             }
@@ -414,19 +414,19 @@ private struct FormatsEnginesSettings: View {
                             HStack(spacing: 6) {
                                 FormatBadge(format: "SVG")
                                 FormatBadge(format: "GIF")
-                                Text("Vectores & Animación")
+                                Text(String(localized: "Vectors & Animation", comment: "Preferences group title"))
                                     .font(.smallLabel.bold())
                             }
                             .padding(.bottom, 2)
 
                             VStack(alignment: .leading, spacing: 5) {
-                                Toggle("SVGO (Limpieza SVG)", isOn: $svgo)
+                                Toggle(String(localized: "SVGO (SVG Cleaner)", comment: "Engine checkbox"), isOn: $svgo)
                                     .toggleStyle(.checkbox)
                                     .help(String(localized: "Scalable Vector Graphics Node.js optimizer", comment: "tooltip"))
-                                Toggle("SVG Cleaner (Rust)", isOn: $svgCleaner)
+                                Toggle(String(localized: "SVG Cleaner (Rust)", comment: "Engine checkbox"), isOn: $svgCleaner)
                                     .toggleStyle(.checkbox)
                                     .help(String(localized: "Fast SVG syntactic cleaner written in Rust", comment: "tooltip"))
-                                Toggle("Gifsicle (Optimización GIF)", isOn: $gifsicle)
+                                Toggle(String(localized: "Gifsicle (GIF Optimization)", comment: "Engine checkbox"), isOn: $gifsicle)
                                     .toggleStyle(.checkbox)
                                     .help(String(localized: "GIF frame optimization and palette reduction", comment: "tooltip"))
                             }
@@ -437,25 +437,25 @@ private struct FormatsEnginesSettings: View {
                 }
                 .frame(maxWidth: .infinity)
 
-                // Columna 2: JPEG y Formatos Modernos
+                // Column 2: JPEG and Modern Formats
                 VStack(spacing: 12) {
                     GroupBox {
                         VStack(alignment: .leading, spacing: 6) {
                             HStack(spacing: 6) {
                                 FormatBadge(format: "JPEG")
-                                Text("JPEG")
+                                Text(String(localized: "JPEG", comment: "Preferences group title"))
                                     .font(.smallLabel.bold())
                             }
                             .padding(.bottom, 2)
 
                             VStack(alignment: .leading, spacing: 5) {
-                                Toggle("JPEGOptim (Huffman)", isOn: $jpegOptim)
+                                Toggle(String(localized: "JPEGOptim (Huffman)", comment: "Engine checkbox"), isOn: $jpegOptim)
                                     .toggleStyle(.checkbox)
                                     .help(String(localized: "Huffman table optimization and lossy quality caps", comment: "tooltip"))
-                                Toggle("Jpegtran (Sin pérdida)", isOn: $jpegTran)
+                                Toggle(String(localized: "Jpegtran (Lossless)", comment: "Engine checkbox"), isOn: $jpegTran)
                                     .toggleStyle(.checkbox)
                                     .help(String(localized: "Lossless Huffman optimization and scan reordering", comment: "tooltip"))
-                                Toggle("Guetzli (Butteraugli)", isOn: $guetzli)
+                                Toggle(String(localized: "Guetzli (Butteraugli)", comment: "Engine checkbox"), isOn: $guetzli)
                                     .toggleStyle(.checkbox)
                                     .help(String(localized: "Google Butteraugli perceptual encoder (very CPU intensive)", comment: "tooltip"))
                             }
@@ -470,22 +470,22 @@ private struct FormatsEnginesSettings: View {
                                 FormatBadge(format: "WebP")
                                 FormatBadge(format: "AVIF")
                                 FormatBadge(format: "JXL")
-                                Text("Formatos Modernos")
+                                Text(String(localized: "Modern Formats", comment: "Preferences group title"))
                                     .font(.smallLabel.bold())
                             }
                             .padding(.bottom, 2)
 
                             VStack(alignment: .leading, spacing: 5) {
-                                Toggle("WebP (cwebp)", isOn: $webp)
+                                Toggle(String(localized: "WebP (cwebp)", comment: "Engine checkbox"), isOn: $webp)
                                     .toggleStyle(.checkbox)
                                     .help(String(localized: "Google WebP image optimizer", comment: "tooltip"))
-                                Toggle("AVIF (avifoptim)", isOn: $avif)
+                                Toggle(String(localized: "AVIF (avifoptim)", comment: "Engine checkbox"), isOn: $avif)
                                     .toggleStyle(.checkbox)
                                     .help(String(localized: "Next-gen AV1 format compression", comment: "tooltip"))
-                                Toggle("JPEG XL (jxloptim)", isOn: $jxl)
+                                Toggle(String(localized: "JPEG XL (jxloptim)", comment: "Engine checkbox"), isOn: $jxl)
                                     .toggleStyle(.checkbox)
                                     .help(String(localized: "Next-gen JPEG XL lossy/lossless optimizer", comment: "tooltip"))
-                                Toggle("HEIC a JPEG automático", isOn: $heicToJpeg)
+                                Toggle(String(localized: "Auto-convert HEIC to JPEG", comment: "Engine checkbox"), isOn: $heicToJpeg)
                                     .toggleStyle(.checkbox)
                                     .help(String(localized: "Auto-convert Apple HEIC photos to compatible JPEG", comment: "tooltip"))
                             }
@@ -508,7 +508,7 @@ private struct FormatsEnginesSettings: View {
     }
 }
 
-// MARK: - Tab 3: Archivos & Metadatos
+// MARK: - Tab 3: Files & Metadata
 
 private struct OutputFilesSettings: View {
     @AppStorage(PrefKey.preserveOriginal) private var preserveOriginal = false
@@ -524,42 +524,42 @@ private struct OutputFilesSettings: View {
     var body: some View {
         VStack(spacing: 12) {
             HStack(alignment: .top, spacing: 14) {
-                // Destino y Nombres
-                GroupBox(String(localized: "Destino y Copias de Seguridad", comment: "Preferences group")) {
+                // Destination and Backup
+                GroupBox(String(localized: "Destination & Backup", comment: "Preferences group")) {
                     VStack(alignment: .leading, spacing: 10) {
-                        // Selector de modo de guardado
+                        // Save mode selector
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(String(localized: "Modo de guardado:", comment: "Preferences label"))
+                            Text(String(localized: "Save mode:", comment: "Preferences label"))
                                 .font(.smallLabel.weight(.medium))
 
                             Picker("", selection: $preserveOriginal) {
-                                Text(String(localized: "Sobreescribir original", comment: "Save mode")).tag(false)
-                                Text(String(localized: "Guardar como copia", comment: "Save mode")).tag(true)
+                                Text(String(localized: "Overwrite original", comment: "Save mode")).tag(false)
+                                Text(String(localized: "Save as copy", comment: "Save mode")).tag(true)
                             }
                             .pickerStyle(.segmented)
                             .labelsHidden()
 
                             Text(preserveOriginal
-                                 ? String(localized: "Conserva el archivo original intacto y genera una versión optimizada.", comment: "Mode hint")
-                                 : String(localized: "Reemplaza el archivo original directamente. Sin archivos duplicados.", comment: "Mode hint"))
+                                 ? String(localized: "Preserves the original file untouched and creates an optimized copy.", comment: "Mode hint")
+                                 : String(localized: "Replaces the original file directly. No duplicate files.", comment: "Mode hint"))
                                 .font(.miniLabel)
                                 .foregroundStyle(.secondary)
                         }
 
                         Divider()
 
-                        // Carpeta de salida
+                        // Output folder
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(String(localized: "Carpeta de salida:", comment: "Preferences label"))
+                            Text(String(localized: "Output folder:", comment: "Preferences label"))
                                 .font(.smallLabel.weight(.medium))
                             HStack(spacing: 6) {
-                                TextField(String(localized: "Misma que el original", comment: "Placeholder"), text: $outputFolderPath)
+                                TextField(String(localized: "Same as original", comment: "Placeholder"), text: $outputFolderPath)
                                     .textFieldStyle(.roundedBorder)
-                                Button(String(localized: "Elegir…", comment: "Button")) {
+                                Button(String(localized: "Choose…", comment: "Button")) {
                                     selectOutputFolder()
                                 }
                                 if !outputFolderPath.isEmpty {
-                                    Button(String(localized: "Restablecer", comment: "Button")) {
+                                    Button(String(localized: "Reset", comment: "Button")) {
                                         outputFolderPath = ""
                                     }
                                 }
@@ -570,32 +570,32 @@ private struct OutputFilesSettings: View {
 
                         Divider()
 
-                        // Plantilla de nombre de archivo
+                        // Filename template
                         VStack(alignment: .leading, spacing: 5) {
-                            Text(String(localized: "Plantilla de nombre de archivo:", comment: "Preferences label"))
+                            Text(String(localized: "Filename template:", comment: "Preferences label"))
                                 .font(.smallLabel.weight(.medium))
 
                             Grid(alignment: .leading, horizontalSpacing: 8, verticalSpacing: 6) {
                                 GridRow {
-                                    Text("Prefijo:")
+                                    Text(String(localized: "Prefix:", comment: "Template field"))
                                         .font(.miniLabel)
                                         .foregroundStyle(.secondary)
                                         .frame(width: 48, alignment: .trailing)
-                                    TextField("Ej: opt_", text: $filenamePrefix)
+                                    TextField("e.g. opt_", text: $filenamePrefix)
                                         .textFieldStyle(.roundedBorder)
                                 }
                                 GridRow {
-                                    Text("Sufijo:")
+                                    Text(String(localized: "Suffix:", comment: "Template field"))
                                         .font(.miniLabel)
                                         .foregroundStyle(.secondary)
                                         .frame(width: 48, alignment: .trailing)
-                                    TextField("Ej: -optim", text: $filenameSuffix)
+                                    TextField("e.g. -optim", text: $filenameSuffix)
                                         .textFieldStyle(.roundedBorder)
                                 }
                             }
 
                             HStack(spacing: 4) {
-                                Text("Vista previa:")
+                                Text(String(localized: "Preview:", comment: "Template preview label"))
                                     .font(.miniLabel)
                                     .foregroundStyle(.secondary)
                                 Text(previewFilename)
@@ -612,33 +612,33 @@ private struct OutputFilesSettings: View {
                 }
                 .frame(maxWidth: .infinity)
 
-                // Metadatos y Privacidad
-                GroupBox(String(localized: "Metadatos y Privacidad", comment: "Preferences group")) {
+                // Metadata and Privacy
+                GroupBox(String(localized: "Metadata & Privacy", comment: "Preferences group")) {
                     VStack(alignment: .leading, spacing: 8) {
                         VStack(alignment: .leading, spacing: 2) {
-                            Toggle(String(localized: "Eliminar metadatos PNG", comment: "Preferences checkbox"),
+                            Toggle(String(localized: "Strip PNG metadata", comment: "Preferences checkbox"),
                                    isOn: $removePngChunks)
                                 .toggleStyle(.checkbox)
-                            Hint(String(localized: "Elimina fragmentos tEXt, iTXt, zTXt (comentarios, perfiles y metadatos innecesarios)", comment: "Preferences hint"))
+                            Hint(String(localized: "Removes tEXt, iTXt, zTXt chunks (comments, color profiles, unnecessary metadata)", comment: "Preferences hint"))
                         }
 
                         VStack(alignment: .leading, spacing: 2) {
-                            Toggle(String(localized: "Eliminar EXIF, perfiles y GPS de JPEG", comment: "Preferences checkbox"),
+                            Toggle(String(localized: "Strip EXIF, color profiles, and GPS from JPEG", comment: "Preferences checkbox"),
                                    isOn: $jpegTranStripAll)
                                 .toggleStyle(.checkbox)
-                            Hint(String(localized: "Protege tu privacidad eliminando ubicación y datos de captura", comment: "Preferences hint"))
+                            Hint(String(localized: "Protects privacy by removing capture location and camera metadata", comment: "Preferences hint"))
                         }
 
                         Divider().padding(.vertical, 2)
 
                         VStack(alignment: .leading, spacing: 2) {
-                            Toggle(String(localized: "Preservar fecha y hora original", comment: "Preferences checkbox"),
+                            Toggle(String(localized: "Preserve original file dates", comment: "Preferences checkbox"),
                                    isOn: $preserveDates)
                                 .toggleStyle(.checkbox)
-                            Hint(String(localized: "Mantiene la fecha de modificación original sin cambios", comment: "Preferences hint"))
+                            Hint(String(localized: "Keeps original modification timestamp unchanged", comment: "Preferences hint"))
                         }
 
-                        Toggle(String(localized: "Preservar permisos originales del archivo", comment: "Preferences checkbox"),
+                        Toggle(String(localized: "Preserve original file permissions", comment: "Preferences checkbox"),
                                isOn: $preservePermissions)
                             .toggleStyle(.checkbox)
                     }
@@ -660,7 +660,7 @@ private struct OutputFilesSettings: View {
 
     private var previewFilename: String {
         guard preserveOriginal else {
-            return String(localized: "foto.jpg (reemplaza original)")
+            return String(localized: "photo.jpg (replaces original)")
         }
         let now = Date()
         let formatter = DateFormatter()
@@ -671,7 +671,7 @@ private struct OutputFilesSettings: View {
         if outputFolderPath.isEmpty && p.isEmpty && s.isEmpty {
             s = "-optimized"
         }
-        return "\(p)foto\(s).jpg"
+        return "\(p)photo\(s).jpg"
     }
 
     private func selectOutputFolder() {
@@ -686,7 +686,7 @@ private struct OutputFilesSettings: View {
     }
 }
 
-// MARK: - Tab 4: Rendimiento & Benchmarks
+// MARK: - Tab 4: Performance & Benchmarks
 
 private struct PerformanceSettings: View {
     @State private var tracker = BenchmarkTracker.shared
@@ -698,9 +698,9 @@ private struct PerformanceSettings: View {
                 LucideIcon(.cpu, size: 28, color: .purple)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(String(localized: "Aceleración de hardware Apple Silicon", comment: "Hardware info title"))
+                    Text(String(localized: "Apple Silicon Hardware Acceleration", comment: "Hardware info title"))
                         .font(.smallLabel.bold())
-                    Text(String(localized: "ImageOptim despacha las tareas de compresión en paralelo con calidad de servicio .userInitiated, asignando automáticamente todos los núcleos de alto rendimiento (P-cores) para máxima velocidad.", comment: "Hardware info detail"))
+                    Text(String(localized: "ImageOptim dispatches compression tasks in parallel with .userInitiated QoS, automatically allocating all high-performance cores (P-cores) for maximum speed.", comment: "Hardware info detail"))
                         .font(.miniLabel)
                         .foregroundStyle(.secondary)
                 }
@@ -709,17 +709,17 @@ private struct PerformanceSettings: View {
             .padding(12)
             .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
 
-            // Tabla de Benchmarks
-            GroupBox(String(localized: "Benchmarks en Vivo de Motores (Tiempos de Ejecución)", comment: "Preferences group")) {
+            // Benchmarks table
+            GroupBox(String(localized: "Live Engine Benchmarks (Execution Times)", comment: "Preferences group")) {
                 VStack(alignment: .leading, spacing: 6) {
                     let benchmarks = tracker.allBenchmarksSorted
 
                     if benchmarks.isEmpty {
                         VStack(spacing: 8) {
                             LucideIcon(.gauge, size: 24, color: .secondary)
-                            Text(String(localized: "No hay mediciones de motores registradas todavía.", comment: "Preferences hint"))
+                            Text(String(localized: "No engine benchmarks recorded yet.", comment: "Preferences hint"))
                                 .font(.smallLabel.bold())
-                            Text(String(localized: "Arrastra y optimiza imágenes para ver mediciones en vivo, promedios históricos y categorías de velocidad por motor.", comment: "Preferences hint"))
+                            Text(String(localized: "Drop and optimize images to see live benchmarks, historical averages, and speed ratings per engine.", comment: "Preferences hint"))
                                 .font(.miniLabel)
                                 .foregroundStyle(.secondary)
                                 .multilineTextAlignment(.center)
@@ -729,12 +729,12 @@ private struct PerformanceSettings: View {
                     } else {
                         VStack(spacing: 0) {
                             HStack {
-                                Text(String(localized: "Motor", comment: "Table header")).bold().frame(width: 95, alignment: .leading)
-                                Text(String(localized: "Formato", comment: "Table header")).bold().frame(width: 52, alignment: .center)
-                                Text(String(localized: "Promedio", comment: "Table header")).bold().frame(width: 75, alignment: .trailing)
-                                Text(String(localized: "Última", comment: "Table header")).bold().frame(width: 75, alignment: .trailing)
-                                Text(String(localized: "Pasadas", comment: "Table header")).bold().frame(width: 52, alignment: .trailing)
-                                Text(String(localized: "Velocidad", comment: "Table header")).bold().frame(maxWidth: .infinity, alignment: .trailing)
+                                Text(String(localized: "Engine", comment: "Table header")).bold().frame(width: 95, alignment: .leading)
+                                Text(String(localized: "Format", comment: "Table header")).bold().frame(width: 52, alignment: .center)
+                                Text(String(localized: "Average", comment: "Table header")).bold().frame(width: 75, alignment: .trailing)
+                                Text(String(localized: "Last Run", comment: "Table header")).bold().frame(width: 75, alignment: .trailing)
+                                Text(String(localized: "Passes", comment: "Table header")).bold().frame(width: 52, alignment: .trailing)
+                                Text(String(localized: "Speed", comment: "Table header")).bold().frame(maxWidth: .infinity, alignment: .trailing)
                             }
                             .font(.miniLabel)
                             .foregroundStyle(.secondary)
@@ -786,14 +786,14 @@ private struct PerformanceSettings: View {
                                 } label: {
                                     HStack(spacing: 4) {
                                         LucideIcon(.trash2, size: 11)
-                                        Text(String(localized: "Restablecer estadísticas", comment: "Button"))
+                                        Text(String(localized: "Reset Statistics", comment: "Button"))
                                     }
                                 }
                                 .controlSize(.small)
 
                                 Spacer()
 
-                                Text("\(benchmarks.count) motores evaluados")
+                                Text("\(benchmarks.count) engines measured")
                                     .font(.miniLabel)
                                     .foregroundStyle(.secondary)
                             }

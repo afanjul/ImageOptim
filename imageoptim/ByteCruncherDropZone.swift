@@ -33,13 +33,13 @@ public struct ByteCruncherDropZone: View {
 
             // Text prompts
             VStack(spacing: 6) {
-                Text(isTargeted ? String(localized: "¡Suelta para devorar los bytes!", comment: "Drop zone active")
-                                : String(localized: "Arrastra imágenes o carpetas aquí", comment: "Drop zone idle"))
+                Text(isTargeted ? String(localized: "Drop to crunch bytes!", comment: "Drop zone active")
+                                : String(localized: "Drop images or folders here", comment: "Drop zone idle"))
                     .font(.system(size: 20, weight: .bold, design: .rounded))
                     .foregroundStyle(isTargeted ? Color.accentColor : Color.primary)
                     .animation(.easeInOut(duration: 0.2), value: isTargeted)
 
-                Text(String(localized: "Compresión inteligente sin pérdida para optimizar peso y velocidad", comment: "Drop zone subtitle"))
+                Text(String(localized: "Smart lossless & lossy optimization to reduce file size", comment: "Drop zone subtitle"))
                     .font(.system(size: 13, weight: .regular))
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -65,7 +65,7 @@ public struct ByteCruncherDropZone: View {
             } label: {
                 HStack(spacing: 6) {
                     LucideIcon(.plus, size: 14, color: .white)
-                    Text(String(localized: "Examinar archivos…", comment: "Drop zone browse button"))
+                    Text(String(localized: "Browse Files…", comment: "Drop zone browse button"))
                         .fontWeight(.medium)
                 }
                 .padding(.horizontal, 10)

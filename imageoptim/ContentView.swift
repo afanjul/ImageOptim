@@ -42,7 +42,7 @@ struct ContentView: View {
                             .strokeBorder(Color.accentColor, style: StrokeStyle(lineWidth: 2.5, dash: [8, 6]))
                         HStack(spacing: 8) {
                             LucideIcon(.plus, size: 18, color: Color.accentColor)
-                            Text(String(localized: "Soltar para añadir a la cola", comment: "Drop overlay"))
+                            Text(String(localized: "Drop to add to queue", comment: "Drop overlay"))
                                 .font(.system(size: 15, weight: .bold))
                                 .foregroundStyle(Color.accentColor)
                         }
