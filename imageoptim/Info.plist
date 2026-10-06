@@ -104,6 +104,103 @@
 			<string>Binary</string>
 		</dict>
 		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>webp</string>
+				<string>WEBP</string>
+			</array>
+			<key>CFBundleTypeMIMETypes</key>
+			<array>
+				<string>image/webp</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>WebP</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.webp</string>
+				<string>org.webmproject.webp</string>
+			</array>
+			<key>LSTypeIsPackage</key>
+			<false/>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>Binary</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>avif</string>
+				<string>AVIF</string>
+			</array>
+			<key>CFBundleTypeMIMETypes</key>
+			<array>
+				<string>image/avif</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>AVIF</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.avif</string>
+			</array>
+			<key>LSTypeIsPackage</key>
+			<false/>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>Binary</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>jxl</string>
+				<string>JXL</string>
+			</array>
+			<key>CFBundleTypeMIMETypes</key>
+			<array>
+				<string>image/jxl</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>JPEG XL</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.jxl</string>
+			</array>
+			<key>LSTypeIsPackage</key>
+			<false/>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>Binary</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>heic</string>
+				<string>heif</string>
+				<string>HEIC</string>
+				<string>HEIF</string>
+			</array>
+			<key>CFBundleTypeMIMETypes</key>
+			<array>
+				<string>image/heic</string>
+				<string>image/heif</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>HEIC</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.heic</string>
+				<string>public.heif</string>
+			</array>
+			<key>LSTypeIsPackage</key>
+			<false/>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>Binary</string>
+		</dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>Folder</string>
 			<key>CFBundleTypeRole</key>
@@ -171,6 +268,10 @@
 				<string>public.jpeg</string>
 				<string>com.compuserve.gif</string>
 				<string>public.svg-image</string>
+				<string>public.webp</string>
+				<string>public.avif</string>
+				<string>public.jxl</string>
+				<string>public.heic</string>
 			</array>
 			<key>NSServiceDescription</key>
 			<string>Losslessly reduce image file sizes with ImageOptim</string>

@@ -193,7 +193,7 @@ public final class JobQueue {
     private func track(_ operation: @escaping @Sendable () async -> Void,
                        whenFinished: (@MainActor () -> Void)? = nil) {
         let id = UUID()
-        tasks[id] = Task { [weak self] in
+        tasks[id] = Task(priority: .userInitiated) { [weak self] in
             await operation()
             whenFinished?()
             self?.finished(id)

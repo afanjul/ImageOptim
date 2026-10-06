@@ -49,10 +49,8 @@ private struct ForkNote: View {
     // Not localized: it describes this particular fork, not the app
     private static let text: AttributedString = {
         let markdown = """
-        Temporary build that runs reliably on macOS 26 (Apple Silicon). \
-        It contains some of the code from \
-        [ImageOptim PR #477](https://github.com/ImageOptim/ImageOptim/pull/477), \
-        and ships without PNGOUT and without automatic updates.
+        **ImageOptim 2.0** — Community Super-Fork ported and maintained by [afanjul](https://github.com/afanjul).
+        Modern Swift 6 / SwiftUI rewrite for Apple Silicon with WebP, AVIF, JPEG XL, HEIC conversion, export destinations, and queue filters.
         """
         return (try? AttributedString(markdown: markdown)) ?? AttributedString(markdown)
     }()

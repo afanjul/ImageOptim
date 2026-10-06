@@ -1,6 +1,9 @@
 //
 //  ImageOptimApp.swift
-//  ImageOptim
+//  ImageOptim 2.0
+//
+//  Ported & maintained by afanjul (https://github.com/afanjul/ImageOptim)
+//  Originally created by Kornel Lesiński and contributors.
 //
 
 import ImageOptimGPL
