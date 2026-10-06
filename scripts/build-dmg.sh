@@ -38,6 +38,15 @@ if [ ! -d "$RELEASE_APP" ]; then
 fi
 
 echo ""
+echo "=== Step 2b: Bundle standalone tools ==="
+GPL_RES="$RELEASE_APP/Contents/Frameworks/ImageOptimGPL.framework/Versions/A/Resources"
+if [ -d "$GPL_RES" ] && [ -f "$PROJECT_DIR/jpegli/cjpegli" ]; then
+    cp -f "$PROJECT_DIR/jpegli/cjpegli" "$GPL_RES/cjpegli"
+    chmod 755 "$GPL_RES/cjpegli"
+    echo "Bundled cjpegli into ImageOptimGPL.framework"
+fi
+
+echo ""
 echo "=== Step 3: Create DMG ==="
 RELEASE_DIR="$BUILD_DIR/Build/Products/Release"
 VERSION=$(plutil -extract CFBundleShortVersionString raw "$RELEASE_APP/Contents/Info.plist" 2>/dev/null) || VERSION="2.0.0"

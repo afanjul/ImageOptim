@@ -54,7 +54,7 @@ public struct ToolTiming: Sendable, Identifiable, Hashable, Equatable, Codable {
         switch toolName.lowercased() {
         case "oxipng", "zopfli", "zopflipng", "advpng", "pngcrush", "pngquant":
             return "PNG"
-        case "mozjpeg", "jpegoptim", "jpegtran", "guetzli":
+        case "mozjpeg", "jpegoptim", "jpegtran", "guetzli", "jpegli", "cjpegli":
             return "JPEG"
         case "cwebp", "webp":
             return "WebP"
@@ -108,7 +108,7 @@ public struct EngineBenchmark: Sendable, Identifiable, Hashable, Equatable, Coda
         switch engineName.lowercased() {
         case "oxipng", "zopfli", "zopflipng", "advpng", "pngcrush", "pngquant":
             return "PNG"
-        case "mozjpeg", "jpegoptim", "jpegtran", "guetzli":
+        case "mozjpeg", "jpegoptim", "jpegtran", "guetzli", "jpegli", "cjpegli":
             return "JPEG"
         case "cwebp", "webp":
             return "WebP"
@@ -790,6 +790,9 @@ public final class Job: Identifiable {
                 workerList.append(GuetzliWorker(settings: settings))
                 lossyConverted = true
             }
+            if settings.jpegliEnabled {
+                workerList.append(JpegliWorker(settings: settings))
+            }
             if settings.jpegOptimEnabled {
                 workerList.append(JpegoptimWorker(settings: settings))
             }
@@ -837,6 +840,9 @@ public final class Job: Identifiable {
         case .heic:
             if settings.heicToJpegEnabled {
                 runFirst.append(HeicToJpegWorker())
+                if settings.jpegliEnabled {
+                    workerList.append(JpegliWorker(settings: settings))
+                }
                 if settings.jpegOptimEnabled {
                     workerList.append(JpegoptimWorker(settings: settings))
                 }

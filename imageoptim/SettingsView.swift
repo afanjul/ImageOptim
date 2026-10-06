@@ -365,6 +365,7 @@ private struct FormatsEnginesSettings: View {
 
     @AppStorage(PrefKey.jpegOptimEnabled) private var jpegOptim = true
     @AppStorage(PrefKey.jpegTranEnabled) private var jpegTran = true
+    @AppStorage(PrefKey.jpegliEnabled) private var jpegli = true
     @AppStorage(PrefKey.guetzliEnabled) private var guetzli = false
 
     @AppStorage(PrefKey.webpEnabled) private var webp = true
@@ -455,6 +456,9 @@ private struct FormatsEnginesSettings: View {
                                 Toggle(String(localized: "Jpegtran (Lossless)", comment: "Engine checkbox"), isOn: $jpegTran)
                                     .toggleStyle(.checkbox)
                                     .help(String(localized: "Lossless Huffman optimization and scan reordering", comment: "tooltip"))
+                                Toggle(String(localized: "Jpegli (Google Perceptual)", comment: "Engine checkbox"), isOn: $jpegli)
+                                    .toggleStyle(.checkbox)
+                                    .help(String(localized: "Google next-gen JPEG encoder with advanced perceptual quantization", comment: "tooltip"))
                                 Toggle(String(localized: "Guetzli (Butteraugli)", comment: "Engine checkbox"), isOn: $guetzli)
                                     .toggleStyle(.checkbox)
                                     .help(String(localized: "Google Butteraugli perceptual encoder (very CPU intensive)", comment: "tooltip"))

@@ -23,6 +23,7 @@ public enum PrefKey {
     public static let pngMinQuality = "PngMinQuality"
 
     public static let guetzliEnabled = "GuetzliEnabled"
+    public static let jpegliEnabled = "JpegliEnabled"
     public static let jpegOptimEnabled = "JpegOptimEnabled"
     public static let jpegOptimMaxQuality = "JpegOptimMaxQuality"
     public static let jpegTranEnabled = "JpegTranEnabled"
@@ -72,6 +73,7 @@ public struct Settings: Sendable {
     public var pngMinQuality = 80
 
     public var guetzliEnabled = false
+    public var jpegliEnabled = true
     public var jpegOptimEnabled = true
     public var jpegOptimMaxQuality = 80
     public var jpegTranEnabled = true
@@ -112,6 +114,7 @@ public struct Settings: Sendable {
         pngMinQuality = defaults.integer(forKey: PrefKey.pngMinQuality)
 
         guetzliEnabled = defaults.bool(forKey: PrefKey.guetzliEnabled)
+        jpegliEnabled = defaults.object(forKey: PrefKey.jpegliEnabled) != nil ? defaults.bool(forKey: PrefKey.jpegliEnabled) : true
         jpegOptimEnabled = defaults.bool(forKey: PrefKey.jpegOptimEnabled)
         jpegOptimMaxQuality = defaults.integer(forKey: PrefKey.jpegOptimMaxQuality)
         jpegTranEnabled = defaults.bool(forKey: PrefKey.jpegTranEnabled)

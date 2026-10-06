@@ -91,6 +91,7 @@
 		B1000002291C0217065B6202 /* AvifWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002291C0217065B6202 /* AvifWorker.swift */; };
 		B1000003291C0217065B6203 /* JxlWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000003291C0217065B6203 /* JxlWorker.swift */; };
 		B1000004291C0217065B6204 /* HeicToJpegWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000004291C0217065B6204 /* HeicToJpegWorker.swift */; };
+		B1000005291C0217065B6205 /* JpegliWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000005291C0217065B6205 /* JpegliWorker.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -538,6 +539,7 @@
 		A1000002291C0217065B6202 /* AvifWorker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AvifWorker.swift; sourceTree = "<group>"; };
 		A1000003291C0217065B6203 /* JxlWorker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = JxlWorker.swift; sourceTree = "<group>"; };
 		A1000004291C0217065B6204 /* HeicToJpegWorker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HeicToJpegWorker.swift; sourceTree = "<group>"; };
+		A1000005291C0217065B6205 /* JpegliWorker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = JpegliWorker.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -865,6 +867,7 @@
 				A1000002291C0217065B6202 /* AvifWorker.swift */,
 				A1000003291C0217065B6203 /* JxlWorker.swift */,
 				A1000004291C0217065B6204 /* HeicToJpegWorker.swift */,
+				A1000005291C0217065B6205 /* JpegliWorker.swift */,
 			);
 			name = Workers;
 			path = Backend/Workers;
@@ -1316,6 +1319,7 @@
 				B1000002291C0217065B6202 /* AvifWorker.swift in Sources */,
 				B1000003291C0217065B6203 /* JxlWorker.swift in Sources */,
 				B1000004291C0217065B6204 /* HeicToJpegWorker.swift in Sources */,
+				B1000005291C0217065B6205 /* JpegliWorker.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -41,7 +41,7 @@
 | Format | Engines / Workers | Optimization Capabilities |
 | :--- | :--- | :--- |
 | **PNG** | OxiPNG, AdvPNG, Zopfli, PNGCrush, pngquant | Lossless chunk stripping, filter heuristic optimization, exhaustive DEFLATE, and optional perceptual lossy quantization. |
-| **JPEG** | MozJPEG, JPEGOptim, Jpegtran, Guetzli | Trellis quantization, progressive scan optimization, lossless metadata stripping, Apple Silicon GPU Butteraugli. |
+| **JPEG** | Jpegli, MozJPEG, JPEGOptim, Jpegtran, Guetzli | Google perceptual quantization (Jpegli), Trellis quantization, progressive scan optimization, lossless metadata stripping, Butteraugli. |
 | **WebP** | cwebp | Native Google WebP lossless compression and metadata hygiene. |
 | **AVIF** | avifoptim / avifenc | High-efficiency AV1 image compression with lossless chroma subsampling preservation. |
 | **JPEG XL** | jxloptim / cjxl | Next-generation `.jxl` lossless modular recompression and density reduction. |

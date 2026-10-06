@@ -58,10 +58,16 @@ public enum Tools {
            FileManager.default.isExecutableFile(atPath: path.path) {
             return path
         }
+        if let path = Bundle.main.url(forAuxiliaryExecutable: name) ?? Bundle.main.url(forResource: name, withExtension: nil),
+           FileManager.default.isExecutableFile(atPath: path.path) {
+            return path
+        }
         let fallbackDirs = [
             "/opt/homebrew/bin",
             "/usr/local/bin",
-            "/usr/bin"
+            "/usr/bin",
+            URL(fileURLWithPath: FileManager.default.currentDirectoryPath).appendingPathComponent("jpegli").path,
+            URL(fileURLWithPath: FileManager.default.currentDirectoryPath).appendingPathComponent("bin").path
         ]
         for dir in fallbackDirs {
             let candidate = URL(fileURLWithPath: dir).appendingPathComponent(name)
