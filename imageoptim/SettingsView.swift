@@ -60,7 +60,7 @@ struct SettingsView: View {
 
             Divider()
 
-            // Content Area: Fixed top-leading anchor to eliminate any jumping
+            // Content Area: Pinned with exact fixed height and top alignment so no tab shifts the header
             ZStack(alignment: .topLeading) {
                 switch selectedTab {
                 case .compression:
@@ -76,9 +76,9 @@ struct SettingsView: View {
             .padding(.top, 18)
             .padding(.horizontal, 24)
             .padding(.bottom, 16)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .frame(width: 715, height: 465, alignment: .topLeading)
         }
-        .frame(width: 715, height: 505)
+        .frame(width: 715, height: 516, alignment: .top)
     }
 }
 
