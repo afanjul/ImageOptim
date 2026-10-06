@@ -507,15 +507,17 @@ private struct JobTimingsPopoverView: View {
             } else {
                 VStack(spacing: 6) {
                     ForEach(job.display.toolTimings) { timing in
-                        HStack(spacing: 8) {
+                        HStack(spacing: 6) {
                             Text(timing.toolName)
                                 .font(.system(size: 12, weight: .medium))
-                                .frame(width: 85, alignment: .leading)
+                                .frame(width: 80, alignment: .leading)
+
+                            FormatBadge(format: timing.formatName)
 
                             Text(timing.formattedDuration)
                                 .font(.system(size: 12).monospacedDigit())
                                 .foregroundStyle(.secondary)
-                                .frame(width: 65, alignment: .trailing)
+                                .frame(width: 58, alignment: .trailing)
 
                             Spacer(minLength: 4)
 
@@ -553,7 +555,7 @@ private struct JobTimingsPopoverView: View {
             }
         }
         .padding(12)
-        .frame(width: 280)
+        .frame(width: 295)
     }
 
     private func formatDuration(_ sec: Double) -> String {

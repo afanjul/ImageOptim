@@ -4,6 +4,35 @@
 //
 
 import Foundation
+import SwiftUI
+
+struct FormatBadge: View {
+    let format: String
+
+    var body: some View {
+        Text(format)
+            .font(.system(size: 9, weight: .semibold))
+            .padding(.horizontal, 4)
+            .padding(.vertical, 1)
+            .background(badgeColor.opacity(0.12))
+            .foregroundStyle(badgeColor)
+            .clipShape(RoundedRectangle(cornerRadius: 3))
+    }
+
+    private var badgeColor: Color {
+        switch format.uppercased() {
+        case "PNG": return .blue
+        case "JPEG", "JPG": return .orange
+        case "WEBP": return .purple
+        case "AVIF": return .teal
+        case "JXL": return .indigo
+        case "HEIC": return .pink
+        case "GIF": return .green
+        case "SVG": return .mint
+        default: return .secondary
+        }
+    }
+}
 
 /// Only ever used from table cells, so main-actor isolation keeps the
 /// (non-Sendable) formatters shareable without any locking.

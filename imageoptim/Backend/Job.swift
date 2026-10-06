@@ -50,6 +50,29 @@ public struct ToolTiming: Sendable, Identifiable, Hashable, Equatable, Codable {
         return max(0, inputBytes - outputBytes)
     }
 
+    public var formatName: String {
+        switch toolName.lowercased() {
+        case "oxipng", "zopfli", "zopflipng", "advpng", "pngcrush", "pngquant":
+            return "PNG"
+        case "mozjpeg", "jpegoptim", "jpegtran", "guetzli":
+            return "JPEG"
+        case "cwebp", "webp":
+            return "WebP"
+        case "avifoptim", "avifenc", "avif":
+            return "AVIF"
+        case "jxloptim", "cjxl", "jxl":
+            return "JXL"
+        case "heictojpeg", "heic":
+            return "HEIC"
+        case "gifsicle", "gif":
+            return "GIF"
+        case "svgo", "svgcleaner", "svg":
+            return "SVG"
+        default:
+            return "IMG"
+        }
+    }
+
     public var formattedDuration: String {
         if durationSeconds < 0.001 {
             return "< 1 ms"
@@ -79,6 +102,29 @@ public struct EngineBenchmark: Sendable, Identifiable, Hashable, Equatable, Coda
         self.lastDurationSeconds = lastDurationSeconds
         self.totalSavedBytes = totalSavedBytes
         self.lastSavedBytes = lastSavedBytes
+    }
+
+    public var formatName: String {
+        switch engineName.lowercased() {
+        case "oxipng", "zopfli", "zopflipng", "advpng", "pngcrush", "pngquant":
+            return "PNG"
+        case "mozjpeg", "jpegoptim", "jpegtran", "guetzli":
+            return "JPEG"
+        case "cwebp", "webp":
+            return "WebP"
+        case "avifoptim", "avifenc", "avif":
+            return "AVIF"
+        case "jxloptim", "cjxl", "jxl":
+            return "JXL"
+        case "heictojpeg", "heic":
+            return "HEIC"
+        case "gifsicle", "gif":
+            return "GIF"
+        case "svgo", "svgcleaner", "svg":
+            return "SVG"
+        default:
+            return "IMG"
+        }
     }
 
     public var averageDurationSeconds: Double {
@@ -292,7 +338,7 @@ public final class Job: Identifiable {
             } else {
                 change = "0%"
             }
-            parts.append("• \(t.toolName): \(t.formattedDuration) (\(change))")
+            parts.append("• \(t.toolName) [\(t.formatName)]: \(t.formattedDuration) (\(change))")
         }
         return parts.joined(separator: "\n")
     }

@@ -166,6 +166,7 @@ The resulting `ImageOptim-2.0.0.dmg` will be placed in `build/Build/Products/Rel
 * Added multi-selection savings calculation displaying aggregated source vs. optimized file sizes and percentage saved.
 * Added **Tool Execution Timings & Popover Inspector**: click the gauge icon on any finished row or hover over the status to see exact per-tool durations and savings breakdown.
 * Added **Persistent Engine Benchmarks** in Preferences (*Optimization speed* tab) displaying historical averages, last run duration, run counts, and speed categories (`⚡ Ultra-Fast`, `🚀 Fast`, `🐢 Exhaustive`).
+* Added **Format-Grouped Engines & Visual Badges**: compression engines in Preferences and execution diagnostics are now cleanly categorized by target formats (`PNG`, `JPEG`, `WebP`, `AVIF`, `JXL`, `GIF`, `SVG`) with color-coded format badges and detailed tooltips explaining their algorithms.
 * Modernized macOS Settings window with tabs for General, Output & Formats, Quality, and Engines.
 * Updated About dialog and credits view reflecting the 2.0 community super-fork.
 

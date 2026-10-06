@@ -75,7 +75,7 @@ private struct GeneralSettings: View {
         VStack(spacing: 0) {
             HStack(alignment: .top, spacing: 12) {
                 enableBox
-                    .frame(width: 131)
+                    .frame(width: 175)
                     .frame(maxHeight: .infinity, alignment: .top)
 
                 VStack(alignment: .leading, spacing: 8) {
@@ -110,24 +110,61 @@ private struct GeneralSettings: View {
     }
 
     private var enableBox: some View {
-        GroupBox(String(localized: "Enable", comment: "Preferences group")) {
-            VStack(alignment: .leading, spacing: 6) {
+        GroupBox(String(localized: "Engines by Format", comment: "Preferences group")) {
+            VStack(alignment: .leading, spacing: 3) {
+                // PNG section
+                HStack(spacing: 4) {
+                    FormatBadge(format: "PNG")
+                    Text("PNG")
+                        .font(.miniLabel).bold().foregroundStyle(.secondary)
+                }
+                .padding(.top, 1)
+
                 Toggle("Zopfli", isOn: $zopfli)
+                    .help(String(localized: "PNG: Google's exhaustive DEFLATE optimizer (highest compression, slower)", comment: "tooltip"))
                 Toggle("OxiPNG", isOn: $oxiPng)
+                    .help(String(localized: "PNG: High-performance multi-threaded lossless optimizer (Rust)", comment: "tooltip"))
                 Toggle("AdvPNG", isOn: $advPng)
+                    .help(String(localized: "PNG: AdvanceCOMP 7z DEFLATE recompression", comment: "tooltip"))
                 Toggle("PNGCrush", isOn: $pngCrush)
+                    .help(String(localized: "PNG: Tests various PNG compression filters and chunk reduction", comment: "tooltip"))
+
+                Divider().padding(.vertical, 1)
+
+                // JPEG section
+                HStack(spacing: 4) {
+                    FormatBadge(format: "JPEG")
+                    Text("JPEG")
+                        .font(.miniLabel).bold().foregroundStyle(.secondary)
+                }
+
                 Toggle("JPEGOptim", isOn: $jpegOptim)
+                    .help(String(localized: "JPEG: Optimizes Huffman tables and metadata", comment: "tooltip"))
                 Toggle("Jpegtran", isOn: $jpegTran)
+                    .help(String(localized: "JPEG: Lossless Huffman optimization and progressive scan reordering", comment: "tooltip"))
                 Toggle("Guetzli", isOn: $guetzli)
-                    .help(String(localized: "Guetzli always strips JPEG metadata", comment: "tooltip"))
+                    .help(String(localized: "JPEG: High-density encoder using Butteraugli perceptual metric (CPU intensive)", comment: "tooltip"))
+
+                Divider().padding(.vertical, 1)
+
+                // GIF & SVG section
+                HStack(spacing: 4) {
+                    FormatBadge(format: "GIF")
+                    FormatBadge(format: "SVG")
+                    Text("GIF / SVG")
+                        .font(.miniLabel).bold().foregroundStyle(.secondary)
+                }
+
                 Toggle("Gifsicle", isOn: $gifsicle)
+                    .help(String(localized: "GIF: Animated and static GIF optimizer", comment: "tooltip"))
                 Toggle("SVGO", isOn: $svgo)
                     .disabled(!NodeTools.svgSupported)
-                    .help(String(localized: "Requires Node.js installed system-wide", comment: "tooltip"))
+                    .help(String(localized: "SVG: Node.js vector optimizer (cleans XML tags and paths)", comment: "tooltip"))
                 Toggle("svgcleaner", isOn: $svgCleaner)
+                    .help(String(localized: "SVG: Rust vector optimizer and syntax minifier", comment: "tooltip"))
             }
-            .padding(.leading, 6)
-            .padding(.vertical, 4)
+            .padding(.horizontal, 4)
+            .padding(.vertical, 2)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
@@ -360,10 +397,11 @@ private struct EngineBenchmarksBox: View {
             } else {
                 VStack(spacing: 0) {
                     HStack {
-                        Text(String(localized: "Engine", comment: "Table header")).bold().frame(width: 100, alignment: .leading)
-                        Text(String(localized: "Average", comment: "Table header")).bold().frame(width: 75, alignment: .trailing)
-                        Text(String(localized: "Last Run", comment: "Table header")).bold().frame(width: 75, alignment: .trailing)
-                        Text(String(localized: "Runs", comment: "Table header")).bold().frame(width: 45, alignment: .trailing)
+                        Text(String(localized: "Engine", comment: "Table header")).bold().frame(width: 90, alignment: .leading)
+                        Text(String(localized: "Format", comment: "Table header")).bold().frame(width: 48, alignment: .center)
+                        Text(String(localized: "Average", comment: "Table header")).bold().frame(width: 70, alignment: .trailing)
+                        Text(String(localized: "Last Run", comment: "Table header")).bold().frame(width: 70, alignment: .trailing)
+                        Text(String(localized: "Runs", comment: "Table header")).bold().frame(width: 40, alignment: .trailing)
                         Text(String(localized: "Rating", comment: "Table header")).bold().frame(maxWidth: .infinity, alignment: .trailing)
                     }
                     .font(.miniLabel)
@@ -378,21 +416,24 @@ private struct EngineBenchmarksBox: View {
                                 HStack {
                                     Text(stat.engineName)
                                         .font(.smallLabel.weight(.medium))
-                                        .frame(width: 100, alignment: .leading)
+                                        .frame(width: 90, alignment: .leading)
+
+                                    FormatBadge(format: stat.formatName)
+                                        .frame(width: 48, alignment: .center)
 
                                     Text(stat.formattedAverageDuration)
                                         .font(.smallLabel.monospacedDigit())
-                                        .frame(width: 75, alignment: .trailing)
+                                        .frame(width: 70, alignment: .trailing)
 
                                     Text(stat.formattedLastDuration)
                                         .font(.smallLabel.monospacedDigit())
                                         .foregroundStyle(.secondary)
-                                        .frame(width: 75, alignment: .trailing)
+                                        .frame(width: 70, alignment: .trailing)
 
                                     Text("\(stat.runsCount)")
                                         .font(.smallLabel.monospacedDigit())
                                         .foregroundStyle(.secondary)
-                                        .frame(width: 45, alignment: .trailing)
+                                        .frame(width: 40, alignment: .trailing)
 
                                     Text(stat.speedCategory)
                                         .font(.miniLabel.bold())
