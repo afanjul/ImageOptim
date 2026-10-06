@@ -895,17 +895,30 @@ public final class Job: Identifiable {
         let ext = isHeicConversion ? "jpg" : filePath.pathExtension
         let base = filePath.deletingPathExtension().lastPathComponent
 
+        // Si preserveOriginal está desactivado, el modo es estrictamente sobrescribir el original in situ
+        guard settings.preserveOriginal else {
+            if isHeicConversion {
+                return filePath.deletingPathExtension().appendingPathExtension("jpg")
+            }
+            return filePath
+        }
+
         let now = Date()
         let prefix = expandDateTokens(in: settings.filenamePrefix, at: now)
-        let suffix = expandDateTokens(in: settings.filenameSuffix, at: now)
+        var suffix = expandDateTokens(in: settings.filenameSuffix, at: now)
         let destDir = settings.outputFolderPath.isEmpty
             ? filePath.deletingLastPathComponent()
             : URL(fileURLWithPath: settings.outputFolderPath, isDirectory: true)
 
+        let isSameFolder = destDir.standardizedFileURL == filePath.deletingLastPathComponent().standardizedFileURL
+        if isSameFolder && prefix.isEmpty && suffix.isEmpty && !isHeicConversion {
+            suffix = "-optimized"
+        }
+
         let newName = "\(prefix)\(base)\(suffix)"
         var destination = destDir.appendingPathComponent(newName).appendingPathExtension(ext)
 
-        if settings.preserveOriginal && destination == filePath {
+        if destination == filePath {
             let fallbackName = "\(prefix)\(base)\(suffix)-optimized"
             destination = destDir.appendingPathComponent(fallbackName).appendingPathExtension(ext)
         }

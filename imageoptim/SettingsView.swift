@@ -527,15 +527,28 @@ private struct OutputFilesSettings: View {
                 // Destino y Nombres
                 GroupBox(String(localized: "Destino y Copias de Seguridad", comment: "Preferences group")) {
                     VStack(alignment: .leading, spacing: 10) {
-                        VStack(alignment: .leading, spacing: 3) {
-                            Toggle(String(localized: "Preservar originales (guardar copia)", comment: "Preferences checkbox"),
-                                   isOn: $preserveOriginal)
-                                .toggleStyle(.checkbox)
-                            Hint(String(localized: "Nunca sobreescribe el archivo de entrada original", comment: "Preferences hint"))
+                        // Selector de modo de guardado
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(String(localized: "Modo de guardado:", comment: "Preferences label"))
+                                .font(.smallLabel.weight(.medium))
+
+                            Picker("", selection: $preserveOriginal) {
+                                Text(String(localized: "Sobreescribir original", comment: "Save mode")).tag(false)
+                                Text(String(localized: "Guardar como copia", comment: "Save mode")).tag(true)
+                            }
+                            .pickerStyle(.segmented)
+                            .labelsHidden()
+
+                            Text(preserveOriginal
+                                 ? String(localized: "Conserva el archivo original intacto y genera una versión optimizada.", comment: "Mode hint")
+                                 : String(localized: "Reemplaza el archivo original directamente. Sin archivos duplicados.", comment: "Mode hint"))
+                                .font(.miniLabel)
+                                .foregroundStyle(.secondary)
                         }
 
                         Divider()
 
+                        // Carpeta de salida
                         VStack(alignment: .leading, spacing: 4) {
                             Text(String(localized: "Carpeta de salida:", comment: "Preferences label"))
                                 .font(.smallLabel.weight(.medium))
@@ -552,9 +565,12 @@ private struct OutputFilesSettings: View {
                                 }
                             }
                         }
+                        .disabled(!preserveOriginal)
+                        .opacity(preserveOriginal ? 1.0 : 0.45)
 
                         Divider()
 
+                        // Plantilla de nombre de archivo
                         VStack(alignment: .leading, spacing: 5) {
                             Text(String(localized: "Plantilla de nombre de archivo:", comment: "Preferences label"))
                                 .font(.smallLabel.weight(.medium))
@@ -573,7 +589,7 @@ private struct OutputFilesSettings: View {
                                         .font(.miniLabel)
                                         .foregroundStyle(.secondary)
                                         .frame(width: 48, alignment: .trailing)
-                                    TextField("Ej: _min", text: $filenameSuffix)
+                                    TextField("Ej: -optim", text: $filenameSuffix)
                                         .textFieldStyle(.roundedBorder)
                                 }
                             }
@@ -584,10 +600,12 @@ private struct OutputFilesSettings: View {
                                     .foregroundStyle(.secondary)
                                 Text(previewFilename)
                                     .font(.miniLabel.bold())
-                                    .foregroundStyle(Color.accentColor)
+                                    .foregroundStyle(preserveOriginal ? Color.accentColor : Color.secondary)
                             }
                             .padding(.top, 2)
                         }
+                        .disabled(!preserveOriginal)
+                        .opacity(preserveOriginal ? 1.0 : 0.45)
                     }
                     .padding(10)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -641,12 +659,18 @@ private struct OutputFilesSettings: View {
     }
 
     private var previewFilename: String {
+        guard preserveOriginal else {
+            return String(localized: "foto.jpg (reemplaza original)")
+        }
         let now = Date()
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         let dateStr = formatter.string(from: now)
         let p = filenamePrefix.replacingOccurrences(of: "{date}", with: dateStr)
-        let s = filenameSuffix.replacingOccurrences(of: "{date}", with: dateStr)
+        var s = filenameSuffix.replacingOccurrences(of: "{date}", with: dateStr)
+        if outputFolderPath.isEmpty && p.isEmpty && s.isEmpty {
+            s = "-optimized"
+        }
         return "\(p)foto\(s).jpg"
     }
 
