@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.0.0-blue.svg" alt="Version 2.0.0" />
+  <img src="https://img.shields.io/badge/version-2.1.0-blue.svg" alt="Version 2.1.0" />
   <img src="https://img.shields.io/badge/platform-macOS%2014.0%2B-black.svg" alt="macOS 14+" />
   <img src="https://img.shields.io/badge/architecture-Apple%20Silicon%20%7C%20Intel-orange.svg" alt="Architecture" />
   <img src="https://img.shields.io/badge/swift-6.0-F05138.svg" alt="Swift 6" />
@@ -122,7 +122,7 @@ cd ImageOptim
 ./scripts/build-dmg.sh
 ```
 
-The resulting `ImageOptim-2.0.0.dmg` will be placed in `build/Build/Products/Release/ImageOptim-2.0.0.dmg`.
+The resulting `ImageOptim-2.1.0.dmg` will be placed in `build/Build/Products/Release/ImageOptim-2.1.0.dmg`.
 
 ### Manual Build via Xcode
 1. Open `imageoptim/ImageOptim.xcodeproj` in Xcode.
@@ -140,7 +140,17 @@ The resulting `ImageOptim-2.0.0.dmg` will be placed in `build/Build/Products/Rel
 
 ---
 
-## 📝 Changelog (Version 2.0.0)
+## 📝 Changelog
+
+### 🚀 Version 2.1.0
+* **Google Jpegli Integration**: Added native standalone `cjpegli` worker producing 100% standard JPEGs with up to 35% smaller bit density using Google's perceptual psychovisual quantization matrices and progressive scans.
+* **Option A Settings Overhaul**: Completely redesigned Preferences with a unified 5-tab segmented control, zero vertical jump between panels, and polished macOS HIG layout.
+* **Byte-Cruncher Animated Drop Zone**: Custom interactive drop zone with real-time drag hover animations and visual cues.
+* **Explicit Save Mode Redesign**: Replaced ambiguous preservation toggle with clear segmented picker (`Overwrite original` vs `Save as copy`) preventing unwanted copy creation.
+* **Unified English Localization**: All user interface strings unified to clean, idiomatic English.
+* **Engine Benchmarks & Formats**: Added live per-engine benchmark timings, speed categorizations, and format badges.
+
+### 🌟 Version 2.0.0
 
 ### 🏗️ Architecture & Core
 * Replaced legacy Objective-C/AppKit code with **Swift 6** and **SwiftUI** using actor-based concurrency (`Backend` framework + `ImageOptim` UI).
