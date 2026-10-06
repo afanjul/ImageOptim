@@ -10,6 +10,8 @@
 		1ACFBA171799E9CC006D93B2 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = 1ACFBA191799E9CC006D93B2 /* Credits.html */; };
 		1AD5B24E174F84C600BC75FD /* ImageOptimVerbs.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 1AD5B24D174F84C600BC75FD /* ImageOptimVerbs.sdef */; };
 		21D77D9D85F416A97C345952 /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71F84148B3856AA535475FB8 /* Formatters.swift */; };
+		A100000285F416A97C345952 /* LucideIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001B3856AA535475FB8 /* LucideIcons.swift */; };
+		A200000285F416A97C345952 /* ByteCruncherDropZone.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001B3856AA535475FB8 /* ByteCruncherDropZone.swift */; };
 		253012B4E5B87745F79D1D51 /* SvgcleanerWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EEB8D66EDB8196A5CFD8F68 /* SvgcleanerWorker.swift */; };
 		2575037F650A5DFB2EE21A11 /* GifsicleWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 192C196C8C797DD01D03C632 /* GifsicleWorker.swift */; };
 		29DB62DB5F23E428B98585ED /* JpegtranWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4305DA3F8D2DDA8E3BB582D7 /* JpegtranWorker.swift */; };
@@ -506,6 +508,8 @@
 		66C6B10BE6AC59109A576C1E /* AppModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		6F2C2DC71312CB909D15BBE7 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		71F84148B3856AA535475FB8 /* Formatters.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
+		A1000001B3856AA535475FB8 /* LucideIcons.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LucideIcons.swift; sourceTree = "<group>"; };
+		A2000001B3856AA535475FB8 /* ByteCruncherDropZone.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ByteCruncherDropZone.swift; sourceTree = "<group>"; };
 		7EF5B3C8FBCE3B877E7FC7B0 /* PngCrushWorker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PngCrushWorker.swift; sourceTree = "<group>"; };
 		833ECA6C6BCFCDD79FD18931 /* BackendTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BackendTests.swift; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; explicitFileType = text.plist.xml; fileEncoding = 4; path = Info.plist; sourceTree = "<group>"; };
@@ -785,6 +789,8 @@
 				66C6B10BE6AC59109A576C1E /* AppModel.swift */,
 				DDB60F168E838450A8072A87 /* ContentView.swift */,
 				71F84148B3856AA535475FB8 /* Formatters.swift */,
+				A1000001B3856AA535475FB8 /* LucideIcons.swift */,
+				A2000001B3856AA535475FB8 /* ByteCruncherDropZone.swift */,
 				EF102761A5472FAA2AF9F6BF /* GetQueueCountCommand.swift */,
 				D1563203F0C0B920AC671488 /* ImageOptimApp.swift */,
 				6F2C2DC71312CB909D15BBE7 /* SettingsView.swift */,
@@ -1339,6 +1345,8 @@
 				A41A7F512ED04F1981DDA0D5 /* AppModel.swift in Sources */,
 				646163171E14D1023DAE27ED /* ContentView.swift in Sources */,
 				21D77D9D85F416A97C345952 /* Formatters.swift in Sources */,
+				A100000285F416A97C345952 /* LucideIcons.swift in Sources */,
+				A200000285F416A97C345952 /* ByteCruncherDropZone.swift in Sources */,
 				96C77A290850A6E5DC308680 /* GetQueueCountCommand.swift in Sources */,
 				C95836399A22771C497BB18F /* ImageOptimApp.swift in Sources */,
 				8079449D31A157F3A28D2453 /* SettingsView.swift in Sources */,

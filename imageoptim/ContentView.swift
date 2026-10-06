@@ -27,10 +27,34 @@ struct ContentView: View {
                         JobsTable(model: model)
                     }
                 } else {
-                    DropZone(isTargeted: isDropTarget)
+                    ByteCruncherDropZone(isTargeted: isDropTarget) {
+                        Task { await model.browseForFiles() }
+                    }
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .overlay {
+                if model.hasJobs && isDropTarget {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 14)
+                            .fill(Color.accentColor.opacity(0.1))
+                        RoundedRectangle(cornerRadius: 14)
+                            .strokeBorder(Color.accentColor, style: StrokeStyle(lineWidth: 2.5, dash: [8, 6]))
+                        HStack(spacing: 8) {
+                            LucideIcon(.plus, size: 18, color: Color.accentColor)
+                            Text(String(localized: "Soltar para añadir a la cola", comment: "Drop overlay"))
+                                .font(.system(size: 15, weight: .bold))
+                                .foregroundStyle(Color.accentColor)
+                        }
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 10)
+                        .background(.regularMaterial, in: Capsule())
+                        .shadow(color: Color.black.opacity(0.1), radius: 8, y: 3)
+                    }
+                    .padding(8)
+                    .allowsHitTesting(false)
+                }
+            }
 
             Divider()
             BottomBar(model: model)
@@ -71,7 +95,10 @@ private struct FilterBar: View {
                 Button {
                     model.retryFailed()
                 } label: {
-                    Label(String(localized: "Retry Failed", comment: "Button"), systemImage: "arrow.clockwise")
+                    HStack(spacing: 4) {
+                        LucideIcon(.refreshCw, size: 11)
+                        Text(String(localized: "Retry Failed", comment: "Button"))
+                    }
                 }
                 .controlSize(.small)
             }
@@ -80,7 +107,10 @@ private struct FilterBar: View {
                 Button {
                     model.clearComplete()
                 } label: {
-                    Label(String(localized: "Clear Done", comment: "Button"), systemImage: "trash")
+                    HStack(spacing: 4) {
+                        LucideIcon(.trash2, size: 11)
+                        Text(String(localized: "Clear Done", comment: "Button"))
+                    }
                 }
                 .controlSize(.small)
             }
@@ -151,13 +181,30 @@ private struct JobsTable: View {
             .customizationID("size")
 
             TableColumn(Text(ColumnTitle.savings)) { job in
-                HStack(spacing: 4) {
+                HStack(spacing: 5) {
                     if job.display.totalDurationSeconds != nil && !job.display.toolTimings.isEmpty {
                         JobTimingsButton(job: job)
                     }
-                    Text(Formatters.savings(job.display.percentOptimized))
-                        .monospacedDigit()
+
+                    let pct = job.display.percentOptimized
+                    if let pct, pct > 0 {
+                        HStack(spacing: 2) {
+                            LucideIcon(.arrowDown, size: 9, color: .green)
+                            Text(Formatters.savings(pct))
+                                .monospacedDigit()
+                                .font(.system(size: 11.5, weight: .bold))
+                        }
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.green.opacity(0.14), in: Capsule())
+                        .foregroundStyle(Color.green)
                         .frame(maxWidth: .infinity, alignment: .trailing)
+                    } else {
+                        Text(Formatters.savings(pct))
+                            .monospacedDigit()
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
                 }
                 .help(job.timingsSummaryText)
             }
@@ -306,13 +353,13 @@ private struct BottomBar: View {
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
-        HStack(spacing: 7) {
+        HStack(spacing: 8) {
             Button {
                 Task { await model.browseForFiles() }
             } label: {
-                Image(systemName: "plus")
+                LucideIcon(.plus, size: 13)
             }
-            .frame(width: 30)
+            .frame(width: 30, height: 24)
             .help(String(localized: "Add new files or directories", comment: "Button Tooltip"))
             .accessibilityLabel(Text(String(localized: "Add new files or directories", comment: "Button Tooltip")))
 
@@ -341,26 +388,29 @@ private struct BottomBar: View {
                     Button {
                         openWindow(id: WindowID.prefs)
                     } label: {
-                        ActionIcon()
+                        LucideIcon(.sliders, size: 15)
                     }
                     .buttonStyle(.borderless)
                     .help(String(localized: "Settings", comment: "Button Tooltip"))
                 }
             }
-            .frame(width: 16, height: 16)
-            .padding(.trailing, 1)
+            .frame(width: 18, height: 18)
+            .padding(.trailing, 2)
 
             Button {
                 model.startAgain(onlyOptimized: NSApp.currentEvent?.modifierFlags.contains(.option) == true)
             } label: {
-                Label(String(localized: "Again", comment: "Button"), systemImage: "arrow.clockwise")
+                HStack(spacing: 5) {
+                    LucideIcon(.refreshCw, size: 11)
+                    Text(String(localized: "Again", comment: "Button"))
+                }
             }
             .frame(minWidth: 90)
             .help(String(localized: "Run optimizations again", comment: "Button tooltip"))
             .disabled(!model.hasJobs)
         }
         .controlSize(.regular)
-        .padding(.horizontal, 8)
+        .padding(.horizontal, 10)
         .padding(.vertical, 8)
     }
 }
@@ -370,47 +420,54 @@ private struct BottomBar: View {
 private struct StatusIcon: View {
     let name: String
 
-    /// There are only a handful of status images, but `NSImage(named:)` is an AppKit round trip
-    /// that the status column would otherwise make for every visible row on every redraw.
-    @MainActor private static var cache: [String: Image?] = [:]
-
-    private static func image(named name: String) -> Image? {
-        if let cached = cache[name] {
-            return cached
-        }
-        let image = NSImage(named: name).map { Image(nsImage: $0) }
-        cache[name] = image
-        return image
-    }
-
     var body: some View {
-        if let image = Self.image(named: name) {
-            image
-        } else {
-            Color.clear.frame(width: 16, height: 16)
+        switch name {
+        case "ok":
+            LucideIcon(.checkCircle, size: 15, color: .green)
+        case "err":
+            LucideIcon(.alertCircle, size: 15, color: .red)
+        case "noopt":
+            LucideIcon(.check, size: 14, color: .secondary)
+        case "progress":
+            ProgressView()
+                .progressViewStyle(.circular)
+                .controlSize(.mini)
+        case "wait":
+            LucideIcon(.clock, size: 13, color: .secondary.opacity(0.7))
+        default:
+            if let image = NSImage(named: name) {
+                Image(nsImage: image)
+            } else {
+                Color.clear.frame(width: 15, height: 15)
+            }
         }
     }
 }
 
-/// The filename column, with the "reveal in Finder" button that used to be RevealButtonCell.
+/// The filename column, with format badge and the "reveal in Finder" button.
 private struct FileNameCell: View {
     let model: AppModel
     let job: Job
     @State private var isHovering = false
 
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 6) {
+            let ext = (job.fileName as NSString).pathExtension.uppercased()
+            if !ext.isEmpty {
+                FormatBadge(format: ext)
+            }
+
             Text(job.fileName)
+                .font(.system(size: 12.5, weight: .medium))
                 .lineLimit(1)
                 .truncationMode(.middle)
+
             Spacer(minLength: 0)
-            // Hidden rather than absent: scrolling drags rows under a stationary pointer, so this
-            // toggles constantly, and changing opacity is much cheaper for SwiftUI than inserting
-            // and removing the button from the view hierarchy each time.
+
             Button {
                 model.reveal(job)
             } label: {
-                Image(systemName: "arrow.right.circle.fill")
+                LucideIcon(.externalLink, size: 11, color: .secondary)
             }
             .buttonStyle(.plain)
             .help(job.filePathString)
@@ -419,59 +476,6 @@ private struct FileNameCell: View {
         }
         .onHover { isHovering = $0 }
         .help(job.timingsSummaryText)
-    }
-}
-
-/// The trailing settings button's icon: the same `NSActionTemplate` the xib used.
-private struct ActionIcon: View {
-    var body: some View {
-        if let image = NSImage(named: NSImage.actionTemplateName) {
-            Image(nsImage: image)
-                .renderingMode(.template)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-        } else {
-            Image(systemName: "gearshape")
-        }
-    }
-}
-
-/// The empty state — a port of what DragDropImageView's `drawRect:` used to draw:
-/// a dashed rounded square a quarter of the window wide, with a solid arrow pointing into it.
-private struct DropZone: View {
-    let isTargeted: Bool
-
-    var body: some View {
-        Canvas { context, canvas in
-            let side = min(canvas.width / 4, canvas.height / 1.5)
-            let lineWidth = max(2, side / 32)
-            let color = Color(nsColor: .secondaryLabelColor).opacity(isTargeted ? 1.0 / 4.0 : 1.0 / 8.0)
-            let mid = CGPoint(x: canvas.width / 2, y: canvas.height / 2)
-
-            let box = CGRect(x: mid.x - side / 2, y: mid.y - side / 2, width: side, height: side)
-            context.stroke(Path(roundedRect: box, cornerRadius: side / 14),
-                           with: .color(color),
-                           style: StrokeStyle(lineWidth: lineWidth,
-                                              dash: [side / 10, side / 16],
-                                              dashPhase: 2))
-
-            // Stem half-width and shoulder half-width; the arrow spans side/2 vertically,
-            // sitting a touch above centre exactly like the old offset of -size/8 did.
-            let stem = side / 8
-            let shoulder = stem * 2
-            var arrow = Path()
-            arrow.move(to: CGPoint(x: mid.x - stem, y: mid.y - side / 4))
-            arrow.addLine(to: CGPoint(x: mid.x + stem, y: mid.y - side / 4))
-            arrow.addLine(to: CGPoint(x: mid.x + stem, y: mid.y))
-            arrow.addLine(to: CGPoint(x: mid.x + shoulder, y: mid.y))
-            arrow.addLine(to: CGPoint(x: mid.x, y: mid.y + side / 4))
-            arrow.addLine(to: CGPoint(x: mid.x - shoulder, y: mid.y))
-            arrow.addLine(to: CGPoint(x: mid.x - stem, y: mid.y))
-            arrow.closeSubpath()
-            context.fill(arrow, with: .color(color))
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .accessibilityLabel(Text(String(localized: "Drop images here", comment: "Drop zone")))
     }
 }
 
