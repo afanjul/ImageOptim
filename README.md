@@ -1,7 +1,7 @@
 # ImageOptim 2.0 ⚡
 
 <p align="center">
-  <img src="imageoptim/Assets.xcassets/AppIcon.appiconset/icon_512x512@2x.png" width="160" height="160" alt="ImageOptim 2.0 Icon" />
+  <img src="docs/screenshot.png" width="600" alt="ImageOptim 2.0 main window" />
 </p>
 
 <p align="center">
